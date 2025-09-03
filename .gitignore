@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Database
+*.sqlite
+*.db
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+
+# Session files (handled by PostgreSQL now)
+sessions/
+
+# Backend specific
+family-management-backend/dist/
+family-management-backend/.env
+
+# Frontend specific
+family-management-frontend/dist/
+family-management-frontend/.env.local
+family-management-frontend/.env.production

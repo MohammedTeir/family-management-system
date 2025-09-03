@@ -1,0 +1,46 @@
+import dotenv from 'dotenv';
+dotenv.config();
+import pg from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import bcrypt from "bcryptjs";
+import {
+  users,
+  families,
+  members,
+  requests,
+  notifications,
+} from "./schema";
+
+const main = async () => {
+  const client = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+  });
+
+  try {
+    await client.connect();
+    const db = drizzle(client);
+
+    const hashPassword = async (pwd: string) => await bcrypt.hash(pwd, 10);
+
+    console.log("🌱 Seeding users...");
+    const hashedPassword = await hashPassword("123456");
+
+    await db.insert(users).values([
+      
+      {
+        username: "root",
+        password: hashedPassword,
+        role: "root",
+        phone: "0592524815",
+        isProtected: true,
+      },
+     
+    ]);
+  } catch (err) {
+    console.error("Seeding failed:", err);
+  } finally {
+    await client.end();
+  }
+};
+
+main();

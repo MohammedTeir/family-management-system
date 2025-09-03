@@ -1,0 +1,155 @@
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { Express } from "express";
+import session from "express-session";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+import bcrypt from "bcryptjs";
+import { storage } from "./storage";
+import { User as SelectUser } from "./schema.js";
+
+declare global {
+  namespace Express {
+    interface User extends SelectUser {}
+  }
+}
+
+const scryptAsync = promisify(scrypt);
+
+export async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+export async function comparePasswords(supplied: string, stored: string) {
+  if (!stored) {
+    console.log(`❌ No stored password`);
+    return false;
+  }
+  
+  // Check if it's a bcrypt hash (starts with $2b$, $2a$, etc.)
+  if (stored.startsWith('$2') && stored.length >= 60) {
+    console.log(`🔐 Using bcrypt comparison for: ${stored.substring(0, 10)}...`);
+    try {
+      const result = await bcrypt.compare(supplied, stored);
+      console.log(`🔒 Bcrypt comparison result: ${result}`);
+      return result;
+    } catch (error) {
+      console.error("Bcrypt comparison error:", error);
+      return false;
+    }
+  }
+  
+  // Check if it's a scrypt hash (contains a dot)
+  if (stored.includes(".")) {
+    console.log(`🔐 Using scrypt comparison for: ${stored.substring(0, 20)}...`);
+    const [hashed, salt] = stored.split(".");
+    if (!hashed || !salt) {
+      console.log(`❌ Failed to split scrypt hash: hashed=${!!hashed}, salt=${!!salt}`);
+      return false;
+    }
+    
+    try {
+      const hashedBuf = Buffer.from(hashed, "hex");
+      const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+      
+      console.log(`🔍 Buffer lengths - stored: ${hashedBuf.length}, computed: ${suppliedBuf.length}`);
+      
+      // Ensure buffers are same length before comparison
+      if (hashedBuf.length !== suppliedBuf.length) {
+        console.log(`❌ Buffer length mismatch`);
+        return false;
+      }
+      
+      const result = timingSafeEqual(hashedBuf, suppliedBuf);
+      console.log(`🔒 Scrypt comparison result: ${result}`);
+      return result;
+    } catch (error) {
+      console.error("Scrypt comparison error:", error);
+      return false;
+    }
+  }
+  
+  console.log(`❌ Unknown password format: ${stored.substring(0, 10)}...`);
+  return false;
+}
+
+export function setupAuth(app: Express) {
+  const sessionSettings: session.SessionOptions = {
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+    store: storage.sessionStore,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    },
+  };
+
+  app.set("trust proxy", 1);
+  app.use(session(sessionSettings));
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  passport.use(
+    new LocalStrategy(async (username, password, done) => {
+      console.log(`🔐 Login attempt for username: ${username}`);
+      const user = await storage.getUserByUsername(username);
+      if (!user || user.deletedAt) {
+        console.log(`❌ User not found or deleted: ${username}`);
+        return done(null, false);
+      }
+      
+      console.log(`🔍 Found user: ${user.username}, role: ${user.role}`);
+      console.log(`🔑 Stored password hash: ${user.password.substring(0, 20)}...`);
+      
+      const passwordMatch = await comparePasswords(password, user.password);
+      console.log(`🔒 Password comparison result: ${passwordMatch}`);
+      
+      if (!passwordMatch) {
+        return done(null, false);
+      } else {
+        console.log(`✅ Login successful for: ${username}`);
+        return done(null, user);
+      }
+    }),
+  );
+
+  passport.serializeUser((user, done) => done(null, user.id));
+  passport.deserializeUser(async (id: number, done) => {
+    const user = await storage.getUser(id);
+    done(null, user);
+  });
+
+  app.post("/api/register", async (req, res, next) => {
+    const existingUser = await storage.getUserByUsername(req.body.username);
+    if (existingUser) {
+      return res.status(400).send("Username already exists");
+    }
+
+    const user = await storage.createUser({
+      ...req.body,
+      password: await hashPassword(req.body.password),
+    });
+
+    req.login(user, (err) => {
+      if (err) return next(err);
+      res.status(201).json(user);
+    });
+  });
+
+  app.post("/api/logout", (req, res, next) => {
+    req.logout((err) => {
+      if (err) return next(err);
+      res.sendStatus(200);
+    });
+  });
+
+  app.get("/api/user", (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    res.json(req.user);
+  });
+}
