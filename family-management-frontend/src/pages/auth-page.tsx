@@ -200,9 +200,30 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-3 sm:p-4 lg:p-6">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Hero Section */}
+        <div className="flex lg:hidden flex-col justify-center items-center text-center p-4 sm:p-6 mb-4">
+          <div className="mb-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto">
+              {settings.authPageIcon ? (
+                    <img src={settings.authPageIcon} alt="Logo" className="h-6 w-6 sm:h-8 sm:w-8 rounded" />
+                  ) : (
+                    <Users className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+                  )}
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 sm:mb-4">
+                    {settings.authPageTitle || "نظام إدارة البيانات العائلية"}
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+            {settings.authPageSubtitle || "نظام شامل لإدارة بيانات الأسر"}
+
+              
+            </p>
+          </div>
+        </div>
+        
+        {/* Desktop Hero Section */}
         <div className="hidden lg:flex flex-col justify-center items-center text-center p-8">
           <div className="mb-8">
             <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mb-6 mx-auto">
@@ -224,7 +245,7 @@ export default function AuthPage() {
           
           <div className="grid grid-cols-1 gap-6 max-w-md">
             <div className="flex items-center p-4 bg-white rounded-lg shadow-sm">
-              <UserCheck className="h-8 w-8 text-primary ml-4" />
+              <UserCheck className="h-8 w-8 text-primary ml-4 flex-shrink-0" />
               <div className="text-right">
                 <h3 className="font-semibold text-foreground">إدارة بيانات الأسرة</h3>
                 <p className="text-sm text-muted-foreground">تسجيل وتحديث بيانات أفراد الأسرة</p>
@@ -232,7 +253,7 @@ export default function AuthPage() {
             </div>
             
             <div className="flex items-center p-4 bg-white rounded-lg shadow-sm">
-              <Shield className="h-8 w-8 text-secondary ml-4" />
+              <Shield className="h-8 w-8 text-secondary ml-4 flex-shrink-0" />
               <div className="text-right">
                 <h3 className="font-semibold text-foreground">تقديم الطلبات</h3>
                 <p className="text-sm text-muted-foreground">طلبات المساعدة والخدمات المختلفة</p>
@@ -240,7 +261,7 @@ export default function AuthPage() {
             </div>
             
             <div className="flex items-center p-4 bg-white rounded-lg shadow-sm">
-              <Users className="h-8 w-8 text-accent ml-4" />
+              <Users className="h-8 w-8 text-accent ml-4 flex-shrink-0" />
               <div className="text-right">
                 <h3 className="font-semibold text-foreground">المتابعة الإدارية</h3>
                 <p className="text-sm text-muted-foreground">متابعة الطلبات والتنبيهات</p>
@@ -251,22 +272,22 @@ export default function AuthPage() {
 
         {/* Auth Forms */}
         <div className="flex items-center justify-center">
-          <Card className="w-full max-w-md">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold">مرحباً بك</CardTitle>
-              <CardDescription>يرجى تسجيل الدخول أو إنشاء حساب جديد</CardDescription>
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="text-center p-4 sm:p-6">
+              <CardTitle className="text-xl sm:text-2xl font-bold">مرحباً بك</CardTitle>
+              <CardDescription className="text-sm sm:text-base">يرجى تسجيل الدخول أو إنشاء حساب جديد</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">تسجيل الدخول</TabsTrigger>
-                  <TabsTrigger value="register">حساب جديد</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="login" className="text-sm sm:text-base">تسجيل الدخول</TabsTrigger>
+                  <TabsTrigger value="register" className="text-sm sm:text-base">حساب جديد</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="login">
-                  <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                  <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4 sm:space-y-5">
                     <div>
-                      <Label htmlFor="loginType">نوع المستخدم</Label>
+                      <Label htmlFor="loginType" className="text-sm sm:text-base font-medium">نوع المستخدم</Label>
                       <Select
                         value={loginType}
                         onValueChange={(value: "head" | "admin" | "root") => {
@@ -274,43 +295,45 @@ export default function AuthPage() {
                           loginForm.setValue("loginType", value);
                         }}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="h-10 sm:h-11 text-sm sm:text-base mt-1">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="head">رب الأسرة</SelectItem>
-                          <SelectItem value="admin">مشرف</SelectItem>
-                          <SelectItem value="root">مشرف رئيسي</SelectItem>
+                          <SelectItem value="head" className="text-sm sm:text-base">رب الأسرة</SelectItem>
+                          <SelectItem value="admin" className="text-sm sm:text-base">مشرف</SelectItem>
+                          <SelectItem value="root" className="text-sm sm:text-base">مشرف رئيسي</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div>
-                      <Label htmlFor="identifier">
+                      <Label htmlFor="identifier" className="text-sm sm:text-base font-medium">
                         {loginType === "head" ? "رقم الهوية" : "اسم المستخدم"}
                       </Label>
                       <Input
                         id="identifier"
                         placeholder={loginType === "head" ? "405857004" : "username"}
                         {...loginForm.register("identifier")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {loginForm.formState.errors.identifier && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {loginForm.formState.errors.identifier.message}
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="password">كلمة المرور</Label>
+                      <Label htmlFor="password" className="text-sm sm:text-base font-medium">كلمة المرور</Label>
                       <Input
                         id="password"
                         type="password"
                         placeholder="••••••••"
                         {...loginForm.register("password")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {loginForm.formState.errors.password && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {loginForm.formState.errors.password.message}
                         </p>
                       )}
@@ -318,7 +341,7 @@ export default function AuthPage() {
 
                     <Button 
                       type="submit" 
-                      className="w-full"
+                      className="w-full h-10 sm:h-11 text-sm sm:text-base mt-2"
                       disabled={loginMutation.isPending}
                     >
                       {loginMutation.isPending ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
@@ -327,102 +350,109 @@ export default function AuthPage() {
                 </TabsContent>
 
                 <TabsContent value="register">
-                  <form onSubmit={registrationForm.handleSubmit(onRegister)} className="space-y-4">
+                  <form onSubmit={registrationForm.handleSubmit(onRegister)} className="space-y-3 sm:space-y-4">
                     <div>
-                      <Label htmlFor="husbandName">الاسم الرباعي</Label>
+                      <Label htmlFor="husbandName" className="text-sm sm:text-base font-medium">الاسم الرباعي</Label>
                       <Input
                         id="husbandName"
                         placeholder="محمد فتح محمود أبو طير"
                         {...registrationForm.register("husbandName")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {registrationForm.formState.errors.husbandName && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {registrationForm.formState.errors.husbandName.message}
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="husbandID">رقم الهوية</Label>
+                      <Label htmlFor="husbandID" className="text-sm sm:text-base font-medium">رقم الهوية</Label>
                       <Input
                         id="husbandID"
                         placeholder="405857004"
                         {...registrationForm.register("husbandID")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {registrationForm.formState.errors.husbandID && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {registrationForm.formState.errors.husbandID.message}
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="husbandBirthDate">تاريخ الميلاد</Label>
+                      <Label htmlFor="husbandBirthDate" className="text-sm sm:text-base font-medium">تاريخ الميلاد</Label>
                       <Input
                         id="husbandBirthDate"
                         type="date"
                         {...registrationForm.register("husbandBirthDate")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {registrationForm.formState.errors.husbandBirthDate && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {registrationForm.formState.errors.husbandBirthDate.message}
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="husbandJob">المهنة</Label>
+                      <Label htmlFor="husbandJob" className="text-sm sm:text-base font-medium">المهنة</Label>
                       <Input
                         id="husbandJob"
                         placeholder="مهندس"
                         {...registrationForm.register("husbandJob")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {registrationForm.formState.errors.husbandJob && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {registrationForm.formState.errors.husbandJob.message}
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="primaryPhone">رقم الجوال</Label>
+                      <Label htmlFor="primaryPhone" className="text-sm sm:text-base font-medium">رقم الجوال</Label>
                       <Input
                         id="primaryPhone"
                         placeholder="0592524815"
                         {...registrationForm.register("primaryPhone")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {registrationForm.formState.errors.primaryPhone && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {registrationForm.formState.errors.primaryPhone.message}
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="password">كلمة المرور</Label>
+                      <Label htmlFor="password" className="text-sm sm:text-base font-medium">كلمة المرور</Label>
                       <Input
                         id="password"
                         type="password"
                         placeholder="••••••••"
                         {...registrationForm.register("password")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {registrationForm.formState.errors.password && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {registrationForm.formState.errors.password.message}
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
+                      <Label htmlFor="confirmPassword" className="text-sm sm:text-base font-medium">تأكيد كلمة المرور</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
                         placeholder="••••••••"
                         {...registrationForm.register("confirmPassword")}
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {registrationForm.formState.errors.confirmPassword && (
-                        <p className="text-sm text-destructive mt-1">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {registrationForm.formState.errors.confirmPassword.message}
                         </p>
                       )}
@@ -430,7 +460,7 @@ export default function AuthPage() {
 
                     <Button 
                       type="submit" 
-                      className="w-full"
+                      className="w-full h-10 sm:h-11 text-sm sm:text-base mt-2"
                       disabled={registrationMutation.isPending}
                     >
                       {registrationMutation.isPending ? "جاري إنشاء الحساب..." : "إنشاء حساب"}

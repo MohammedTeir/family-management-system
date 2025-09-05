@@ -465,13 +465,26 @@ export default function AdminFamilies() {
               <CardTitle>البحث والتصفية</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-row-reverse items-start justify-between gap-4 mb-8" dir="rtl">
+              <div className="space-y-4" dir="rtl">
+                {/* Search Field */}
+                <div className="flex justify-center">
+                  <div className="relative w-full max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="البحث بالاسم، رقم الهوية، أو الموقع..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 text-right"
+                      dir="rtl"
+                    />
+                  </div>
+                </div>
                 {/* Filters */}
-                <div className="flex flex-row-reverse gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex flex-col items-center">
                     <label className="mb-1 text-sm text-foreground text-center w-full">الفرع</label>
                     <Select value={branchFilter} onValueChange={setBranchFilter} dir="rtl">
-                      <SelectTrigger className="w-32 text-right" dir="rtl">
+                      <SelectTrigger className="w-full text-right" dir="rtl">
                         <SelectValue className="text-right" />
                       </SelectTrigger>
                       <SelectContent dir="rtl">
@@ -485,7 +498,7 @@ export default function AdminFamilies() {
                   <div className="flex flex-col items-center">
                     <label className="mb-1 text-sm text-foreground text-center w-full">نازح</label>
                     <Select value={displacedFilter} onValueChange={setDisplacedFilter} dir="rtl">
-                      <SelectTrigger className="w-28 text-right" dir="rtl">
+                      <SelectTrigger className="w-full text-right" dir="rtl">
                         <SelectValue className="text-right" />
                       </SelectTrigger>
                       <SelectContent dir="rtl">
@@ -498,7 +511,7 @@ export default function AdminFamilies() {
                   <div className="flex flex-col items-center">
                     <label className="mb-1 text-sm text-foreground text-center w-full">متضرر</label>
                     <Select value={damagedFilter} onValueChange={setDamagedFilter} dir="rtl">
-                      <SelectTrigger className="w-28 text-right" dir="rtl">
+                      <SelectTrigger className="w-full text-right" dir="rtl">
                         <SelectValue className="text-right" />
                       </SelectTrigger>
                       <SelectContent dir="rtl">
@@ -511,7 +524,7 @@ export default function AdminFamilies() {
                   <div className="flex flex-col items-center">
                     <label className="mb-1 text-sm text-foreground text-center w-full">مغترب</label>
                     <Select value={abroadFilter} onValueChange={setAbroadFilter} dir="rtl">
-                      <SelectTrigger className="w-28 text-right" dir="rtl">
+                      <SelectTrigger className="w-full text-right" dir="rtl">
                         <SelectValue className="text-right" />
                       </SelectTrigger>
                       <SelectContent dir="rtl">
@@ -520,19 +533,6 @@ export default function AdminFamilies() {
                         <SelectItem value="no">غير مغترب</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                </div>
-                {/* Search Field */}
-                <div className="flex flex-col items-center">
-                  <div className="relative w-64">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="البحث بالاسم، رقم الهوية، أو الموقع..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 text-right"
-                      dir="rtl"
-                    />
                   </div>
                 </div>
               </div>
@@ -550,19 +550,19 @@ export default function AdminFamilies() {
                   <table className="w-full">
                     <thead className="bg-background">
                       <tr>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">رب الأسرة</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">رقم الهوية</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">أفراد الأسرة</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">الموقع</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">الحالة</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">تاريخ التسجيل</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">الإجراءات</th>
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">رب الأسرة</th>
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">رقم الهوية</th>
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">أفراد الأسرة</th>
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider hidden md:table-cell">الموقع</th>
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">الحالة</th>
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider hidden lg:table-cell">تاريخ التسجيل</th>
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">الإجراءات</th>
                       </tr>
                     </thead>
                     <tbody className="bg-card divide-y divide-border">
                       {paginatedFamilies.map((family: any) => (
                         <tr key={family.id} className="hover:bg-muted">
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                             <div>
                               <div className="text-sm font-medium text-foreground">{family.husbandName}</div>
                               {family.primaryPhone && (
@@ -573,20 +573,20 @@ export default function AdminFamilies() {
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-foreground">
                             {family.husbandID}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-center">
                             <div className="text-sm font-medium text-foreground">{family.totalMembers || 0}</div>
                             <div className="text-xs text-muted-foreground">
                               {family.numMales || 0} ذكور، {family.numFemales || 0} إناث
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-foreground hidden md:table-cell">
                             {family.currentHousing || 'غير محدد'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex flex-col gap-1">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                            <div className="flex flex-wrap gap-1">
                               {family.isDisplaced && (
                                 <Badge variant="destructive" className="text-xs">نازح</Badge>
                               )}
@@ -598,15 +598,16 @@ export default function AdminFamilies() {
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-muted-foreground hidden lg:table-cell">
                             {formatDate(family.createdAt)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <div className="flex space-x-2 space-x-reverse">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm">
+                            <div className="flex flex-wrap gap-1 md:flex-nowrap md:space-x-2 md:space-x-reverse">
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleViewFamily(family)}
+                                className="w-8 h-8 p-0"
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>
@@ -614,11 +615,12 @@ export default function AdminFamilies() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => navigate(`/admin/families/${family.id}/edit`)}
+                                className="w-8 h-8 p-0"
                               >
                                 <Edit2 className="h-4 w-4" />
                               </Button>
                               <Link href={`/admin/families/${family.id}/summary`} target="_blank">
-                                <Button variant="outline" size="sm">
+                                <Button variant="outline" size="sm" className="w-8 h-8 p-0">
                                   <FileText className="h-4 w-4" />
                                 </Button>
                               </Link>
@@ -630,6 +632,7 @@ export default function AdminFamilies() {
                                     deleteFamilyMutation.mutate(family.id);
                                   }
                                 }}
+                                className="w-8 h-8 p-0"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -640,7 +643,7 @@ export default function AdminFamilies() {
                     </tbody>
                   </table>
                   {/* Pagination Controls */}
-                  <div className="flex justify-center items-center gap-2 mt-4">
+                  <div className="flex justify-center items-center gap-2 mt-4 flex-wrap">
                     <Button
                       variant="outline"
                       size="sm"
@@ -649,16 +652,19 @@ export default function AdminFamilies() {
                     >
                       السابق
                     </Button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <Button
-                        key={page}
-                        variant={page === currentPage ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setCurrentPage(page)}
-                      >
-                        {page}
-                      </Button>
-                    ))}
+                    <div className="flex gap-1 flex-wrap justify-center">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={page === currentPage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="min-w-8"
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -682,7 +688,7 @@ export default function AdminFamilies() {
 
           {/* Family Details Dialog */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] w-[95vw] md:w-full overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-center w-full">تفاصيل الأسرة - {familyDetails?.husbandName || ''}</DialogTitle>
               </DialogHeader>
@@ -730,25 +736,25 @@ export default function AdminFamilies() {
                     </div>
                           </div>
                   {/* Husband & Wife Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-lg p-4 border">
-                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">رب الأسرة <Badge className="bg-blue-200 text-blue-900">{familyDetails.husbandName}</Badge></h4>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                    <div className="bg-white rounded-lg p-3 md:p-4 border">
+                      <h4 className="font-semibold text-blue-900 mb-3 flex flex-wrap items-center gap-2">رب الأسرة <Badge className="bg-blue-200 text-blue-900">{familyDetails.husbandName}</Badge></h4>
                       <div className="space-y-1 text-sm">
-                        <div><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="mr-2">{familyDetails.husbandID}</span></div>
-                        <div><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="mr-2">{familyDetails.husbandBirthDate || 'غير محدد'}{familyDetails.husbandBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(familyDetails.husbandBirthDate)}</span>)</>}</span></div>
-                        <div><span className="font-medium text-muted-foreground">المهنة:</span> <span className="mr-2">{familyDetails.husbandJob || 'غير محدد'}</span></div>
-                        <div><span className="font-medium text-muted-foreground">الجوال:</span> <span className="mr-2">{familyDetails.primaryPhone || 'غير محدد'}</span></div>
-                        <div><span className="font-medium text-muted-foreground">الجوال الإضافي:</span> <span className="mr-2">{familyDetails.secondaryPhone || 'غير محدد'}</span></div>
+                        <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="sm:mr-2">{familyDetails.husbandID}</span></div>
+                        <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{familyDetails.husbandBirthDate || 'غير محدد'}{familyDetails.husbandBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(familyDetails.husbandBirthDate)}</span>)</>}</span></div>
+                        <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">المهنة:</span> <span className="sm:mr-2">{familyDetails.husbandJob || 'غير محدد'}</span></div>
+                        <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">الجوال:</span> <span className="sm:mr-2">{familyDetails.primaryPhone || 'غير محدد'}</span></div>
+                        <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">الجوال الإضافي:</span> <span className="sm:mr-2">{familyDetails.secondaryPhone || 'غير محدد'}</span></div>
                           </div>
                     </div>
                     {familyDetails.wifeName && (
-                      <div className="bg-white rounded-lg p-4 border">
-                        <h4 className="font-semibold text-pink-900 mb-3 flex items-center gap-2">الزوجة <Badge className="bg-pink-200 text-pink-900">{familyDetails.wifeName}</Badge></h4>
+                      <div className="bg-white rounded-lg p-3 md:p-4 border">
+                        <h4 className="font-semibold text-pink-900 mb-3 flex flex-wrap items-center gap-2">الزوجة <Badge className="bg-pink-200 text-pink-900">{familyDetails.wifeName}</Badge></h4>
                         <div className="space-y-1 text-sm">
-                          <div><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="mr-2">{familyDetails.wifeID || 'غير محدد'}</span></div>
-                          <div><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="mr-2">{familyDetails.wifeBirthDate || 'غير محدد'}{familyDetails.wifeBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(familyDetails.wifeBirthDate)}</span>)</>}</span></div>
-                          <div><span className="font-medium text-muted-foreground">المهنة:</span> <span className="mr-2">{familyDetails.wifeJob || 'غير محدد'}</span></div>
-                          <div><span className="font-medium text-muted-foreground">حامل:</span> <span className="mr-2">{familyDetails.wifePregnant ? <Badge className="bg-yellow-200 text-yellow-900">نعم</Badge> : 'لا'}</span></div>
+                          <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="sm:mr-2">{familyDetails.wifeID || 'غير محدد'}</span></div>
+                          <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{familyDetails.wifeBirthDate || 'غير محدد'}{familyDetails.wifeBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(familyDetails.wifeBirthDate)}</span>)</>}</span></div>
+                          <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">المهنة:</span> <span className="sm:mr-2">{familyDetails.wifeJob || 'غير محدد'}</span></div>
+                          <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">حامل:</span> <span className="sm:mr-2">{familyDetails.wifePregnant ? <Badge className="bg-yellow-200 text-yellow-900">نعم</Badge> : 'لا'}</span></div>
                         </div>
                       </div>
                     )}
@@ -758,7 +764,19 @@ export default function AdminFamilies() {
                     <div>
                       <h4 className="font-semibold text-foreground mb-3">أفراد الأسرة</h4>
                       <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <div className="block md:hidden space-y-2">
+                          {familyDetails.members.map((member: any) => (
+                            <div key={member.id} className="border rounded-lg p-3 text-sm">
+                              <div className="font-medium mb-1">{member.fullName}</div>
+                              <div className="text-muted-foreground space-y-1">
+                                <div>الجنس: {getGenderInArabic(member.gender)}</div>
+                                <div>القرابة: {getRelationshipInArabic(member.relationship)}</div>
+                                <div>تاريخ الميلاد: {member.birthDate || 'غير محدد'}{member.birthDate && <> (<span className="text-green-700">{calculateDetailedAge(member.birthDate)}</span>)</>}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <table className="hidden md:table w-full text-sm">
                           <thead className="bg-background">
                             <tr>
                               <th className="px-3 py-2 text-right">الاسم</th>
@@ -832,7 +850,7 @@ export default function AdminFamilies() {
                   إلغاء تحديد الكل
                 </Button>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4" dir="rtl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4" dir="rtl">
                 {/* Sons group checkbox */}
                 {sonCols.length > 0 && (
                   <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all select-none shadow-sm ${isSonsChecked ? 'bg-green-50 border-green-500 text-green-800 font-bold ring-2 ring-green-200' : 'bg-white border-gray-200 text-gray-700 hover:border-green-300'}`}

@@ -19,6 +19,7 @@ import { CalendarIcon, PlusIcon, UsersIcon, BellIcon, CheckCircleIcon, XCircleIc
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useSettings } from "@/hooks/use-settings";
+import { PageWrapper } from "@/components/layout/page-wrapper";
 
 interface SupportVoucher {
   id: number;
@@ -526,68 +527,70 @@ export default function SupportVouchers() {
   }
 
   return (
+    <PageWrapper>
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-8">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
         {/* Header Section */}
-        <div className="bg-card rounded-2xl shadow-lg p-8 border border-border">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className="bg-card rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-border">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
             <div className="space-y-2">
-              <h1 className="text-4xl font-bold text-foreground">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
                 الكوبونات
               </h1>
-              <p className="text-muted-foreground text-lg">إدارة كوبونات الدعم والمستفيدين</p>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground">إدارة كوبونات الدعم والمستفيدين</p>
+              <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
                   <span>إجمالي الكوبونات: {vouchers?.length || 0}</span>
                 </div>
               </div>
             </div>
-            <div className="flex flex-col gap-2 items-end">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto items-stretch sm:items-end">
               <Button
                 variant="outline"
-                className="border-border text-foreground hover:bg-muted"
+                className="border-border text-foreground hover:bg-muted text-sm sm:text-base w-full sm:w-auto"
                 onClick={() => setLocation('/admin')}
               >
                 العودة إلى لوحة التحكم
               </Button>
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-                    <PlusIcon className="ml-2 h-5 w-5" />
-                    إنشاء كوبونة جديد
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base w-full sm:w-auto">
+                    <PlusIcon className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden sm:inline">إنشاء كوبونة جديد</span>
+                    <span className="sm:hidden">إنشاء كوبونة</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-[95vw] sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-foreground">إنشاء كوبونة دعم جديد</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+                    <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">إنشاء كوبونة دعم جديد</DialogTitle>
+                    <DialogDescription className="text-sm sm:text-base text-muted-foreground">
                       أدخل تفاصيل كوبونة الدعم الجديد
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="grid gap-6 py-4">
+                  <div className="grid gap-4 sm:gap-6 py-4">
                     <div className="grid gap-2">
-                      <Label htmlFor="title" className="text-foreground font-medium">عنوان الكوبونة</Label>
+                      <Label htmlFor="title" className="text-sm sm:text-base text-foreground font-medium">عنوان الكوبونة</Label>
                       <Input
                         id="title"
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         placeholder="مثال: كوبونة رمضان الغذائي"
-                        className="border-border focus:border-primary focus:ring-primary"
+                        className="border-border focus:border-primary focus:ring-primary text-sm sm:text-base"
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="description" className="text-foreground font-medium">الوصف</Label>
+                      <Label htmlFor="description" className="text-sm sm:text-base text-foreground font-medium">الوصف</Label>
                       <Textarea
                         id="description"
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder="تفاصيل إضافية عن الكوبونة"
-                        className="border-border focus:border-primary focus:ring-primary"
+                        className="border-border focus:border-primary focus:ring-primary text-sm sm:text-base"
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="supportType" className="text-foreground font-medium">نوع الدعم</Label>
+                      <Label htmlFor="supportType" className="text-sm sm:text-base text-foreground font-medium">نوع الدعم</Label>
                       <Select value={formData.supportType} onValueChange={(value) => setFormData({ ...formData, supportType: value })}>
                         <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                           <SelectValue placeholder="اختر نوع الدعم" />
@@ -603,24 +606,24 @@ export default function SupportVouchers() {
                       </Select>
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="location" className="text-foreground font-medium">الموقع (اختياري)</Label>
+                      <Label htmlFor="location" className="text-sm sm:text-base text-foreground font-medium">الموقع (اختياري)</Label>
                       <Input
                         id="location"
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                         placeholder="موقع التوزيع"
-                        className="border-border focus:border-primary focus:ring-primary"
+                        className="border-border focus:border-primary focus:ring-primary text-sm sm:text-base"
                       />
                     </div>
                   </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-border text-foreground hover:bg-muted">
+                  <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-border text-foreground hover:bg-muted w-full sm:w-auto order-2 sm:order-1">
                       إلغاء
                     </Button>
                     <Button 
                       onClick={handleCreateVoucher} 
                       disabled={createVoucherMutation.isPending}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto order-1 sm:order-2"
                     >
                       {createVoucherMutation.isPending ? 'جاري الإنشاء...' : 'إنشاء الكوبونة'}
                     </Button>
@@ -632,54 +635,54 @@ export default function SupportVouchers() {
         </div>
 
         {/* Vouchers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {vouchers?.map((voucher) => (
             <div
               key={voucher.id}
-              className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
+              className="bg-card rounded-xl sm:rounded-2xl shadow-lg border border-border overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer"
               onClick={() => setLocation(`/admin/support-vouchers/${voucher.id}`)}
             >
-              <CardHeader className="bg-gradient-to-r from-muted to-primary/5 border-b border-border">
-                <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <span className={`text-3xl ${supportTypes.find(t => t.value === voucher.supportType)?.color}`}>
+              <CardHeader className="bg-gradient-to-r from-muted to-primary/5 border-b border-border p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground flex items-center gap-2 sm:gap-3">
+                  <span className={`text-xl sm:text-2xl lg:text-3xl ${supportTypes.find(t => t.value === voucher.supportType)?.color}`}>
                     {supportTypes.find(t => t.value === voucher.supportType)?.icon}
                   </span>
-                  {voucher.title}
+                  <span className="truncate">{voucher.title}</span>
                 </CardTitle>
-                <CardDescription className="text-muted-foreground mt-2 text-base">
+                <CardDescription className="text-muted-foreground mt-2 text-sm sm:text-base line-clamp-2">
                   {voucher.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span>{supportTypes.find(t => t.value === voucher.supportType)?.label}</span>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full flex-shrink-0"></div>
+                    <span className="truncate">{supportTypes.find(t => t.value === voucher.supportType)?.label}</span>
                   </div>
                   {voucher.location && (
-                    <div className="flex items-center gap-2">
-                      <MapPinIcon className="h-4 w-4" />
-                      <span>{voucher.location}</span>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <MapPinIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="truncate">{voucher.location}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2">
-                    <UserIcon className="h-4 w-4" />
-                    <span>{voucher.creator.username}</span>
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <UserIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="truncate">{voucher.creator.username}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CalendarDaysIcon className="h-4 w-4" />
-                    <span>{format(new Date(voucher.createdAt), 'dd/MM/yyyy', { locale: ar })}</span>
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <CalendarDaysIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="truncate">{format(new Date(voucher.createdAt), 'dd/MM/yyyy', { locale: ar })}</span>
                   </div>
                 </div>
                 
                 {/* Stats */}
-                <div className="mt-6 grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-muted rounded-lg">
-                    <div className="text-2xl font-bold text-foreground">{voucher.recipients.length}</div>
+                <div className="mt-4 sm:mt-6 grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="text-center p-2 sm:p-3 bg-muted rounded-lg">
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">{voucher.recipients.length}</div>
                     <div className="text-xs text-muted-foreground">المستفيدين</div>
                   </div>
-                  <div className="text-center p-3 bg-muted rounded-lg">
-                    <div className="text-2xl font-bold text-foreground">
+                  <div className="text-center p-2 sm:p-3 bg-muted rounded-lg">
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">
                       {voucher.recipients.filter(r => r.status === 'received').length}
                     </div>
                     <div className="text-xs text-muted-foreground">تم الاستلام</div>
@@ -687,8 +690,8 @@ export default function SupportVouchers() {
                 </div>
                 
                 {/* Status Badge */}
-                <div className="mt-4 flex justify-center">
-                  <Badge variant={voucher.isActive ? "default" : "secondary"} className="text-sm">
+                <div className="mt-3 sm:mt-4 flex justify-center">
+                  <Badge variant={voucher.isActive ? "default" : "secondary"} className="text-xs sm:text-sm">
                     {voucher.isActive ? 'نشط' : 'غير نشط'}
                   </Badge>
                 </div>
@@ -699,29 +702,29 @@ export default function SupportVouchers() {
 
         {/* Add Recipients Dialog */}
         <Dialog open={isRecipientsDialogOpen} onOpenChange={setIsRecipientsDialogOpen}>
-          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] sm:max-w-[600px] lg:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-foreground">إضافة مستفيدين إلى الكوبونة</DialogTitle>
-              <DialogDescription className="text-muted-foreground">
+              <DialogTitle className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">إضافة مستفيدين إلى الكوبونة</DialogTitle>
+              <DialogDescription className="text-sm sm:text-base text-muted-foreground">
                 اختر العائلات التي ستستفيد من هذه الكوبونة
               </DialogDescription>
             </DialogHeader>
             
             {/* Filters */}
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <div>
-                  <Label htmlFor="search" className="text-foreground font-medium">البحث</Label>
+                  <Label htmlFor="search" className="text-sm sm:text-base text-foreground font-medium">البحث</Label>
                   <Input
                     id="search"
                     value={searchFilter}
                     onChange={(e) => setSearchFilter(e.target.value)}
-                    placeholder="البحث بالاسم أو الهاتف أو رقم الهوية..."
-                    className="border-border focus:border-primary focus:ring-primary"
+                    placeholder="البحث بالاسم أو الهاتف..."
+                    className="border-border focus:border-primary focus:ring-primary text-sm sm:text-base"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="role" className="text-foreground font-medium">نوع المستخدم</Label>
+                  <Label htmlFor="role" className="text-sm sm:text-base text-foreground font-medium">نوع المستخدم</Label>
                   <Select value={roleFilter} onValueChange={setRoleFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -734,7 +737,7 @@ export default function SupportVouchers() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="branch" className="text-foreground font-medium">الفرع</Label>
+                  <Label htmlFor="branch" className="text-sm sm:text-base text-foreground font-medium">الفرع</Label>
                   <Select value={branchFilter} onValueChange={setBranchFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -750,7 +753,7 @@ export default function SupportVouchers() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="displaced" className="text-foreground font-medium">حالة النزوح</Label>
+                  <Label htmlFor="displaced" className="text-sm sm:text-base text-foreground font-medium">حالة النزوح</Label>
                   <Select value={displacedFilter} onValueChange={setDisplacedFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -763,7 +766,7 @@ export default function SupportVouchers() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="abroad" className="text-foreground font-medium">الاغتراب</Label>
+                  <Label htmlFor="abroad" className="text-sm sm:text-base text-foreground font-medium">الاغتراب</Label>
                   <Select value={abroadFilter} onValueChange={setAbroadFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -776,7 +779,7 @@ export default function SupportVouchers() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="damaged" className="text-foreground font-medium">أضرار الحرب</Label>
+                  <Label htmlFor="damaged" className="text-sm sm:text-base text-foreground font-medium">أضرار الحرب</Label>
                   <Select value={damagedFilter} onValueChange={setDamagedFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -789,7 +792,7 @@ export default function SupportVouchers() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="socialStatus" className="text-foreground font-medium">الحالة الاجتماعية</Label>
+                  <Label htmlFor="socialStatus" className="text-sm sm:text-base text-foreground font-medium">الحالة الاجتماعية</Label>
                   <Select value={socialStatusFilter} onValueChange={setSocialStatusFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -803,7 +806,7 @@ export default function SupportVouchers() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="members" className="text-foreground font-medium">عدد الأفراد</Label>
+                  <Label htmlFor="members" className="text-sm sm:text-base text-foreground font-medium">عدد الأفراد</Label>
                   <Select value={membersFilter} onValueChange={setMembersFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -817,7 +820,7 @@ export default function SupportVouchers() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="pregnant" className="text-foreground font-medium">أم في الحمل</Label>
+                  <Label htmlFor="pregnant" className="text-sm sm:text-base text-foreground font-medium">أم في الحمل</Label>
                   <Select value={pregnantFilter} onValueChange={setPregnantFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -830,7 +833,7 @@ export default function SupportVouchers() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="children" className="text-foreground font-medium">عدد الأطفال</Label>
+                  <Label htmlFor="children" className="text-sm sm:text-base text-foreground font-medium">عدد الأطفال</Label>
                   <Select value={childrenFilter} onValueChange={setChildrenFilter}>
                     <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                       <SelectValue />
@@ -876,36 +879,38 @@ export default function SupportVouchers() {
               </div>
               
               {/* Select All / Deselect All */}
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSelectAll}
-                  className="border-primary text-primary hover:bg-primary/10 hover:border-primary/30 hover:text-primary/80 transition-all duration-200"
-                >
-                  تحديد الكل
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDeselectAll}
-                  className="border-border text-foreground hover:bg-background hover:border-border hover:text-foreground transition-all duration-200"
-                >
-                  إلغاء التحديد
-                </Button>
-                <div className="flex-1 text-right text-sm text-muted-foreground flex items-center justify-end">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSelectAll}
+                    className="border-primary text-primary hover:bg-primary/10 hover:border-primary/30 hover:text-primary/80 transition-all duration-200 text-xs sm:text-sm"
+                  >
+                    تحديد الكل
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDeselectAll}
+                    className="border-border text-foreground hover:bg-background hover:border-border hover:text-foreground transition-all duration-200 text-xs sm:text-sm"
+                  >
+                    إلغاء التحديد
+                  </Button>
+                </div>
+                <div className="flex-1 text-right text-xs sm:text-sm text-muted-foreground flex items-center justify-end">
                   تم تحديد {selectedFamilies.length} من {filteredRecipients.length}
                 </div>
               </div>
             </div>
             
-            <div className="max-h-96 overflow-y-auto bg-background rounded-xl p-4">
-              <div className="grid gap-3">
+            <div className="max-h-80 sm:max-h-96 overflow-y-auto bg-background rounded-xl p-3 sm:p-4">
+              <div className="grid gap-2 sm:gap-3">
                 {filteredRecipients.map((recipient: any) => {
                   const isSelected = selectedFamilies.includes(recipient.id);
                   
                   return (
-                    <div key={recipient.id} className={`flex items-center space-x-3 space-x-reverse bg-background p-4 rounded-lg border transition-all duration-200 ${
+                    <div key={recipient.id} className={`flex items-center space-x-2 sm:space-x-3 space-x-reverse bg-background p-3 sm:p-4 rounded-lg border transition-all duration-200 ${
                       isSelected 
                         ? 'border-primary bg-primary/10 shadow-md' 
                         : 'border-border hover:border-primary hover:bg-primary/10 hover:shadow-sm'
@@ -921,16 +926,16 @@ export default function SupportVouchers() {
                             setSelectedFamilies(selectedFamilies.filter(id => id !== recipient.id));
                           }
                         }}
-                        className="w-5 h-5 text-primary border-border rounded focus:ring-primary focus:ring-2"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-primary border-border rounded focus:ring-primary focus:ring-2 flex-shrink-0"
                       />
-                      <label htmlFor={`recipient-${recipient.id}`} className="text-sm text-foreground cursor-pointer flex-1 hover:text-primary transition-colors">
-                        <div className="font-medium">{recipient.name}</div>
-                        <div className="text-muted-foreground flex items-center gap-2">
-                          <span>{recipient.phone}</span>
+                      <label htmlFor={`recipient-${recipient.id}`} className="text-xs sm:text-sm text-foreground cursor-pointer flex-1 hover:text-primary transition-colors min-w-0">
+                        <div className="font-medium truncate">{recipient.name}</div>
+                        <div className="text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
+                          <span className="truncate max-w-[120px] sm:max-w-none">{recipient.phone}</span>
                           {recipient.type === 'family' && (
                             <>
                               <span>•</span>
-                              <span>{recipient.members} عضو</span>
+                              <span className="whitespace-nowrap">{recipient.members} عضو</span>
                             </>
                           )}
                           <span>•</span>
@@ -941,7 +946,7 @@ export default function SupportVouchers() {
                               : recipient.role === 'root' 
                               ? 'border-blue-200 text-blue-700 bg-blue-50'
                               : 'border-border text-muted-foreground bg-background'
-                          }`}>
+                          } whitespace-nowrap`}>
                             {recipient.role === 'head' || 
                              (recipient.role === 'admin' && /^\d+$/.test(recipient.username)) 
                              ? 'رب الأسرة' : 
@@ -949,17 +954,17 @@ export default function SupportVouchers() {
                              recipient.role === 'admin' ? 'مشرف' : 'غير محدد'}
                           </Badge>
                           {recipient.type === 'family' && recipient.wifePregnant && (
-                            <Badge variant="outline" className="text-xs border-pink-200 text-pink-700 bg-pink-50">
+                            <Badge variant="outline" className="text-xs border-pink-200 text-pink-700 bg-pink-50 whitespace-nowrap">
                               حامل
                             </Badge>
                           )}
                           {recipient.type === 'family' && recipient.hasChildren && (
-                            <Badge variant="outline" className="text-xs border-yellow-200 text-yellow-700 bg-yellow-50">
+                            <Badge variant="outline" className="text-xs border-yellow-200 text-yellow-700 bg-yellow-50 whitespace-nowrap">
                               {recipient.childrenCount} طفل
                             </Badge>
                           )}
                           {recipient.type === 'user' && (
-                            <Badge variant="outline" className="text-xs border-orange-200 text-orange-700 bg-orange-50">
+                            <Badge variant="outline" className="text-xs border-orange-200 text-orange-700 bg-orange-50 whitespace-nowrap">
                               بدون أسرة
                             </Badge>
                           )}
@@ -971,20 +976,20 @@ export default function SupportVouchers() {
               </div>
               
               {filteredRecipients.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-6 sm:py-8 text-muted-foreground text-sm sm:text-base px-4">
                   لا توجد عائلات أو مستخدمين تطابق معايير البحث
                 </div>
               )}
             </div>
             
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsRecipientsDialogOpen(false)} className="border-border text-foreground hover:bg-background">
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setIsRecipientsDialogOpen(false)} className="border-border text-foreground hover:bg-background w-full sm:w-auto order-2 sm:order-1">
                 إلغاء
               </Button>
               <Button 
                 onClick={handleAddRecipients} 
                 disabled={addRecipientsMutation.isPending || selectedFamilies.length === 0}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white w-full sm:w-auto order-1 sm:order-2"
               >
                 {addRecipientsMutation.isPending ? 'جاري الإضافة...' : `إضافة ${selectedFamilies.length} مستفيد`}
               </Button>
@@ -993,5 +998,6 @@ export default function SupportVouchers() {
         </Dialog>
       </div>
     </div>
+    </PageWrapper>
   );
 }

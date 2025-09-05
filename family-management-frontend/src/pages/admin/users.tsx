@@ -407,20 +407,20 @@ export default function Users() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">إدارة المستخدمين</h1>
-              <p className="text-muted-foreground">إدارة المستخدمين وصلاحياتهم</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">إدارة المستخدمين</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">إدارة المستخدمين وصلاحياتهم</p>
             </div>
             
-            <Button onClick={handleAdd} className="flex items-center gap-2">
+            <Button onClick={handleAdd} className="flex items-center gap-2 w-full sm:w-auto">
               <UserPlus className="h-4 w-4" />
-              إضافة مستخدم جديد
+              <span className="sm:inline">إضافة مستخدم جديد</span>
             </Button>
           </div>
 
           <div className="flex items-center justify-end gap-2 mb-8">
-            <div className="relative w-80">
+            <div className="relative w-full sm:w-80">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="البحث باسم المستخدم أو رقم الجوال..."
@@ -432,58 +432,58 @@ export default function Users() {
           </div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <UsersIcon className="h-6 w-6 text-primary" />
+                  <div className="p-2 sm:p-3 bg-primary/10 rounded-lg flex-shrink-0">
+                    <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                   </div>
-                  <div className="mr-4">
-                    <p className="text-sm text-muted-foreground">إجمالي المستخدمين</p>
-                    <p className="text-2xl font-bold text-foreground">{totalUsers}</p>
+                  <div className="mr-3 sm:mr-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground">إجمالي المستخدمين</p>
+                    <p className="text-xl sm:text-2xl font-bold text-foreground">{totalUsers}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-purple-500/10 rounded-lg">
-                    <Shield className="h-6 w-6 text-purple-600" />
+                  <div className="p-2 sm:p-3 bg-purple-500/10 rounded-lg flex-shrink-0">
+                    <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
                   </div>
-                  <div className="mr-4">
-                    <p className="text-sm text-muted-foreground">المشرفين</p>
-                    <p className="text-2xl font-bold text-foreground">{adminUsers.length}</p>
+                  <div className="mr-3 sm:mr-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground">المشرفين</p>
+                    <p className="text-xl sm:text-2xl font-bold text-foreground">{adminUsers.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-secondary/10 rounded-lg">
-                    <UsersIcon className="h-6 w-6 text-secondary" />
+                  <div className="p-2 sm:p-3 bg-secondary/10 rounded-lg flex-shrink-0">
+                    <UsersIcon className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                   </div>
-                  <div className="mr-4">
-                    <p className="text-sm text-muted-foreground">رؤساء الأسر</p>
-                    <p className="text-2xl font-bold text-foreground">{headUsers.length}</p>
+                  <div className="mr-3 sm:mr-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground">رؤساء الأسر</p>
+                    <p className="text-xl sm:text-2xl font-bold text-foreground">{headUsers.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-accent/10 rounded-lg">
-                    <ShieldCheck className="h-6 w-6 text-accent" />
+                  <div className="p-2 sm:p-3 bg-accent/10 rounded-lg flex-shrink-0">
+                    <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
                   </div>
-                  <div className="mr-4">
-                    <p className="text-sm text-muted-foreground">محميين</p>
-                    <p className="text-2xl font-bold text-foreground">{protectedUsers.length}</p>
+                  <div className="mr-3 sm:mr-4">
+                    <p className="text-xs sm:text-sm text-muted-foreground">محميين</p>
+                    <p className="text-xl sm:text-2xl font-bold text-foreground">{protectedUsers.length}</p>
                   </div>
                 </div>
               </CardContent>
@@ -492,12 +492,12 @@ export default function Users() {
 
           {/* Warning for protected users */}
           <Card className="mb-8 border-warning/20 bg-warning/10">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-start">
-                <AlertTriangle className="h-5 w-5 text-warning mt-1 ml-3" />
+                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-warning mt-1 ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <h3 className="font-medium text-warning mb-1">ملاحظة مهمة</h3>
-                  <p className="text-sm text-foreground">
+                  <h3 className="text-sm sm:text-base font-medium text-warning mb-1">ملاحظة مهمة</h3>
+                  <p className="text-xs sm:text-sm text-foreground">
                     لا يمكن تعديل أو حذف المستخدمين المحميين أو المشرفين الرئيسيين. 
                     كما لا يمكنك تعديل حسابك الشخصي من هذه الصفحة.
                   </p>
@@ -509,19 +509,19 @@ export default function Users() {
           {/* Users Table */}
           <Card>
             <CardHeader>
-              <CardTitle>قائمة المستخدمين ({filteredUsers.length})</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">قائمة المستخدمين ({filteredUsers.length})</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               {filteredUsers.length > 0 ? (
-                <div className="overflow-x-auto rounded-lg border border-border bg-card shadow mt-6">
-                  <table className="min-w-full divide-y divide-border">
+                <div className="overflow-x-auto -mx-4 sm:mx-0 rounded-lg border border-border bg-card shadow mt-6">
+                  <table className="w-full min-w-[700px] sm:min-w-0 divide-y divide-border">
                     <thead className="bg-muted">
                       <tr>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">اسم المستخدم</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">الدور</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">رقم الجوال</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">الحالة</th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-muted-foreground">الإجراءات</th>
+                        <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">اسم المستخدم</th>
+                        <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الدور</th>
+                        <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">رقم الجوال</th>
+                        <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الحالة</th>
+                        <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الإجراءات</th>
                       </tr>
                     </thead>
                     <tbody className="bg-card divide-y divide-border">
@@ -530,39 +530,39 @@ export default function Users() {
                         const isLocked = user.lockoutUntil && new Date(user.lockoutUntil) > new Date();
                         return (
                           <tr key={user.id} className={isDeleted ? "bg-muted text-muted-foreground" : "hover:bg-muted"}>
-                            <td className="px-4 py-2 whitespace-nowrap text-foreground">{user.username}</td>
-                            <td className="px-4 py-2 whitespace-nowrap">
-                              <Badge variant={getRoleBadgeVariant(user.role)}>{getRoleLabel(user.role)}</Badge>
+                            <td className="px-2 sm:px-4 py-3 text-sm">{user.username}</td>
+                            <td className="px-2 sm:px-4 py-3">
+                              <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">{getRoleLabel(user.role)}</Badge>
                           </td>
-                            <td className="px-4 py-2 whitespace-nowrap text-foreground">{user.phone || "-"}</td>
-                            <td className="px-4 py-2 whitespace-nowrap">
+                            <td className="px-2 sm:px-4 py-3 text-sm">{user.phone || "-"}</td>
+                            <td className="px-2 sm:px-4 py-3">
                               {isDeleted ? (
-                                <Badge variant="destructive">محذوف</Badge>
+                                <Badge variant="destructive" className="text-xs">محذوف</Badge>
                               ) : isLocked ? (
-                                <Badge variant="warning"><Lock className="inline w-4 h-4 mr-1" />محظور مؤقتاً</Badge>
+                                <Badge variant="warning" className="text-xs"><Lock className="inline w-3 h-3 mr-1" />محظور مؤقتاً</Badge>
                               ) : (
-                                <Badge variant="outline">نشط</Badge>
+                                <Badge variant="outline" className="text-xs">نشط</Badge>
                               )}
                           </td>
-                            <td className="px-4 py-2 whitespace-nowrap flex gap-2">
+                            <td className="px-2 sm:px-4 py-3 flex flex-wrap gap-1 sm:gap-2">
                               {!isDeleted && canEditOrDelete(user) && (
                                 <>
-                                  <Button size="icon" variant="ghost" onClick={() => handleEdit(user)} title="تعديل">
-                                    <Edit2 className="w-4 h-4" />
+                                  <Button size="sm" variant="ghost" onClick={() => handleEdit(user)} title="تعديل" className="h-8 w-8 p-0">
+                                    <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
                                   </Button>
-                                  <Button size="icon" variant="ghost" onClick={() => handleDelete(user)} title="حذف">
-                                    <Trash2 className="w-4 h-4 text-destructive" />
+                                  <Button size="sm" variant="ghost" onClick={() => handleDelete(user)} title="حذف" className="h-8 w-8 p-0">
+                                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 text-destructive" />
                                   </Button>
                                   {isLocked && (
-                                    <Button size="icon" variant="ghost" onClick={() => resetLockoutMutation.mutate(user.id)} title="إلغاء الحظر">
-                                      <Unlock className="w-4 h-4 text-green-600" />
+                                    <Button size="sm" variant="ghost" onClick={() => resetLockoutMutation.mutate(user.id)} title="إلغاء الحظر" className="h-8 w-8 p-0">
+                                      <Unlock className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                                     </Button>
                                   )}
                                 </>
                               )}
                               {isDeleted && (
-                                <Button size="icon" variant="ghost" onClick={() => restoreUserMutation.mutate(user.id)} title="استعادة المستخدم">
-                                  <Undo2 className="w-4 h-4 text-green-600" />
+                                <Button size="sm" variant="ghost" onClick={() => restoreUserMutation.mutate(user.id)} title="استعادة المستخدم" className="h-8 w-8 p-0">
+                                  <Undo2 className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                                 </Button>
                               )}
                           </td>
@@ -572,30 +572,32 @@ export default function Users() {
                     </tbody>
                   </table>
                   {/* Pagination Controls */}
-                  <div className="flex justify-center items-center gap-2 mt-4">
+                  <div className="flex flex-wrap justify-center items-center gap-2 mt-4 px-4 sm:px-0">
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage(currentPage - 1)}
+                      className="text-xs sm:text-sm"
                     >
                       السابق
                     </Button>
-                    <span className="text-foreground">صفحة {currentPage} من {totalPages}</span>
+                    <span className="text-sm sm:text-base text-foreground px-2">صفحة {currentPage} من {totalPages}</span>
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage(currentPage + 1)}
+                      className="text-xs sm:text-sm"
                     >
                       التالي
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8">
-                  <UsersIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">لا توجد مستخدمين</p>
+                <div className="text-center py-8 px-4">
+                  <UsersIcon className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-sm sm:text-base text-muted-foreground">لا توجد مستخدمين</p>
                 </div>
               )}
             </CardContent>
@@ -603,7 +605,7 @@ export default function Users() {
 
           {/* Add/Edit User Dialog */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-md w-full sm:max-w-lg md:max-w-xl p-4 sm:p-6" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+            <DialogContent className="max-w-[95vw] w-full sm:max-w-md lg:max-w-lg p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingUser ? "تعديل المستخدم" : "إضافة مستخدم جديد"}
@@ -612,29 +614,31 @@ export default function Users() {
               
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div>
-                  <Label htmlFor="username">اسم المستخدم *</Label>
+                  <Label htmlFor="username" className="text-sm sm:text-base">اسم المستخدم *</Label>
                   <Input
                     id="username"
                     placeholder="اسم المستخدم"
                     {...form.register("username", { required: true })}
+                    className="mt-1"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="password">كلمة المرور (اتركها فارغة للاحتفاظ بالحالية)</Label>
+                  <Label htmlFor="password" className="text-sm sm:text-base">كلمة المرور (اتركها فارغة للاحتفاظ بالحالية)</Label>
                   <Input
                     id="password"
                     type="password"
                     placeholder="••••••••"
                     {...form.register("password")}
+                    className="mt-1"
                   />
                   {form.formState.errors.password && (
-                    <p className="text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>
+                    <p className="text-xs sm:text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="role">نوع المستخدم *</Label>
+                  <Label htmlFor="role" className="text-sm sm:text-base">نوع المستخدم *</Label>
                   <Select
                     value={form.watch("role")}
                     onValueChange={(value: "admin" | "head") => form.setValue("role", value)}
@@ -648,7 +652,7 @@ export default function Users() {
                     </SelectContent>
                   </Select>
                   {form.formState.errors.role && (
-                    <p className="text-sm text-destructive mt-1">
+                    <p className="text-xs sm:text-sm text-destructive mt-1">
                       {form.formState.errors.role.message}
                     </p>
                   )}
@@ -656,7 +660,7 @@ export default function Users() {
 
                 {/* Info box only when editing a head and promoting to admin */}
                 {editingUser && editingUser.role === 'head' && form.watch('role') === 'admin' && (
-                  <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded text-foreground text-sm">
+                  <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded text-foreground text-xs sm:text-sm">
                     <strong>تنبيه:</strong> عند ترقية رب الأسرة إلى مشرف، سيبقى بإمكانه تسجيل الدخول كرب أسرة باستخدام رقم الهوية، وكـ مشرف باستخدام اسم المستخدم. لن يتم تغيير اسم المستخدم الحالي.
                   </div>
                 )}
@@ -669,40 +673,46 @@ export default function Users() {
                 )}
 
                 <div>
-                  <Label htmlFor="phone">رقم الجوال</Label>
+                  <Label htmlFor="phone" className="text-sm sm:text-base">رقم الجوال</Label>
                   <Input
                     id="phone"
                     placeholder="0592524815"
                     {...form.register("phone")}
+                    className="mt-1"
                   />
                 </div>
 
                 
                 {currentUser?.role === 'root' && editingUser && editingUser.id !== currentUser.id && (
-                  <div className="flex items-center gap-2 mb-4">
-                    <Label htmlFor="isProtected">مستخدم محمي</Label>
-                    <input
-                      type="checkbox"
-                      id="isProtected"
-                      {...form.register("isProtected")}
-                      checked={form.watch("isProtected")}
-                      onChange={e => form.setValue("isProtected", e.target.checked)}
-                    />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="isProtected" className="text-sm">مستخدم محمي</Label>
+                      <input
+                        type="checkbox"
+                        id="isProtected"
+                        {...form.register("isProtected")}
+                        checked={form.watch("isProtected")}
+                        onChange={e => form.setValue("isProtected", e.target.checked)}
+                        className="h-4 w-4"
+                      />
+                    </div>
                     <span className="text-xs text-muted-foreground">تفعيل هذا الخيار يجعل المستخدم محمي من الحذف أو التعديل من قبل غير المشرف الرئيسي.</span>
                   </div>
                 )}
 
-                <div className="flex justify-end space-x-2 space-x-reverse pt-4">
+                <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2 sm:space-x-reverse pt-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setIsDialogOpen(false)}
+                    className="w-full sm:w-auto order-2 sm:order-1"
                   >
                     إلغاء
                   </Button>
                   <Button
                     type="submit"
                     disabled={createUserMutation.isPending || updateUserMutation.isPending}
+                    className="w-full sm:w-auto order-1 sm:order-2"
                   >
                     {(createUserMutation.isPending || updateUserMutation.isPending) ? "جاري الحفظ..." : "حفظ"}
                   </Button>

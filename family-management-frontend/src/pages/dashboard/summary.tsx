@@ -17,6 +17,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { useEffect } from "react";
 import { fetchApi } from "@/lib/api";
 import { PageWrapper } from "@/components/layout/page-wrapper";
+import { Header } from "@/components/layout/header";
 
 export default function Summary() {
   const { toast } = useToast();
@@ -1188,27 +1189,27 @@ export default function Summary() {
     <div className="min-h-screen bg-white">
       <Header />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Print Header (hidden in screen view) */}
-        <div className="text-center mb-8 print-only">
-          <h1 className="text-3xl font-bold text-foreground mb-2">بيانات الأسرة - تقرير مفصل</h1>
-          <p className="text-muted-foreground">تاريخ الطباعة: {generatePrintDate()}</p>
+        <div className="text-center mb-6 sm:mb-8 print-only">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2">بيانات الأسرة - تقرير مفصل</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">تاريخ الطباعة: {generatePrintDate()}</p>
         </div>
 
         {/* Control Panel (Hidden in print) */}
-        <Card className="mb-6 no-print">
+        <Card className="mb-4 sm:mb-6 no-print">
           <CardHeader>
-            <CardTitle>إعدادات العرض والطباعة</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">إعدادات العرض والطباعة</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <div className="flex items-center space-x-2 space-x-reverse">
                 <Switch
                   id="showSensitiveInfo"
                   checked={showSensitiveInfo}
                   onCheckedChange={setShowSensitiveInfo}
                 />
-                <Label htmlFor="showSensitiveInfo">عرض المعلومات الحساسة</Label>
+                <Label htmlFor="showSensitiveInfo" className="text-sm sm:text-base">عرض المعلومات الحساسة</Label>
               </div>
               
               <div className="flex items-center space-x-2 space-x-reverse">
@@ -1217,7 +1218,7 @@ export default function Summary() {
                   checked={showMembers}
                   onCheckedChange={setShowMembers}
                 />
-                <Label htmlFor="showMembers">عرض أفراد الأسرة</Label>
+                <Label htmlFor="showMembers" className="text-sm sm:text-base">عرض أفراد الأسرة</Label>
               </div>
               
               <div className="flex items-center space-x-2 space-x-reverse">
@@ -1226,72 +1227,73 @@ export default function Summary() {
                   checked={showHousingInfo}
                   onCheckedChange={setShowHousingInfo}
                 />
-                <Label htmlFor="showHousingInfo">عرض بيانات السكن</Label>
+                <Label htmlFor="showHousingInfo" className="text-sm sm:text-base">عرض بيانات السكن</Label>
               </div>
 
               <Dialog open={showChildrenModal} onOpenChange={setShowChildrenModal}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full text-sm sm:text-base">
                     <Users className="h-4 w-4 ml-2" />
                     بيانات الأطفال
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl">
+                <DialogContent className="max-w-4xl mx-4">
                   <DialogHeader>
-                    <DialogTitle className="text-center">بيانات الأطفال - {family.husbandName}</DialogTitle>
-                    <DialogDescription className="text-center">
+                    <DialogTitle className="text-center text-lg sm:text-xl">بيانات الأطفال - {family.husbandName}</DialogTitle>
+                    <DialogDescription className="text-center text-sm sm:text-base">
                       عرض تفاصيل جميع الأطفال في الأسرة مع إمكانية التصدير والطباعة
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <p className="text-2xl font-bold text-blue-600">{children.length}</p>
-                        <p className="text-sm text-muted-foreground">إجمالي الأطفال</p>
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                      <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+                        <p className="text-xl sm:text-2xl font-bold text-blue-600">{children.length}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">إجمالي الأطفال</p>
                       </div>
-                      <div className="text-center p-4 bg-green-50 rounded-lg">
-                        <p className="text-2xl font-bold text-green-600">
+                      <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+                        <p className="text-xl sm:text-2xl font-bold text-green-600">
                           {children.filter((child: any) => child.gender === 'male').length}
                         </p>
-                        <p className="text-sm text-muted-foreground">الأبناء</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">الأبناء</p>
                       </div>
-                      <div className="text-center p-4 bg-pink-50 rounded-lg">
-                        <p className="text-2xl font-bold text-pink-600">
+                      <div className="text-center p-3 sm:p-4 bg-pink-50 rounded-lg">
+                        <p className="text-xl sm:text-2xl font-bold text-pink-600">
                           {children.filter((child: any) => child.gender === 'female').length}
                         </p>
-                        <p className="text-sm text-muted-foreground">البنات</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">البنات</p>
               </div>
             </div>
 
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
                       <table className="w-full border-collapse border border-gray-300">
                         <thead>
                           <tr className="bg-background">
-                            <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">الاسم الكامل</th>
-                            <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">رقم الهوية</th>
-                            <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">تاريخ الميلاد</th>
-                            <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">العمر</th>
-                            <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">الجنس</th>
-                            <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">القرابة</th>
-                            <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">إعاقة</th>
+                            <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">الاسم الكامل</th>
+                            <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">رقم الهوية</th>
+                            <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">تاريخ الميلاد</th>
+                            <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">العمر</th>
+                            <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">الجنس</th>
+                            <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">القرابة</th>
+                            <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">إعاقة</th>
                           </tr>
                         </thead>
                         <tbody>
                           {children.map((child: any) => (
                             <tr key={child.id}>
-                              <td className="border border-gray-300 px-4 py-2">{child.fullName}</td>
-                              <td className="border border-gray-300 px-4 py-2">{child.memberID || 'غير محدد'}</td>
-                              <td className="border border-gray-300 px-4 py-2">{child.birthDate}</td>
-                              <td className="border border-gray-300 px-4 py-2">
-                                <Badge variant="outline">{formatAgeForPDF(child.birthDate)}</Badge>
+                              <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{child.fullName}</td>
+                              <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{child.memberID || 'غير محدد'}</td>
+                              <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{child.birthDate}</td>
+                              <td className="border border-gray-300 px-2 sm:px-4 py-2">
+                                <Badge variant="outline" className="text-xs">{formatAgeForPDF(child.birthDate)}</Badge>
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">{getGenderInArabic(child.gender)}</td>
-                              <td className="border border-gray-300 px-4 py-2">{getRelationshipInArabic(child.relationship)}</td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{getGenderInArabic(child.gender)}</td>
+                              <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{getRelationshipInArabic(child.relationship)}</td>
+                              <td className="border border-gray-300 px-2 sm:px-4 py-2">
                                 {child.isDisabled ? (
-                                  <Badge variant="destructive">نعم</Badge>
+                                  <Badge variant="destructive" className="text-xs">نعم</Badge>
                                 ) : (
-                                  <Badge variant="secondary">لا</Badge>
+                                  <Badge variant="secondary" className="text-xs">لا</Badge>
                                 )}
                               </td>
                             </tr>
@@ -1299,17 +1301,55 @@ export default function Summary() {
                         </tbody>
                       </table>
                     </div>
+                    
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-3">
+                      {children.map((child: any) => (
+                        <div key={child.id} className="border border-gray-200 rounded-lg p-3 bg-white">
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="font-medium text-foreground text-sm">{child.fullName}</h4>
+                            {child.isDisabled ? (
+                              <Badge variant="destructive" className="text-xs">معاق</Badge>
+                            ) : (
+                              <Badge variant="secondary" className="text-xs">سليم</Badge>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">رقم الهوية:</span>
+                              <span className="mr-1">{child.memberID || 'غير محدد'}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">الجنس:</span>
+                              <span className="mr-1">{getGenderInArabic(child.gender)}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">تاريخ الميلاد:</span>
+                              <span className="mr-1">{child.birthDate}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">العمر:</span>
+                              <span className="mr-1">{formatAgeForPDF(child.birthDate)}</span>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="text-muted-foreground">القرابة:</span>
+                              <span className="mr-1">{getRelationshipInArabic(child.relationship)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
-                    <div className="flex justify-center space-x-3 space-x-reverse pt-4">
-                      <Button onClick={handlePrintChildren} variant="outline">
+                    <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 pt-4">
+                      <Button onClick={handlePrintChildren} variant="outline" className="w-full sm:w-auto text-sm sm:text-base">
                         <Printer className="h-4 w-4 ml-2" />
                         طباعة
               </Button>
-                      <Button onClick={handleExportChildrenPDF} variant="outline">
+                      <Button onClick={handleExportChildrenPDF} variant="outline" className="w-full sm:w-auto text-sm sm:text-base">
                         <FileText className="h-4 w-4 ml-2" />
                         PDF
                       </Button>
-                      <Button onClick={handleExportChildrenExcel} variant="outline">
+                      <Button onClick={handleExportChildrenExcel} variant="outline" className="w-full sm:w-auto text-sm sm:text-base">
                         <FileSpreadsheet className="h-4 w-4 ml-2" />
                         Excel
                       </Button>
@@ -1320,21 +1360,21 @@ export default function Summary() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 justify-center">
-                <Button onClick={handlePrint} className="bg-primary text-primary-foreground">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center">
+                <Button onClick={handlePrint} className="bg-primary text-primary-foreground w-full sm:w-auto text-sm sm:text-base">
                   <Printer className="h-4 w-4 ml-2" />
                   طباعة
                 </Button>
-                <Button onClick={handleExportPDF} className="bg-red-600 text-white hover:bg-red-700">
+                <Button onClick={handleExportPDF} className="bg-red-600 text-white hover:bg-red-700 w-full sm:w-auto text-sm sm:text-base">
                 <FileText className="h-4 w-4 ml-2" />
                 PDF
                 </Button>
-              <Button onClick={handleExportExcel} className="bg-green-600 text-white hover:bg-green-700">
+              <Button onClick={handleExportExcel} className="bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto text-sm sm:text-base">
                 <FileSpreadsheet className="h-4 w-4 ml-2" />
                 Excel
               </Button>
               <Link href={`/admin/families/${familyId}/edit`}>
-                <Button variant="outline" className="bg-blue-600 text-white hover:bg-blue-700">
+                <Button variant="outline" className="bg-blue-600 text-white hover:bg-blue-700 w-full sm:w-auto text-sm sm:text-base">
                   <Users className="h-4 w-4 ml-2" />
                   تعديل أفراد الأسرة
                 </Button>
@@ -1347,48 +1387,48 @@ export default function Summary() {
         <Card className="print-card">
           <CardContent className="p-8">
             {/* Head of Family Information */}
-            <div className="mb-8">
-              <h3 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-gray-300 flex items-center">
-                <Briefcase className="h-5 w-5 ml-2" />
+            <div className="mb-6 sm:mb-8">
+              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4 pb-2 border-b border-gray-300 flex items-center">
+                <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
                 بيانات رب الأسرة
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
-                  <p className="text-lg text-foreground">{family.husbandName}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
+                  <p className="text-sm sm:text-base lg:text-lg text-foreground break-words">{family.husbandName}</p>
                 </div>
                 {showSensitiveInfo && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">رقم الهوية</p>
-                    <p className="text-lg text-foreground">{family.husbandID}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الهوية</p>
+                    <p className="text-sm sm:text-base lg:text-lg text-foreground">{family.husbandID}</p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
-                  <div className="flex items-center">
-                  <p className="text-lg text-foreground">{family.husbandBirthDate}</p>
-                    <Badge variant="outline" className="mr-2">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <p className="text-sm sm:text-base lg:text-lg text-foreground">{family.husbandBirthDate}</p>
+                    <Badge variant="outline" className="text-xs w-fit">
                       {calculateAge(family.husbandBirthDate)} سنة
                     </Badge>
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">المهنة</p>
-                  <p className="text-lg text-foreground">{family.husbandJob}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">المهنة</p>
+                  <p className="text-sm sm:text-base lg:text-lg text-foreground break-words">{family.husbandJob}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">رقم الجوال الأساسي</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الجوال الأساسي</p>
                   <div className="flex items-center">
-                    <Phone className="h-4 w-4 ml-2 text-muted-foreground" />
-                  <p className="text-lg text-foreground">{family.primaryPhone}</p>
+                    <Phone className="h-3 w-3 sm:h-4 sm:w-4 ml-2 text-muted-foreground" />
+                  <p className="text-sm sm:text-base lg:text-lg text-foreground">{family.primaryPhone}</p>
                   </div>
                 </div>
                 {family.secondaryPhone && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">رقم الجوال البديل</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الجوال البديل</p>
                     <div className="flex items-center">
-                      <Phone className="h-4 w-4 ml-2 text-muted-foreground" />
-                    <p className="text-lg text-foreground">{family.secondaryPhone}</p>
+                      <Phone className="h-3 w-3 sm:h-4 sm:w-4 ml-2 text-muted-foreground" />
+                    <p className="text-sm sm:text-base lg:text-lg text-foreground">{family.secondaryPhone}</p>
                     </div>
                   </div>
                 )}
@@ -1397,28 +1437,28 @@ export default function Summary() {
 
             {/* Wife Information */}
             {family.wifeName && (
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-gray-300 flex items-center">
-                  <Heart className="h-5 w-5 ml-2" />
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4 pb-2 border-b border-gray-300 flex items-center">
+                  <Heart className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
                   بيانات الزوجة
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
-                    <p className="text-lg text-foreground">{family.wifeName}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
+                    <p className="text-sm sm:text-base lg:text-lg text-foreground break-words">{family.wifeName}</p>
                   </div>
                   {showSensitiveInfo && family.wifeID && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">رقم الهوية</p>
-                      <p className="text-lg text-foreground">{family.wifeID}</p>
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الهوية</p>
+                      <p className="text-sm sm:text-base lg:text-lg text-foreground">{family.wifeID}</p>
                     </div>
                   )}
                   {family.wifeBirthDate && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
-                      <div className="flex items-center">
-                      <p className="text-lg text-foreground">{family.wifeBirthDate}</p>
-                        <Badge variant="outline" className="mr-2">
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                      <p className="text-sm sm:text-base lg:text-lg text-foreground">{family.wifeBirthDate}</p>
+                        <Badge variant="outline" className="text-xs w-fit">
                           {calculateAge(family.wifeBirthDate)} سنة
                         </Badge>
                       </div>
@@ -1426,14 +1466,14 @@ export default function Summary() {
                   )}
                   {family.wifeJob && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">المهنة</p>
-                      <p className="text-lg text-foreground">{family.wifeJob}</p>
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">المهنة</p>
+                      <p className="text-sm sm:text-base lg:text-lg text-foreground break-words">{family.wifeJob}</p>
                     </div>
                   )}
                   {family.wifePregnant && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">حالة الحمل</p>
-                      <Badge variant={family.wifePregnant ? "destructive" : "secondary"}>
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">حالة الحمل</p>
+                      <Badge variant={family.wifePregnant ? "destructive" : "secondary"} className="text-xs w-fit">
                         {family.wifePregnant ? 'حامل' : 'غير حامل'}
                       </Badge>
                     </div>
@@ -1444,36 +1484,36 @@ export default function Summary() {
 
             {/* Housing Information */}
             {showHousingInfo && (
-              <Card className="mb-6">
+              <Card className="mb-4 sm:mb-6">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Home className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    <Home className="h-4 w-4 sm:h-5 sm:w-5" />
                     معلومات السكن
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">المسكن الأصلي</Label>
-                      <p className="text-sm text-foreground mt-1">
+                      <Label className="text-xs sm:text-sm font-medium text-muted-foreground">المسكن الأصلي</Label>
+                      <p className="text-xs sm:text-sm text-foreground mt-1 break-words">
                         {family?.originalResidence || "غير محدد"}
                       </p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">حالة السكن الحالي</Label>
+                      <Label className="text-xs sm:text-sm font-medium text-muted-foreground">حالة السكن الحالي</Label>
                       <div className="mt-1">
                         {family?.isAbroad ? (
-                          <Badge variant="destructive" className="text-xs">
+                          <Badge variant="destructive" className="text-xs w-fit">
                             <MapPin className="h-3 w-3 ml-1" />
                             مغترب بالخارج
                           </Badge>
                         ) : family?.isDisplaced ? (
-                          <Badge variant="destructive" className="text-xs">
+                          <Badge variant="destructive" className="text-xs w-fit">
                             <AlertTriangle className="h-3 w-3 ml-1" />
                             نازح
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs w-fit">
                             <Home className="h-3 w-3 ml-1" />
                             مقيم
                           </Badge>
@@ -1482,30 +1522,30 @@ export default function Summary() {
                     </div>
                     {family?.isDisplaced && (
                     <div>
-                        <Label className="text-sm font-medium text-muted-foreground">موقع النزوح</Label>
-                        <p className="text-sm text-foreground mt-1">
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">موقع النزوح</Label>
+                        <p className="text-xs sm:text-sm text-foreground mt-1 break-words">
                           {family?.displacedLocation || "غير محدد"}
                         </p>
                     </div>
                   )}
                     {family?.isAbroad && (
                     <div>
-                        <Label className="text-sm font-medium text-muted-foreground">الموقع في الخارج</Label>
-                        <p className="text-sm text-foreground mt-1">
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">الموقع في الخارج</Label>
+                        <p className="text-xs sm:text-sm text-foreground mt-1 break-words">
                           {family?.abroadLocation || "غير محدد"}
                         </p>
                     </div>
                   )}
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">أضرار الحرب 2024</Label>
-                      <div className="flex items-center gap-2 mt-1">
+                      <Label className="text-xs sm:text-sm font-medium text-muted-foreground">أضرار الحرب 2024</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
                         {family?.warDamage2024 ? (
-                          <Badge variant="destructive" className="text-xs">
+                          <Badge variant="destructive" className="text-xs w-fit">
                             <AlertTriangle className="h-3 w-3 ml-1" />
                             متضرر ({family?.warDamageDescription})
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs w-fit">
                             <Home className="h-3 w-3 ml-1" />
                             غير متضرر
                           </Badge>
@@ -1513,8 +1553,8 @@ export default function Summary() {
                 </div>
               </div>
                     <div>
-                      <Label className="text-sm font-medium text-muted-foreground">الفرع</Label>
-                      <p className="text-sm text-foreground mt-1">
+                      <Label className="text-xs sm:text-sm font-medium text-muted-foreground">الفرع</Label>
+                      <p className="text-xs sm:text-sm text-foreground mt-1 break-words">
                         {getBranchInArabic(family?.branch) || "غير محدد"}
                       </p>
                 </div>
@@ -1524,40 +1564,40 @@ export default function Summary() {
             )}
 
             {/* Family Status */}
-            <div className="mb-8">
-              <h3 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-gray-300 flex items-center">
-                <Users className="h-5 w-5 ml-2" />
+            <div className="mb-6 sm:mb-8">
+              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4 pb-2 border-b border-gray-300 flex items-center">
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
                 الحالة العامة للأسرة
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <p className="text-2xl font-bold text-primary">{totalMembers || 0}</p>
-                  <p className="text-sm text-muted-foreground">إجمالي أفراد الأسرة  (محسوب)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+                  <p className="text-xl sm:text-2xl font-bold text-primary">{totalMembers || 0}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">إجمالي أفراد الأسرة  (محسوب)</p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedTotalMembers}</p>
                   
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <p className="text-2xl font-bold text-secondary">{maleCount || 0}</p>
-                  <p className="text-sm text-muted-foreground">عدد الذكور (محسوب)</p>
+                <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+                  <p className="text-xl sm:text-2xl font-bold text-secondary">{maleCount || 0}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الذكور (محسوب)</p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedNumMales}</p>
                 </div>
-                <div className="text-center p-4 bg-pink-50 rounded-lg">
-                  <p className="text-2xl font-bold text-pink-600">{femaleCount || 0}</p>
-                  <p className="text-sm text-muted-foreground">عدد الإناث (محسوب)</p>
+                <div className="text-center p-3 sm:p-4 bg-pink-50 rounded-lg">
+                  <p className="text-xl sm:text-2xl font-bold text-pink-600">{femaleCount || 0}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الإناث (محسوب)</p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedNumFemales}</p>
 
                 </div>
-                <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                  <p className="text-2xl font-bold text-yellow-600">{children.length}</p>
-                  <p className="text-sm text-muted-foreground">عدد الأطفال (تحت 2 سنة)</p>
+                <div className="text-center p-3 sm:p-4 bg-yellow-50 rounded-lg">
+                  <p className="text-xl sm:text-2xl font-bold text-yellow-600">{children.length}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الأطفال (تحت 2 سنة)</p>
                   </div>
                 </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {family.socialStatus && (
-                  <div className="flex items-center">
-                    <span className="text-sm font-medium text-muted-foreground ml-2">الحالة الاجتماعية:</span>
-                    <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">الحالة الاجتماعية:</span>
+                    <Badge variant="outline" className="bg-blue-100 text-blue-800 text-xs w-fit">
                       {getSocialStatusInArabic(family.socialStatus)}
                     </Badge>
                   </div>
@@ -1567,40 +1607,42 @@ export default function Summary() {
 
             {/* Family Members */}
             {showMembers && members && members.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-gray-300 flex items-center">
-                  <Users className="h-5 w-5 ml-2" />
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4 pb-2 border-b border-gray-300 flex items-center">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
                   أفراد الأسرة
                 </h3>
-                <div className="overflow-x-auto">
+                
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full border-collapse border border-gray-300">
                     <thead>
                       <tr className="bg-background">
-                        <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">الاسم الكامل</th>
-                        <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">رقم الهوية</th>
-                        <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">تاريخ الميلاد</th>
-                        <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">العمر</th>
-                        <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">الجنس</th>
-                        <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">القرابة</th>
-                        <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">إعاقة</th>
+                        <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">الاسم الكامل</th>
+                        <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">رقم الهوية</th>
+                        <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">تاريخ الميلاد</th>
+                        <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">العمر</th>
+                        <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">الجنس</th>
+                        <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">القرابة</th>
+                        <th className="border border-gray-300 px-2 sm:px-4 py-2 text-right font-medium text-muted-foreground text-xs sm:text-sm">إعاقة</th>
                       </tr>
                     </thead>
                     <tbody>
                       {members.map((member: any) => (
                         <tr key={member.id}>
-                          <td className="border border-gray-300 px-4 py-2">{member.fullName}</td>
-                          <td className="border border-gray-300 px-4 py-2">{member.memberID || 'غير محدد'}</td>
-                          <td className="border border-gray-300 px-4 py-2">{member.birthDate}</td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            <Badge variant="outline">{formatAgeForPDF(member.birthDate)}</Badge>
+                          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{member.fullName}</td>
+                          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{member.memberID || 'غير محدد'}</td>
+                          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{member.birthDate}</td>
+                          <td className="border border-gray-300 px-2 sm:px-4 py-2">
+                            <Badge variant="outline" className="text-xs">{formatAgeForPDF(member.birthDate)}</Badge>
                           </td>
-                          <td className="border border-gray-300 px-4 py-2">{getGenderInArabic(member.gender)}</td>
-                          <td className="border border-gray-300 px-4 py-2">{getRelationshipInArabic(member.relationship)}</td>
-                          <td className="border border-gray-300 px-4 py-2">
+                          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{getGenderInArabic(member.gender)}</td>
+                          <td className="border border-gray-300 px-2 sm:px-4 py-2 text-xs sm:text-sm">{getRelationshipInArabic(member.relationship)}</td>
+                          <td className="border border-gray-300 px-2 sm:px-4 py-2">
                             {member.isDisabled ? (
-                              <Badge variant="destructive">نعم</Badge>
+                              <Badge variant="destructive" className="text-xs">نعم</Badge>
                             ) : (
-                              <Badge variant="secondary">لا</Badge>
+                              <Badge variant="secondary" className="text-xs">لا</Badge>
                             )}
                           </td>
                         </tr>
@@ -1608,35 +1650,73 @@ export default function Summary() {
                     </tbody>
                   </table>
                 </div>
+                
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                  {members.map((member: any) => (
+                    <div key={member.id} className="border border-gray-200 rounded-lg p-3 bg-white">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-medium text-foreground text-sm">{member.fullName}</h4>
+                        {member.isDisabled ? (
+                          <Badge variant="destructive" className="text-xs">معاق</Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">سليم</Badge>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">رقم الهوية:</span>
+                          <span className="mr-1">{member.memberID || 'غير محدد'}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">الجنس:</span>
+                          <span className="mr-1">{getGenderInArabic(member.gender)}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">تاريخ الميلاد:</span>
+                          <span className="mr-1">{member.birthDate}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">العمر:</span>
+                          <span className="mr-1">{formatAgeForPDF(member.birthDate)}</span>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground">القرابة:</span>
+                          <span className="mr-1">{getRelationshipInArabic(member.relationship)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
             {/* Administrative Notes */}
             {family.adminNotes && (
-              <div className="mb-8">
-                <h3 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-gray-300 flex items-center">
-                  <GraduationCap className="h-5 w-5 ml-2" />
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4 pb-2 border-b border-gray-300 flex items-center">
+                  <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
                   ملاحظات إدارية
                 </h3>
-                <div className="bg-background p-4 rounded-lg">
-                  <p className="text-gray-700">{family.adminNotes}</p>
+                <div className="bg-background p-3 sm:p-4 rounded-lg">
+                  <p className="text-sm sm:text-base text-gray-700 break-words">{family.adminNotes}</p>
                 </div>
               </div>
             )}
 
             {/* Footer for print */}
-            <div className="mt-12 pt-8 border-t border-gray-300 text-center text-sm text-muted-foreground print-only">
+            <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-gray-300 text-center text-xs sm:text-sm text-muted-foreground print-only">
               <p>تم إنشاء هذا التقرير بواسطة {settings.siteName || "نظام إدارة البيانات العائلية"}</p>
               <p className="mt-2">تاريخ الطباعة: {generatePrintDate()} | الوقت: {generatePrintTime()}</p>
-              <div className="mt-8 flex justify-between">
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between gap-4 sm:gap-0">
                 <div className="text-center">
-                  <div className="border-t border-gray-400 pt-2 mt-8 w-32">
-                    <p>توقيع المسؤول</p>
+                  <div className="border-t border-gray-400 pt-2 mt-6 sm:mt-8 w-24 sm:w-32 mx-auto">
+                    <p className="text-xs sm:text-sm">توقيع المسؤول</p>
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="border-t border-gray-400 pt-2 mt-8 w-32">
-                    <p>ختم الإدارة</p>
+                  <div className="border-t border-gray-400 pt-2 mt-6 sm:mt-8 w-24 sm:w-32 mx-auto">
+                    <p className="text-xs sm:text-sm">ختم الإدارة</p>
                   </div>
                 </div>
               </div>

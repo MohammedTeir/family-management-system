@@ -25,6 +25,7 @@ import { isChild, calculateDetailedAge } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useSettings } from "@/hooks/use-settings";
 import { PageWrapper } from "@/components/layout/page-wrapper";
+import { Header } from "@/components/layout/header";
 
 const familySchema = z.object({
   husbandName: z.string().min(1, "الاسم مطلوب"),
@@ -244,34 +245,35 @@ export default function FamilyData() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">بيانات الأسرة</h1>
-          <p className="text-muted-foreground">إدارة وتحديث بيانات الأسرة الشخصية</p>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">بيانات الأسرة</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">إدارة وتحديث بيانات الأسرة الشخصية</p>
         </div>
         <Link href="/dashboard/members">
-          <Button variant="outline" className="mb-4">
-            <Users className="h-5 w-5 ml-3" />
-            <span>عرض أفراد الأسرة</span>
+          <Button variant="outline" className="mb-4 w-full sm:w-auto">
+            <Users className="h-4 w-4 sm:h-5 sm:w-5 ml-2 sm:ml-3" />
+            <span className="text-sm sm:text-base">عرض أفراد الأسرة</span>
           </Button>
         </Link>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
           {/* Husband Information */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>بيانات رب الأسرة</CardTitle>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle className="text-lg sm:text-xl">بيانات رب الأسرة</CardTitle>
               {!isEditing && (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsEditing(true)}
+                  className="w-full sm:w-auto text-sm sm:text-base"
                 >
                   تعديل
                 </Button>
               )}
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <Label htmlFor="husbandName">الاسم الرباعي *</Label>
                   <Input
@@ -350,10 +352,10 @@ export default function FamilyData() {
           {/* Wife Information */}
           <Card>
             <CardHeader>
-              <CardTitle>بيانات الزوجة</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">بيانات الزوجة</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <Label htmlFor="wifeName">الاسم الرباعي</Label>
                   <Input
@@ -414,10 +416,10 @@ export default function FamilyData() {
           {/* Family Members */}
           <Card>
             <CardHeader>
-              <CardTitle>عدد أفراد الأسرة</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">عدد أفراد الأسرة</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                 <div>
                   <Label htmlFor="totalMembers">إجمالي الأفراد *</Label>
                   <Input
@@ -470,10 +472,10 @@ export default function FamilyData() {
           {/* Housing Information */}
           <Card>
             <CardHeader>
-              <CardTitle>بيانات السكن</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">بيانات السكن</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <Label htmlFor="originalResidence">السكن الأصلي *</Label>
                   <Input
@@ -669,17 +671,19 @@ export default function FamilyData() {
           </Card>
 
           {isEditing && (
-            <div className="flex justify-end space-x-4 space-x-reverse">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setIsEditing(false)}
+                className="w-full sm:w-auto order-2 sm:order-1 text-sm sm:text-base"
               >
                 إلغاء
               </Button>
               <Button
                 type="submit"
                 disabled={isLoading || updateFamilyMutation.isPending || createFamilyMutation.isPending}
+                className="w-full sm:w-auto order-1 sm:order-2 text-sm sm:text-base"
               >
                 {isLoading ? "جاري التحميل..." : (updateFamilyMutation.isPending || createFamilyMutation.isPending) ? "جاري الحفظ..." : "حفظ"}
               </Button>

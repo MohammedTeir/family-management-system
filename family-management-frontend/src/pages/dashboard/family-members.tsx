@@ -21,6 +21,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { useEffect } from "react";
 import { fetchApi } from "@/lib/api";
 import { PageWrapper } from "@/components/layout/page-wrapper";
+import { Header } from "@/components/layout/header";
 
 const memberSchema = z.object({
   fullName: z.string().min(1, "الاسم مطلوب"),
@@ -348,31 +349,31 @@ export default function FamilyMembers() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">أفراد الأسرة</h1>
-            <p className="text-muted-foreground">إدارة أفراد الأسرة وبياناتهم</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">أفراد الأسرة</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">إدارة أفراد الأسرة وبياناتهم</p>
           </div>
           
-          <Button onClick={handleAdd} className="flex items-center gap-2">
+          <Button onClick={handleAdd} className="flex items-center gap-2 w-full sm:w-auto justify-center">
             <Plus className="h-4 w-4" />
-            إضافة فرد جديد
+            <span className="text-sm sm:text-base">إضافة فرد جديد</span>
           </Button>
         </div>
 
     
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <Users className="h-6 w-6 text-primary" />
+                <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <div className="mr-4">
-                  <p className="text-sm text-muted-foreground">إجمالي الأفراد (محسوب)</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="mr-3 sm:mr-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground">إجمالي الأفراد (محسوب)</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">
                     {totalMembers}
                   </p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedTotalMembers}</p>
@@ -382,14 +383,14 @@ export default function FamilyMembers() {
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-3 bg-green-100 rounded-lg">
-                  <Users className="h-6 w-6 text-secondary" />
+                <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                 </div>
-                <div className="mr-4">
-                  <p className="text-sm text-muted-foreground">عدد الذكور (محسوب)</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="mr-3 sm:mr-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الذكور (محسوب)</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">
                     {maleCount}
                   </p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedNumMales}</p>
@@ -399,14 +400,14 @@ export default function FamilyMembers() {
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-3 bg-pink-100 rounded-lg">
-                  <Users className="h-6 w-6 text-pink-600" />
+                <div className="p-2 sm:p-3 bg-pink-100 rounded-lg">
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-pink-600" />
                 </div>
-                <div className="mr-4">
-                  <p className="text-sm text-muted-foreground">عدد الإناث (محسوب)</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="mr-3 sm:mr-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الإناث (محسوب)</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">
                     {femaleCount}
                   </p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedNumFemales}</p>
@@ -416,14 +417,14 @@ export default function FamilyMembers() {
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-3 bg-yellow-100 rounded-lg">
-                  <Users className="h-6 w-6 text-yellow-600" />
+                <div className="p-2 sm:p-3 bg-yellow-100 rounded-lg">
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-600" />
                 </div>
-                <div className="mr-4">
-                  <p className="text-sm text-muted-foreground">عدد الأطفال</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="mr-3 sm:mr-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الأطفال</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">
                     {childrenCount}
                   </p>
                   <p className="text-xs text-muted-foreground">أقل من 2 سنة</p>
@@ -435,99 +436,172 @@ export default function FamilyMembers() {
 
         <Card>
           <CardHeader>
-            <CardTitle>قائمة أفراد الأسرة ({members.length} فرد)</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">قائمة أفراد الأسرة ({members.length} فرد)</CardTitle>
           </CardHeader>
           <CardContent>
             {members.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-background">
-                      <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">الاسم الكامل</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">رقم الهوية</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">تاريخ الميلاد</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">العمر</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">الجنس</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">القرابة</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">إعاقة</th>
-                      <th className="border border-gray-300 px-4 py-2 text-right font-medium text-muted-foreground">الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedMembers.map((member: any) => (
-                      <tr key={member.id}>
-                        <td className="border border-gray-300 px-4 py-2">{member.fullName}</td>
-                        <td className="border border-gray-300 px-4 py-2">{member.memberID || 'غير محدد'}</td>
-                        <td className="border border-gray-300 px-4 py-2">{member.birthDate}</td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          <Badge variant="outline">{calculateDetailedAge(member.birthDate)}</Badge>
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">{getGenderInArabic(member.gender)}</td>
-                        <td className="border border-gray-300 px-4 py-2">{getRelationshipInArabic(member.relationship)}</td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {member.isDisabled ? (
-                            <Badge variant="destructive">نعم</Badge>
-                          ) : (
-                            <Badge variant="secondary">لا</Badge>
-                          )}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          <div className="flex space-x-2 space-x-reverse">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEdit(member)}
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => handleDeleteClick(member)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+              <>
+                {/* Mobile Card Layout */}
+                <div className="block sm:hidden space-y-4">
+                  {paginatedMembers.map((member: any) => (
+                    <Card key={member.id} className="border border-gray-200">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-semibold text-base">{member.fullName}</h3>
+                              <p className="text-sm text-muted-foreground">رقم الهوية: {member.memberID || 'غير محدد'}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEdit(member)}
+                                className="p-2"
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeleteClick(member)}
+                                className="p-2"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
-                        </td>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">تاريخ الميلاد:</span>
+                              <p className="font-medium">{member.birthDate}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">العمر:</span>
+                              <Badge variant="outline" className="text-xs">{calculateDetailedAge(member.birthDate)}</Badge>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">الجنس:</span>
+                              <p className="font-medium">{getGenderInArabic(member.gender)}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">القرابة:</span>
+                              <p className="font-medium">{getRelationshipInArabic(member.relationship)}</p>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="text-muted-foreground">إعاقة:</span>
+                              {member.isDisabled ? (
+                                <Badge variant="destructive" className="mr-2 text-xs">نعم</Badge>
+                              ) : (
+                                <Badge variant="secondary" className="mr-2 text-xs">لا</Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Desktop Table Layout */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-background">
+                        <th className="border border-gray-300 px-3 sm:px-4 py-2 text-right font-medium text-muted-foreground text-sm">الاسم الكامل</th>
+                        <th className="border border-gray-300 px-3 sm:px-4 py-2 text-right font-medium text-muted-foreground text-sm">رقم الهوية</th>
+                        <th className="border border-gray-300 px-3 sm:px-4 py-2 text-right font-medium text-muted-foreground text-sm">تاريخ الميلاد</th>
+                        <th className="border border-gray-300 px-3 sm:px-4 py-2 text-right font-medium text-muted-foreground text-sm">العمر</th>
+                        <th className="border border-gray-300 px-3 sm:px-4 py-2 text-right font-medium text-muted-foreground text-sm">الجنس</th>
+                        <th className="border border-gray-300 px-3 sm:px-4 py-2 text-right font-medium text-muted-foreground text-sm">القرابة</th>
+                        <th className="border border-gray-300 px-3 sm:px-4 py-2 text-right font-medium text-muted-foreground text-sm">إعاقة</th>
+                        <th className="border border-gray-300 px-3 sm:px-4 py-2 text-right font-medium text-muted-foreground text-sm">الإجراءات</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {paginatedMembers.map((member: any) => (
+                        <tr key={member.id}>
+                          <td className="border border-gray-300 px-3 sm:px-4 py-2 text-sm">{member.fullName}</td>
+                          <td className="border border-gray-300 px-3 sm:px-4 py-2 text-sm">{member.memberID || 'غير محدد'}</td>
+                          <td className="border border-gray-300 px-3 sm:px-4 py-2 text-sm">{member.birthDate}</td>
+                          <td className="border border-gray-300 px-3 sm:px-4 py-2">
+                            <Badge variant="outline" className="text-xs">{calculateDetailedAge(member.birthDate)}</Badge>
+                          </td>
+                          <td className="border border-gray-300 px-3 sm:px-4 py-2 text-sm">{getGenderInArabic(member.gender)}</td>
+                          <td className="border border-gray-300 px-3 sm:px-4 py-2 text-sm">{getRelationshipInArabic(member.relationship)}</td>
+                          <td className="border border-gray-300 px-3 sm:px-4 py-2">
+                            {member.isDisabled ? (
+                              <Badge variant="destructive" className="text-xs">نعم</Badge>
+                            ) : (
+                              <Badge variant="secondary" className="text-xs">لا</Badge>
+                            )}
+                          </td>
+                          <td className="border border-gray-300 px-3 sm:px-4 py-2">
+                            <div className="flex space-x-1 sm:space-x-2 space-x-reverse">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEdit(member)}
+                                className="p-1.5 sm:p-2"
+                              >
+                                <Edit2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeleteClick(member)}
+                                className="p-1.5 sm:p-2"
+                              >
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
                 {/* Pagination Controls */}
-                <div className="flex justify-center items-center gap-2 mt-4">
+                <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(currentPage - 1)}
+                    className="text-sm"
                   >
                     السابق
                   </Button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <Button
-                      key={page}
-                      variant={page === currentPage ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </Button>
-                  ))}
+                  <div className="flex flex-wrap gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={page === currentPage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                        className="text-sm min-w-[32px] h-8"
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(currentPage + 1)}
+                    className="text-sm"
                   >
                     التالي
                   </Button>
                 </div>
-              </div>
+              </>
             ) : (
               <div className="text-center py-8">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-muted-foreground">لا توجد أفراد مسجلين في الأسرة</p>
-                <Button onClick={handleAdd} className="mt-4">
+                <Users className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-sm sm:text-base text-muted-foreground">لا توجد أفراد مسجلين في الأسرة</p>
+                <Button onClick={handleAdd} className="mt-4 w-full sm:w-auto">
                   إضافة فرد جديد
                 </Button>
               </div>

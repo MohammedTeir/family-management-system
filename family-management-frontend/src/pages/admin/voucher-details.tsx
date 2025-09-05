@@ -30,6 +30,7 @@ import {
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { fetchApi } from "@/lib/api";
+import { PageWrapper } from "@/components/layout/page-wrapper";
 
 interface SupportVoucher {
   id: number;
@@ -520,121 +521,125 @@ export default function VoucherDetails() {
   const supportType = supportTypes.find(t => t.value === voucher.supportType);
 
   return (
+    <PageWrapper>
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-8">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
         {/* Header */}
-        <div className="bg-card rounded-2xl shadow-lg p-8 border border-border">
-          <div className="flex items-center gap-4 mb-6">
+        <div className="bg-card rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-border">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
             <Button
               variant="outline"
               onClick={() => setLocation('/admin/support-vouchers')}
-              className="border-border text-foreground hover:bg-muted"
+              className="border-border text-foreground hover:bg-muted text-sm w-full sm:w-auto"
             >
               <ArrowLeftIcon className="ml-2 h-4 w-4" />
               العودة للكوبونات
             </Button>
             <Button
               variant="outline"
-              className="border-border text-foreground hover:bg-muted"
+              className="border-border text-foreground hover:bg-muted text-sm w-full sm:w-auto"
               onClick={() => setLocation('/admin')}
             >
               العودة إلى لوحة التحكم
             </Button>
           </div>
           
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl ${supportType?.color} text-white shadow-lg`}>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 sm:gap-6">
+            <div className="space-y-3 w-full lg:w-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl ${supportType?.color} text-white shadow-lg flex-shrink-0`}>
                   {supportType?.icon}
                 </div>
-                <div>
-                  <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
-                    {voucher.title}
-                    <Badge variant={voucher.isActive ? "default" : "secondary"} className="text-sm px-3 py-1">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-foreground">
+                    <span className="block sm:inline truncate">{voucher.title}</span>
+                    <Badge variant={voucher.isActive ? "default" : "secondary"} className="text-xs sm:text-sm px-2 sm:px-3 py-1 ml-0 sm:ml-3 mt-2 sm:mt-0 inline-block">
                       {voucher.isActive ? 'نشط' : 'غير نشط'}
                     </Badge>
                   </h1>
-                  <p className="text-muted-foreground text-lg mt-2">
+                  <p className="text-muted-foreground text-sm sm:text-base lg:text-lg mt-2 line-clamp-2">
                     {voucher.description}
                   </p>
                   
                   {/* Active Status Toggle */}
-                  <div className="flex items-center gap-4 mt-6">
-                    <Label htmlFor="active-status" className="text-sm font-medium text-foreground mr-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-4 sm:mt-6">
+                    <Label htmlFor="active-status" className="text-sm font-medium text-foreground">
                       حالة الكوبونة:
                     </Label>
-                    <Switch
-                      id="active-status"
-                      checked={voucher.isActive}
-                      onCheckedChange={(checked) => {
-                        toggleVoucherStatusMutation.mutate({ 
-                          voucherId: voucher.id, 
-                          isActive: checked 
-                        });
-                      }}
-                      disabled={toggleVoucherStatusMutation.isPending}
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      {voucher.isActive ? 'مفعلة' : 'غير مفعلة'}
-                    </span>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <Switch
+                        id="active-status"
+                        checked={voucher.isActive}
+                        onCheckedChange={(checked) => {
+                          toggleVoucherStatusMutation.mutate({ 
+                            voucherId: voucher.id, 
+                            isActive: checked 
+                          });
+                        }}
+                        disabled={toggleVoucherStatusMutation.isPending}
+                      />
+                      <span className="text-xs sm:text-sm text-muted-foreground">
+                        {voucher.isActive ? 'مفعلة' : 'غير مفعلة'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-lg">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex items-center gap-1 sm:gap-2 bg-primary/10 px-2 sm:px-3 py-1 rounded-lg">
                   <span className="font-medium">النوع:</span>
-                  <span>{supportType?.label}</span>
+                  <span className="truncate">{supportType?.label}</span>
                 </div>
                 {voucher.location && (
-                  <div className="flex items-center gap-2 bg-secondary/10 px-3 py-1 rounded-lg">
-                    <MapPinIcon className="h-4 w-4" />
-                    <span>{voucher.location}</span>
+                  <div className="flex items-center gap-1 sm:gap-2 bg-secondary/10 px-2 sm:px-3 py-1 rounded-lg">
+                    <MapPinIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="truncate">{voucher.location}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2 bg-accent/10 px-3 py-1 rounded-lg">
-                  <UserIcon className="h-4 w-4" />
-                  <span>{voucher.creator.username}</span>
+                <div className="flex items-center gap-1 sm:gap-2 bg-accent/10 px-2 sm:px-3 py-1 rounded-lg">
+                  <UserIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate">{voucher.creator.username}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-warning/10 px-3 py-1 rounded-lg">
-                  <CalendarDaysIcon className="h-4 w-4" />
-                  <span>{format(new Date(voucher.createdAt), 'dd/MM/yyyy', { locale: ar })}</span>
+                <div className="flex items-center gap-1 sm:gap-2 bg-warning/10 px-2 sm:px-3 py-1 rounded-lg">
+                  <CalendarDaysIcon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate">{format(new Date(voucher.createdAt), 'dd/MM/yyyy', { locale: ar })}</span>
                 </div>
               </div>
             </div>
             
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-2 sm:gap-3 w-full sm:w-auto lg:w-auto">
               <Dialog open={isAddRecipientsDialogOpen} onOpenChange={setIsAddRecipientsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm sm:text-base w-full sm:w-auto">
                     <PlusIcon className="ml-2 h-4 w-4" />
-                    إضافة مستفيدين
+                    <span className="hidden sm:inline">إضافة مستفيدين</span>
+                    <span className="sm:hidden">إضافة</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-[95vw] sm:max-w-[600px] lg:max-w-[700px] max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-foreground">إضافة مستفيدين إلى الكوبونة</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+                    <DialogTitle className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">إضافة مستفيدين إلى الكوبونة</DialogTitle>
+                    <DialogDescription className="text-sm sm:text-base text-muted-foreground">
                       اختر العائلات التي ستستفيد من هذه الكوبونة
                     </DialogDescription>
                   </DialogHeader>
                   
                   {/* Filters */}
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                       <div>
-                        <Label htmlFor="search" className="text-foreground font-medium">البحث</Label>
+                        <Label htmlFor="search" className="text-sm sm:text-base text-foreground font-medium">البحث</Label>
                         <Input
                           id="search"
                           value={searchFilter}
                           onChange={(e) => setSearchFilter(e.target.value)}
-                          placeholder="البحث بالاسم أو الهاتف أو رقم الهوية..."
+                          placeholder="البحث بالاسم أو الهاتف..."
                           className="border-border focus:border-primary focus:ring-primary"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="branch" className="text-foreground font-medium">الفرع</Label>
+                        <Label htmlFor="branch" className="text-sm sm:text-base text-foreground font-medium">الفرع</Label>
                         <Select value={branchFilter} onValueChange={setBranchFilter}>
                           <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                             <SelectValue />
@@ -649,7 +654,7 @@ export default function VoucherDetails() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="displaced" className="text-foreground font-medium">حالة النزوح</Label>
+                        <Label htmlFor="displaced" className="text-sm sm:text-base text-foreground font-medium">حالة النزوح</Label>
                         <Select value={displacedFilter} onValueChange={setDisplacedFilter}>
                           <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                             <SelectValue />
@@ -662,7 +667,7 @@ export default function VoucherDetails() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="abroad" className="text-foreground font-medium">الاغتراب</Label>
+                        <Label htmlFor="abroad" className="text-sm sm:text-base text-foreground font-medium">الاغتراب</Label>
                         <Select value={abroadFilter} onValueChange={setAbroadFilter}>
                           <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                             <SelectValue />
@@ -675,7 +680,7 @@ export default function VoucherDetails() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="damaged" className="text-foreground font-medium">أضرار الحرب</Label>
+                        <Label htmlFor="damaged" className="text-sm sm:text-base text-foreground font-medium">أضرار الحرب</Label>
                         <Select value={damagedFilter} onValueChange={setDamagedFilter}>
                           <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                             <SelectValue />
@@ -688,7 +693,7 @@ export default function VoucherDetails() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="socialStatus" className="text-foreground font-medium">الحالة الاجتماعية</Label>
+                        <Label htmlFor="socialStatus" className="text-sm sm:text-base text-foreground font-medium">الحالة الاجتماعية</Label>
                         <Select value={socialStatusFilter} onValueChange={setSocialStatusFilter}>
                           <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                             <SelectValue />
@@ -702,7 +707,7 @@ export default function VoucherDetails() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="members" className="text-foreground font-medium">عدد الأفراد</Label>
+                        <Label htmlFor="members" className="text-sm sm:text-base text-foreground font-medium">عدد الأفراد</Label>
                         <Select value={membersFilter} onValueChange={setMembersFilter}>
                           <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                             <SelectValue />
@@ -716,7 +721,7 @@ export default function VoucherDetails() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="pregnant" className="text-foreground font-medium">أم في الحمل</Label>
+                        <Label htmlFor="pregnant" className="text-sm sm:text-base text-foreground font-medium">أم في الحمل</Label>
                         <Select value={pregnantFilter} onValueChange={setPregnantFilter}>
                           <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                             <SelectValue />
@@ -729,7 +734,7 @@ export default function VoucherDetails() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="children" className="text-foreground font-medium">عدد الأطفال</Label>
+                        <Label htmlFor="children" className="text-sm sm:text-base text-foreground font-medium">عدد الأطفال</Label>
                         <Select value={childrenFilter} onValueChange={setChildrenFilter}>
                           <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                             <SelectValue />
@@ -775,24 +780,26 @@ export default function VoucherDetails() {
                     </div>
                     
                     {/* Select All / Deselect All */}
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleSelectAll}
-                        className="border-primary text-primary hover:bg-primary/10 hover:border-primary/30 hover:text-primary/80 transition-all duration-200"
-                      >
-                        تحديد الكل
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleDeselectAll}
-                        className="border-border text-foreground hover:bg-muted hover:border-border hover:text-foreground transition-all duration-200"
-                      >
-                        إلغاء التحديد
-                      </Button>
-                      <div className="flex-1 text-right text-sm text-muted-foreground flex items-center justify-end">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleSelectAll}
+                          className="border-primary text-primary hover:bg-primary/10 hover:border-primary/30 hover:text-primary/80 transition-all duration-200 text-xs sm:text-sm"
+                        >
+                          تحديد الكل
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleDeselectAll}
+                          className="border-border text-foreground hover:bg-muted hover:border-border hover:text-foreground transition-all duration-200 text-xs sm:text-sm"
+                        >
+                          إلغاء التحديد
+                        </Button>
+                      </div>
+                      <div className="flex-1 text-right text-xs sm:text-sm text-muted-foreground flex items-center justify-end">
                         تم تحديد {selectedFamilies.length} من {filteredRecipients.filter((recipient: any) => {
                           const isAlreadyRecipient = voucher?.recipients?.some((r: any) => r.familyId === recipient.id);
                           return !isAlreadyRecipient;
@@ -801,15 +808,15 @@ export default function VoucherDetails() {
                     </div>
                   </div>
                   
-                  <div className="max-h-96 overflow-y-auto bg-background rounded-xl p-4">
-                    <div className="grid gap-3">
+                  <div className="max-h-80 sm:max-h-96 overflow-y-auto bg-background rounded-xl p-3 sm:p-4">
+                    <div className="grid gap-2 sm:gap-3">
                       {filteredRecipients.map((recipient: any) => {
                         const isSelected = selectedFamilies.includes(recipient.id);
                         const isAlreadyRecipient = voucher?.recipients?.some((r: any) => r.familyId === recipient.id);
                         const isDisabled = isAlreadyRecipient;
                         
                         return (
-                          <div key={recipient.id} className={`flex items-center space-x-3 space-x-reverse bg-card p-4 rounded-lg border transition-all duration-200 ${
+                          <div key={recipient.id} className={`flex items-center space-x-2 sm:space-x-3 space-x-reverse bg-card p-3 sm:p-4 rounded-lg border transition-all duration-200 ${
                             isAlreadyRecipient 
                               ? 'border-green-200 bg-green-50 opacity-75' 
                               : isSelected 
@@ -828,20 +835,20 @@ export default function VoucherDetails() {
                                   setSelectedFamilies(selectedFamilies.filter(id => id !== recipient.id));
                                 }
                               }}
-                              className="w-5 h-5 text-primary border-border rounded focus:ring-primary focus:ring-2 disabled:opacity-50"
+                              className="w-4 h-4 sm:w-5 sm:h-5 text-primary border-border rounded focus:ring-primary focus:ring-2 disabled:opacity-50 flex-shrink-0"
                             />
-                            <label htmlFor={`recipient-${recipient.id}`} className="text-sm text-foreground cursor-pointer flex-1 hover:text-primary transition-colors">
-                              <div className="font-medium">{recipient.name}</div>
-                              <div className="text-muted-foreground flex items-center gap-2">
-                                <span>{recipient.phone}</span>
+                            <label htmlFor={`recipient-${recipient.id}`} className="text-xs sm:text-sm text-foreground cursor-pointer flex-1 hover:text-primary transition-colors min-w-0">
+                              <div className="font-medium truncate">{recipient.name}</div>
+                              <div className="text-muted-foreground flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
+                                <span className="truncate max-w-[120px] sm:max-w-none">{recipient.phone}</span>
                                 {recipient.type === 'family' && (
                                   <>
                                     <span>•</span>
-                                    <span>{recipient.members} عضو</span>
+                                    <span className="whitespace-nowrap">{recipient.members} عضو</span>
                                   </>
                                 )}
                                 <span>•</span>
-                                <Badge variant="outline" className={`text-xs ${
+                                <Badge variant="outline" className={`text-xs whitespace-nowrap ${
                                   recipient.role === 'head' || 
                                   (recipient.role === 'admin' && /^\d+$/.test(recipient.username))
                                     ? 'border-green-200 text-green-700 bg-green-50' 
@@ -856,22 +863,22 @@ export default function VoucherDetails() {
                                    recipient.role === 'admin' ? 'مشرف' : 'غير محدد'}
                                 </Badge>
                                 {recipient.type === 'family' && recipient.wifePregnant && (
-                                  <Badge variant="outline" className="text-xs border-pink-200 text-pink-700 bg-pink-50">
+                                  <Badge variant="outline" className="text-xs border-pink-200 text-pink-700 bg-pink-50 whitespace-nowrap">
                                     حامل
                                   </Badge>
                                 )}
                                 {recipient.type === 'family' && recipient.hasChildren && (
-                                  <Badge variant="outline" className="text-xs border-yellow-200 text-yellow-700 bg-yellow-50">
+                                  <Badge variant="outline" className="text-xs border-yellow-200 text-yellow-700 bg-yellow-50 whitespace-nowrap">
                                     {recipient.childrenCount} طفل
                                   </Badge>
                                 )}
                                 {recipient.type === 'user' && (
-                                  <Badge variant="outline" className="text-xs border-orange-200 text-orange-700 bg-orange-50">
+                                  <Badge variant="outline" className="text-xs border-orange-200 text-orange-700 bg-orange-50 whitespace-nowrap">
                                     بدون أسرة
                                   </Badge>
                                 )}
                                 {isAlreadyRecipient && (
-                                  <Badge variant="outline" className="text-xs border-green-200 text-green-700 bg-green-50">
+                                  <Badge variant="outline" className="text-xs border-green-200 text-green-700 bg-green-50 whitespace-nowrap">
                                     مستفيد حالياً
                                   </Badge>
                                 )}
@@ -883,20 +890,20 @@ export default function VoucherDetails() {
                     </div>
                     
                     {filteredRecipients.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
+                      <div className="text-center py-6 sm:py-8 text-muted-foreground text-sm sm:text-base px-4">
                         لا توجد عائلات أو مستخدمين تطابق معايير البحث
                       </div>
                     )}
                   </div>
                   
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsAddRecipientsDialogOpen(false)} className="border-border text-foreground hover:bg-muted">
+                  <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                    <Button variant="outline" onClick={() => setIsAddRecipientsDialogOpen(false)} className="border-border text-foreground hover:bg-muted w-full sm:w-auto order-2 sm:order-1">
                       إلغاء
                     </Button>
                     <Button 
                       onClick={handleAddRecipients} 
                       disabled={addRecipientsMutation.isPending || selectedFamilies.length === 0}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto order-1 sm:order-2"
                     >
                       {addRecipientsMutation.isPending ? 'جاري الإضافة...' : `إضافة ${selectedFamilies.length} مستفيد`}
                     </Button>
@@ -907,69 +914,70 @@ export default function VoucherDetails() {
               <Button
                 variant="outline"
                 onClick={() => handleSendNotification()}
-                className="border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300"
+                className="border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300 text-sm sm:text-base w-full sm:w-auto"
               >
                 <BellIcon className="ml-2 h-4 w-4" />
-                إرسال إشعار للجميع
+                <span className="hidden sm:inline">إرسال إشعار للجميع</span>
+                <span className="sm:hidden">إشعار الجميع</span>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
-            <div className="text-3xl font-bold text-blue-600 mb-2">{stats.total}</div>
-            <div className="text-sm text-blue-700 font-medium">إجمالي المستفيدين</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl sm:rounded-2xl border border-blue-200">
+            <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">{stats.total}</div>
+            <div className="text-xs sm:text-sm text-blue-700 font-medium">إجمالي المستفيدين</div>
           </div>
-          <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border border-green-200">
-            <div className="text-3xl font-bold text-green-600 mb-2">{stats.received}</div>
-            <div className="text-sm text-green-700 font-medium">تم الاستلام</div>
+          <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl sm:rounded-2xl border border-green-200">
+            <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-2">{stats.received}</div>
+            <div className="text-xs sm:text-sm text-green-700 font-medium">تم الاستلام</div>
           </div>
-          <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
-            <div className="text-3xl font-bold text-blue-600 mb-2">{stats.paid}</div>
-            <div className="text-sm text-blue-700 font-medium">تم الدفع</div>
+          <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl sm:rounded-2xl border border-blue-200">
+            <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-2">{stats.paid}</div>
+            <div className="text-xs sm:text-sm text-blue-700 font-medium">تم الدفع</div>
           </div>
-          <div className="text-center p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl border border-yellow-200">
-            <div className="text-3xl font-bold text-yellow-600 mb-2">{stats.pending}</div>
-            <div className="text-sm text-yellow-700 font-medium">في الانتظار</div>
+          <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl sm:rounded-2xl border border-yellow-200">
+            <div className="text-2xl sm:text-3xl font-bold text-yellow-600 mb-2">{stats.pending}</div>
+            <div className="text-xs sm:text-sm text-yellow-700 font-medium">في الانتظار</div>
           </div>
-          <div className="text-center p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl border border-red-200">
-            <div className="text-3xl font-bold text-red-600 mb-2">{stats.notAttended}</div>
-            <div className="text-sm text-red-700 font-medium">لم يحضر</div>
+          <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-red-50 to-red-100 rounded-xl sm:rounded-2xl border border-red-200">
+            <div className="text-2xl sm:text-3xl font-bold text-red-600 mb-2">{stats.notAttended}</div>
+            <div className="text-xs sm:text-sm text-red-700 font-medium">لم يحضر</div>
           </div>
-          <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border border-purple-200">
-            <div className="text-3xl font-bold text-purple-600 mb-2">{stats.notified}</div>
-            <div className="text-sm text-purple-700 font-medium">تم الإشعار</div>
+          <div className="text-center p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl sm:rounded-2xl border border-purple-200">
+            <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-2">{stats.notified}</div>
+            <div className="text-xs sm:text-sm text-purple-700 font-medium">تم الإشعار</div>
           </div>
         </div>
 
         {/* Recipients Table */}
-        <Card className="bg-card rounded-2xl shadow-lg border border-border">
+        <Card className="bg-card rounded-xl sm:rounded-2xl shadow-lg border border-border">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-foreground">قائمة المستفيدين</CardTitle>
-            <CardDescription className="text-muted-foreground">
+            <CardTitle className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">قائمة المستفيدين</CardTitle>
+            <CardDescription className="text-sm sm:text-base text-muted-foreground">
               إدارة المستفيدين وحالاتهم
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6">
             {/* Search and Filter Controls */}
             <div className="mb-6 space-y-4">
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 {/* Search Box */}
                 <div className="relative flex-1">
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="البحث باسم رب الأسرة أو رقم الهاتف أو عدد الأفراد..."
+                    placeholder="البحث باسم رب الأسرة أو رقم الهاتف..."
                     value={recipientSearchTerm}
                     onChange={(e) => setRecipientSearchTerm(e.target.value)}
-                    className="pr-10"
+                    className="pr-10 text-sm sm:text-base"
                   />
                 </div>
                 
                 {/* Status Filter */}
                 <Select value={recipientStatusFilter} onValueChange={setRecipientStatusFilter}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-full sm:w-48">
                     <SelectValue placeholder="تصفية بالحالة" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1004,7 +1012,7 @@ export default function VoucherDetails() {
                       setRecipientSearchTerm('');
                       setRecipientStatusFilter('all');
                     }}
-                    className="text-xs text-muted-foreground hover:text-foreground"
+                    className="text-xs sm:text-sm text-muted-foreground hover:text-foreground"
                   >
                     مسح الفلاتر
                   </Button>
@@ -1013,18 +1021,18 @@ export default function VoucherDetails() {
             </div>
 
             {filteredRecipientsForTable.length > 0 ? (
-              <div className="bg-background rounded-xl p-4">
-                <div className="overflow-x-auto">
-                  <Table>
+              <div className="bg-background rounded-xl p-3 sm:p-4">
+                <div className="overflow-x-auto -mx-3 sm:mx-0">
+                  <Table className="min-w-[800px] sm:min-w-0">
                     <TableHeader>
                     <TableRow className="border-border">
-                      <TableHead className="text-foreground font-semibold">اسم رب الأسرة</TableHead>
-                      <TableHead className="text-foreground font-semibold">رقم الهوية</TableHead>
-                      <TableHead className="text-foreground font-semibold">الهاتف</TableHead>
-                      <TableHead className="text-foreground font-semibold">عدد الأفراد</TableHead>
-                      <TableHead className="text-foreground font-semibold">الحالة</TableHead>
-                      <TableHead className="text-foreground font-semibold">الإشعار</TableHead>
-                      <TableHead className="text-foreground font-semibold">الإجراءات</TableHead>
+                      <TableHead className="text-foreground font-semibold text-xs sm:text-sm">اسم رب الأسرة</TableHead>
+                      <TableHead className="text-foreground font-semibold text-xs sm:text-sm">رقم الهوية</TableHead>
+                      <TableHead className="text-foreground font-semibold text-xs sm:text-sm">الهاتف</TableHead>
+                      <TableHead className="text-foreground font-semibold text-xs sm:text-sm">عدد الأفراد</TableHead>
+                      <TableHead className="text-foreground font-semibold text-xs sm:text-sm">الحالة</TableHead>
+                      <TableHead className="text-foreground font-semibold text-xs sm:text-sm">الإشعار</TableHead>
+                      <TableHead className="text-foreground font-semibold text-xs sm:text-sm">الإجراءات</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1038,82 +1046,86 @@ export default function VoucherDetails() {
                       
                       return (
                         <TableRow key={recipient.id} className="border-border hover:bg-muted">
-                          <TableCell className="font-medium text-foreground">{recipient.family.husbandName}</TableCell>
-                          <TableCell className="text-muted-foreground font-mono">{identityId}</TableCell>
-                          <TableCell className="text-muted-foreground">{recipient.family.primaryPhone}</TableCell>
-                          <TableCell className="text-muted-foreground">{recipient.family.totalMembers}</TableCell>
+                          <TableCell className="font-medium text-foreground text-xs sm:text-sm">{recipient.family.husbandName}</TableCell>
+                          <TableCell className="text-muted-foreground font-mono text-xs sm:text-sm">{identityId}</TableCell>
+                          <TableCell className="text-muted-foreground text-xs sm:text-sm">{recipient.family.primaryPhone}</TableCell>
+                          <TableCell className="text-muted-foreground text-xs sm:text-sm">{recipient.family.totalMembers}</TableCell>
                           <TableCell>
-                            <Badge className={`${statusInfo.color} border font-medium`}>
+                            <Badge className={`${statusInfo.color} border font-medium text-xs`}>
                               <StatusIcon className="ml-1 h-3 w-3" />
                               {statusInfo.label}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             {recipient.notified ? (
-                              <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                              <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 text-xs">
                                 تم الإشعار
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="text-muted-foreground border-border bg-background">
+                              <Badge variant="outline" className="text-muted-foreground border-border bg-background text-xs">
                                 لم يتم الإشعار
                               </Badge>
                             )}
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-1 sm:gap-2">
                               {/* Status Update Buttons */}
                               <div className="flex flex-wrap gap-1">
                                 <Button
                                   size="sm"
                                   variant={recipient.status === 'pending' ? 'default' : 'outline'}
                                   onClick={() => handleUpdateStatus(recipient.id, 'pending')}
-                                  className={`text-xs px-2 py-1 h-7 ${
+                                  className={`text-xs px-1 sm:px-2 py-1 h-6 sm:h-7 ${
                                     recipient.status === 'pending' 
                                       ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
                                       : 'border-yellow-200 text-yellow-700 hover:bg-yellow-50'
                                   }`}
                                 >
                                   <ClockIcon className="ml-1 h-3 w-3" />
-                                  في الانتظار
+                                  <span className="hidden sm:inline">في الانتظار</span>
+                                  <span className="sm:hidden">انتظار</span>
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant={recipient.status === 'received' ? 'default' : 'outline'}
                                   onClick={() => handleUpdateStatus(recipient.id, 'received')}
-                                  className={`text-xs px-2 py-1 h-7 ${
+                                  className={`text-xs px-1 sm:px-2 py-1 h-6 sm:h-7 ${
                                     recipient.status === 'received' 
                                       ? 'bg-green-500 hover:bg-green-600 text-white' 
                                       : 'border-green-200 text-green-700 hover:bg-green-50'
                                   }`}
                                 >
                                   <CheckCircleIcon className="ml-1 h-3 w-3" />
-                                  تم الاستلام
+                                  <span className="hidden sm:inline">تم الاستلام</span>
+                                  <span className="sm:hidden">استلام</span>
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant={recipient.status === 'paid' ? 'default' : 'outline'}
                                   onClick={() => handleUpdateStatus(recipient.id, 'paid')}
-                                  className={`text-xs px-2 py-1 h-7 ${
+                                  className={`text-xs px-1 sm:px-2 py-1 h-6 sm:h-7 ${
                                     recipient.status === 'paid' 
                                       ? 'bg-blue-500 hover:bg-blue-600 text-white' 
                                       : 'border-blue-200 text-blue-700 hover:bg-blue-50'
                                   }`}
                                 >
                                   <DollarSignIcon className="ml-1 h-3 w-3" />
-                                  تم الدفع
+                                  <span className="hidden sm:inline">تم الدفع</span>
+                                  <span className="sm:hidden">دفع</span>
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant={recipient.status === 'not_attended' ? 'default' : 'outline'}
                                   onClick={() => handleUpdateStatus(recipient.id, 'not_attended')}
-                                  className={`text-xs px-2 py-1 h-7 ${
+                                  className={`text-xs px-1 sm:px-2 py-1 h-6 sm:h-7 ${
                                     recipient.status === 'not_attended' 
                                       ? 'bg-red-500 hover:bg-red-600 text-white' 
                                       : 'border-red-200 text-red-700 hover:bg-red-50'
                                   }`}
                                 >
                                   <XCircleIcon className="ml-1 h-3 w-3" />
-                                  لم يحضر
+                                  <span className="hidden sm:inline">لم يحضر</span>
+                                  <span className="sm:hidden">غائب</span>
                                 </Button>
                               </div>
                               
@@ -1123,14 +1135,21 @@ export default function VoucherDetails() {
                                 variant="outline"
                                 onClick={() => handleSendNotification([recipient.id])}
                                 disabled={recipient.notified}
-                                className={`text-xs px-2 py-1 h-7 ${
+                                className={`text-xs px-1 sm:px-2 py-1 h-6 sm:h-7 w-full ${
                                   recipient.notified
                                     ? 'border-green-200 text-green-700 bg-green-50'
                                     : 'border-border text-muted-foreground hover:bg-muted'
                                 }`}
                               >
                                 <BellIcon className="ml-1 h-3 w-3" />
-                                {recipient.notified ? 'تم الإشعار' : 'إرسال إشعار'}
+                                {recipient.notified ? (
+                                  <span>تم الإشعار</span>
+                                ) : (
+                                  <>
+                                    <span className="hidden sm:inline">إرسال إشعار</span>
+                                    <span className="sm:hidden">إشعار</span>
+                                  </>
+                                )}
                               </Button>
                             </div>
                           </TableCell>
@@ -1142,9 +1161,9 @@ export default function VoucherDetails() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8">
-                <UsersIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
+              <div className="text-center py-6 sm:py-8 px-4">
+                <UsersIcon className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-sm sm:text-base text-muted-foreground">
                   {voucher.recipients.length === 0 
                     ? 'لا توجد مستفيدين لهذا الكوبونة' 
                     : 'لا توجد نتائج تطابق معايير البحث'}
@@ -1155,5 +1174,6 @@ export default function VoucherDetails() {
         </Card>
       </div>
     </div>
+    </PageWrapper>
   );
 }

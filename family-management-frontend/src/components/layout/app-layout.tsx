@@ -22,7 +22,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <div className="flex-1 space-y-4 p-8 pt-6">
+          <div className="flex-1 space-y-3 sm:space-y-4 p-3 sm:p-4 md:p-6 lg:p-8 pt-3 sm:pt-4 md:pt-6">
             {children}
           </div>
         </SidebarInset>

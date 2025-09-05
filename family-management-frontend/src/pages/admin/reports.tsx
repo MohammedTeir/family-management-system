@@ -254,129 +254,129 @@ const headUsers = filteredUsersData.filter(u => u.role === "head" || (u.role ===
           </div>
 
           {/* Date Range Filter */}
-          <div className="flex flex-wrap gap-4 mb-8 items-center">
-            <div>
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-8 items-start sm:items-end">
+            <div className="w-full sm:w-auto">
               <label className="block text-sm mb-1">من تاريخ</label>
-              <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+              <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="w-full sm:w-auto" />
             </div>
-            <div>
+            <div className="w-full sm:w-auto">
               <label className="block text-sm mb-1">إلى تاريخ</label>
-              <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+              <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="w-full sm:w-auto" />
             </div>
-            <Button variant="outline" onClick={() => { setDateFrom(""); setDateTo(""); }}>إعادة تعيين</Button>
+            <Button variant="outline" onClick={() => { setDateFrom(""); setDateTo(""); }} className="w-full sm:w-auto">إعادة تعيين</Button>
           </div>
 
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <Users className="h-6 w-6 text-primary ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">إجمالي الأسر</p>
-                  <p className="text-2xl font-bold text-foreground">{totalFamilies}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">إجمالي الأسر</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{totalFamilies}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <Users className="h-6 w-6 text-secondary ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-secondary ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">إجمالي الأفراد</p>
-                  <p className="text-2xl font-bold text-foreground">{totalMembers}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">إجمالي الأفراد</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{totalMembers}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <FileText className="h-6 w-6 text-primary ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-primary ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">إجمالي الطلبات</p>
-                  <p className="text-2xl font-bold text-foreground">{totalRequests}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">إجمالي الطلبات</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{totalRequests}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <Clock className="h-6 w-6 text-warning ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-warning ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">طلبات قيد المراجعة</p>
-                  <p className="text-2xl font-bold text-foreground">{pendingRequests}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">طلبات قيد المراجعة</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{pendingRequests}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <Check className="h-6 w-6 text-green-600 ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <Check className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">طلبات موافق عليها</p>
-                  <p className="text-2xl font-bold text-foreground">{approvedRequests}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">طلبات موافق عليها</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{approvedRequests}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <X className="h-6 w-6 text-destructive ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-destructive ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">طلبات مرفوضة</p>
-                  <p className="text-2xl font-bold text-foreground">{rejectedRequests}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">طلبات مرفوضة</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{rejectedRequests}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <MapPin className="h-6 w-6 text-accent ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-accent ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">أسر نازحة</p>
-                  <p className="text-2xl font-bold text-foreground">{displacedFamilies}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">أسر نازحة</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{displacedFamilies}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <AlertTriangle className="h-6 w-6 text-red-600 ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">أسر متضررة</p>
-                  <p className="text-2xl font-bold text-foreground">{damagedFamilies}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">أسر متضررة</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{damagedFamilies}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <Users className="h-6 w-6 text-orange-500 ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500 ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">المشرفين</p>
-                  <p className="text-2xl font-bold text-foreground">{adminUsers}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">المشرفين</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{adminUsers}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <Users className="h-6 w-6 text-secondary ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-secondary ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">رؤساء الأسر</p>
-                  <p className="text-2xl font-bold text-foreground">{headUsers}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">رؤساء الأسر</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{headUsers}</p>
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-6 flex items-center">
-                <Users className="h-6 w-6 text-blue-500 ml-3" />
+              <CardContent className="p-4 sm:p-6 flex items-center">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500 ml-2 sm:ml-3 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-muted-foreground">أسر مغتربة بالخارج</p>
-                  <p className="text-2xl font-bold text-foreground">{abroadFamilies}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">أسر مغتربة بالخارج</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">{abroadFamilies}</p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8">
             <Card>
-              <CardHeader>
-                <CardTitle>توزيع الطلبات حسب الحالة</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl">توزيع الطلبات حسب الحالة</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
+                <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
                     <Pie
                       data={requestStatusData}
@@ -398,11 +398,11 @@ const headUsers = filteredUsersData.filter(u => u.role === "head" || (u.role ===
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
-                <CardTitle>عدد الأسر حسب الفرع</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl">عدد الأسر حسب الفرع</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
+                <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={familiesBranchData}>
                     <XAxis dataKey="branch" tick={{ fontSize: 12 }} />
                     <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
@@ -416,7 +416,7 @@ const headUsers = filteredUsersData.filter(u => u.role === "head" || (u.role ===
 
           {/* Export Button */}
           <div className="flex flex-wrap gap-4 mb-8">
-            <Button onClick={exportAllToExcel} className="flex items-center gap-2">
+            <Button onClick={exportAllToExcel} className="flex items-center gap-2 w-full sm:w-auto">
               <Download className="h-4 w-4" /> تصدير جميع البيانات إلى Excel
             </Button>
           </div>
@@ -424,64 +424,72 @@ const headUsers = filteredUsersData.filter(u => u.role === "head" || (u.role ===
           {/* Families Table (Arabic) */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>قائمة الأسر ({filteredFamilies.length})</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">قائمة الأسر ({filteredFamilies.length})</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
+            <CardContent className="p-4 sm:p-6">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <table className="w-full min-w-[800px] sm:min-w-0">
                   <thead className="bg-background">
                     <tr>
-                      <th className="px-4 py-2">رب الأسرة</th>
-                      <th className="px-4 py-2">رقم الهوية</th>
-                      <th className="px-4 py-2">عدد الأفراد</th>
-                      <th className="px-4 py-2">الفرع</th>
-                      <th className="px-4 py-2">الحالة الاجتماعية</th>
-                      <th className="px-4 py-2">الحالة</th>
-                      <th className="px-4 py-2">تاريخ التسجيل</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">رب الأسرة</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">رقم الهوية</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">عدد الأفراد</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">الفرع</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">الحالة الاجتماعية</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">الحالة</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">تاريخ التسجيل</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedFamilies.map(family => (
                       <tr key={family.id}>
-                        <td className="px-4 py-2">{family.husbandName}</td>
-                        <td className="px-4 py-2">{family.husbandID}</td>
-                        <td className="px-4 py-2">{family.totalMembers}</td>
-                        <td className="px-4 py-2">{getBranchInArabic(family.branch)}</td>
-                        <td className="px-4 py-2">{getSocialStatusInArabic(family.socialStatus)}</td>
-                        <td className="px-4 py-2">
-                          {family.isDisplaced && <Badge variant="destructive" className="ml-1">نازح</Badge>}
-                          {family.warDamage2024 && <Badge variant="outline" className="ml-1">متضرر</Badge>}
-                          {family.isAbroad && <Badge className="bg-blue-100 text-blue-800 ml-1">مغترب</Badge>}
+                        <td className="px-2 sm:px-4 py-3 text-sm">{family.husbandName}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{family.husbandID}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{family.totalMembers}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{getBranchInArabic(family.branch)}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{getSocialStatusInArabic(family.socialStatus)}</td>
+                        <td className="px-2 sm:px-4 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {family.isDisplaced && <Badge variant="destructive" className="text-xs">نازح</Badge>}
+                            {family.warDamage2024 && <Badge variant="outline" className="text-xs">متضرر</Badge>}
+                            {family.isAbroad && <Badge className="bg-blue-100 text-blue-800 text-xs">مغترب</Badge>}
+                          </div>
                         </td>
-                        <td className="px-4 py-2">{formatDate(family.createdAt)}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{formatDate(family.createdAt)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <div className="flex justify-center items-center gap-2 mt-4">
+                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 mt-4 px-4 sm:px-0">
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={familiesPage === 1}
                     onClick={() => setFamiliesPage(familiesPage - 1)}
+                    className="text-xs sm:text-sm"
                   >
                     السابق
                   </Button>
-                  {Array.from({ length: familiesTotalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: familiesTotalPages }, (_, i) => i + 1).slice(0, 5).map((page) => (
                     <Button
                       key={page}
                       variant={page === familiesPage ? "default" : "outline"}
                       size="sm"
                       onClick={() => setFamiliesPage(page)}
+                      className="text-xs sm:text-sm min-w-[32px]"
                     >
                       {page}
                     </Button>
                   ))}
+                  {familiesTotalPages > 5 && (
+                    <span className="text-muted-foreground px-2">...</span>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={familiesPage === familiesTotalPages}
                     onClick={() => setFamiliesPage(familiesPage + 1)}
+                    className="text-xs sm:text-sm"
                   >
                     التالي
                   </Button>
@@ -493,63 +501,69 @@ const headUsers = filteredUsersData.filter(u => u.role === "head" || (u.role ===
           {/* Requests Table (Arabic) */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>قائمة الطلبات ({filteredRequestsData.length})</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">قائمة الطلبات ({filteredRequestsData.length})</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
+            <CardContent className="p-4 sm:p-6">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <table className="w-full min-w-[700px] sm:min-w-0">
                   <thead className="bg-background">
                     <tr>
-                      <th className="px-4 py-2">رقم الطلب</th>
-                      <th className="px-4 py-2">نوع الطلب</th>
-                      <th className="px-4 py-2">الوصف</th>
-                      <th className="px-4 py-2">الحالة</th>
-                      <th className="px-4 py-2">تاريخ التقديم</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">رقم الطلب</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">نوع الطلب</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">الوصف</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">الحالة</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">تاريخ التقديم</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedRequests.map(request => (
                       <tr key={request.id}>
-                        <td className="px-4 py-2">#{request.id}</td>
-                        <td className="px-4 py-2">{getRequestTypeInArabic(request.type)}</td>
-                        <td className="px-4 py-2">{request.description}</td>
-                        <td className="px-4 py-2">
+                        <td className="px-2 sm:px-4 py-3 text-sm">#{request.id}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{getRequestTypeInArabic(request.type)}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm max-w-[200px] truncate">{request.description}</td>
+                        <td className="px-2 sm:px-4 py-3">
                           <Badge variant={
                             request.status === "pending" ? "default" :
                             request.status === "approved" ? "secondary" : "destructive"
-                          }>
+                          } className="text-xs">
                             {getRequestStatusInArabic(request.status)}
                           </Badge>
                         </td>
-                        <td className="px-4 py-2">{formatDate(request.createdAt)}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{formatDate(request.createdAt)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <div className="flex justify-center items-center gap-2 mt-4">
+                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 mt-4 px-4 sm:px-0">
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={requestsPage === 1}
                     onClick={() => setRequestsPage(requestsPage - 1)}
+                    className="text-xs sm:text-sm"
                   >
                     السابق
                   </Button>
-                  {Array.from({ length: requestsTotalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: requestsTotalPages }, (_, i) => i + 1).slice(0, 5).map((page) => (
                     <Button
                       key={page}
                       variant={page === requestsPage ? "default" : "outline"}
                       size="sm"
                       onClick={() => setRequestsPage(page)}
+                      className="text-xs sm:text-sm min-w-[32px]"
                     >
                       {page}
                     </Button>
                   ))}
+                  {requestsTotalPages > 5 && (
+                    <span className="text-muted-foreground px-2">...</span>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={requestsPage === requestsTotalPages}
                     onClick={() => setRequestsPage(requestsPage + 1)}
+                    className="text-xs sm:text-sm"
                   >
                     التالي
                   </Button>
@@ -561,68 +575,74 @@ const headUsers = filteredUsersData.filter(u => u.role === "head" || (u.role ===
           {/* Users Table (Arabic) */}
           <Card>
             <CardHeader>
-              <CardTitle>قائمة المستخدمين ({filteredUsersData.length})</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">قائمة المستخدمين ({filteredUsersData.length})</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
+            <CardContent className="p-4 sm:p-6">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <table className="w-full min-w-[600px] sm:min-w-0">
                   <thead className="bg-background">
                     <tr>
-                      <th className="px-4 py-2">اسم المستخدم</th>
-                      <th className="px-4 py-2">الدور</th>
-                      <th className="px-4 py-2">الجوال</th>
-                      <th className="px-4 py-2">تاريخ الإنشاء</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">اسم المستخدم</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">الدور</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">الجوال</th>
+                      <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium">تاريخ الإنشاء</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paginatedUsers.map(user => (
                       <tr key={user.id}>
-                        <td className="px-4 py-2">{user.username}</td>
-                        <td className="px-4 py-2">
+                        <td className="px-2 sm:px-4 py-3 text-sm">{user.username}</td>
+                        <td className="px-2 sm:px-4 py-3">
                           <Badge variant={
                             user.role === "admin" ? "default" :
                             user.role === "head" ? "secondary" : "destructive"
-                          }>
+                          } className="text-xs">
                             {user.role === "admin" ? "مشرف" : user.role === "head" ? "رب أسرة" : "مشرف رئيسي"}
                           </Badge>
                         </td>
-                        <td className="px-4 py-2">{user.phone || "—"}</td>
-                        <td className="px-4 py-2">{formatDate(user.createdAt)}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{user.phone || "—"}</td>
+                        <td className="px-2 sm:px-4 py-3 text-sm">{formatDate(user.createdAt)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <div className="flex justify-center items-center gap-2 mt-4">
+                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 mt-4 px-4 sm:px-0">
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={usersPage === 1}
                     onClick={() => setUsersPage(usersPage - 1)}
+                    className="text-xs sm:text-sm"
                   >
                     السابق
                   </Button>
-                  {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: usersTotalPages }, (_, i) => i + 1).slice(0, 5).map((page) => (
                     <Button
                       key={page}
                       variant={page === usersPage ? "default" : "outline"}
                       size="sm"
                       onClick={() => setUsersPage(page)}
+                      className="text-xs sm:text-sm min-w-[32px]"
                     >
                       {page}
                     </Button>
                   ))}
+                  {usersTotalPages > 5 && (
+                    <span className="text-muted-foreground px-2">...</span>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={usersPage === usersTotalPages}
                     onClick={() => setUsersPage(usersPage + 1)}
+                    className="text-xs sm:text-sm"
                   >
                     التالي
                   </Button>
                 </div>
               </div>
               {paginatedUsers.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-muted-foreground text-sm sm:text-base px-4">
                   لا يوجد مستخدمون لعرضهم في هذه الصفحة أو الفترة الزمنية.
                 </div>
               )}

@@ -154,10 +154,19 @@ function AppContent() {
     location !== "/auth"
   ) {
     return (
-      <div className="flex items-center justify-center h-screen text-center">
-        <div>
-          <h1 className="text-3xl font-bold mb-4">النظام في وضع الصيانة</h1>
-          <p>نعتذر عن الإزعاج. يرجى المحاولة لاحقاً.</p>
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 p-3 sm:p-4 lg:p-6">
+        <div className="text-center max-w-md mx-auto">
+          <div className="mb-6 sm:mb-8">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <div className="w-8 h-8 sm:w-10 sm:w-10 lg:w-12 lg:h-12 bg-orange-500 rounded-full animate-pulse"></div>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-6">
+              النظام في وضع الصيانة
+            </h1>
+          </div>
+          <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
+            نعتذر عن الإزعاج. يرجى المحاولة لاحقاً.
+          </p>
         </div>
       </div>
     );

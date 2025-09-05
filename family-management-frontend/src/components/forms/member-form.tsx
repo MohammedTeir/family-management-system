@@ -52,131 +52,137 @@ export default function MemberForm({
   };
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 sm:space-y-4 lg:space-y-5">
       <div>
-        <Label htmlFor="fullName">الاسم الكامل *</Label>
+        <Label htmlFor="fullName" className="text-sm sm:text-base font-medium">الاسم الكامل *</Label>
         <Input
           id="fullName"
           placeholder="محمد فتح محمود أبو طير"
+          className="h-10 sm:h-11 text-sm sm:text-base mt-1"
           {...form.register("fullName")}
         />
         {form.formState.errors.fullName && (
-          <p className="text-sm text-destructive mt-1">
+          <p className="text-xs sm:text-sm text-destructive mt-1">
             {form.formState.errors.fullName.message}
           </p>
         )}
       </div>
 
       <div>
-        <Label htmlFor="memberID">رقم الهوية</Label>
+        <Label htmlFor="memberID" className="text-sm sm:text-base font-medium">رقم الهوية</Label>
         <Input
           id="memberID"
           placeholder="رقم الهوية (اختياري)"
+          className="h-10 sm:h-11 text-sm sm:text-base mt-1"
           {...form.register("memberID")}
         />
         {form.formState.errors.memberID && (
-          <p className="text-sm text-destructive mt-1">
+          <p className="text-xs sm:text-sm text-destructive mt-1">
             {form.formState.errors.memberID.message}
           </p>
         )}
       </div>
 
       <div>
-        <Label htmlFor="birthDate">تاريخ الميلاد *</Label>
+        <Label htmlFor="birthDate" className="text-sm sm:text-base font-medium">تاريخ الميلاد *</Label>
         <Input
           id="birthDate"
           type="date"
+          className="h-10 sm:h-11 text-sm sm:text-base mt-1"
           {...form.register("birthDate")}
         />
         {form.formState.errors.birthDate && (
-          <p className="text-sm text-destructive mt-1">
+          <p className="text-xs sm:text-sm text-destructive mt-1">
             {form.formState.errors.birthDate.message}
           </p>
         )}
       </div>
 
       <div>
-        <Label htmlFor="gender">النوع *</Label>
+        <Label htmlFor="gender" className="text-sm sm:text-base font-medium">النوع *</Label>
         <Select
           value={form.watch("gender")}
           onValueChange={(value: "male" | "female") => form.setValue("gender", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-10 sm:h-11 text-sm sm:text-base mt-1">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="male">ذكر</SelectItem>
-            <SelectItem value="female">أنثى</SelectItem>
+            <SelectItem value="male" className="text-sm sm:text-base">ذكر</SelectItem>
+            <SelectItem value="female" className="text-sm sm:text-base">أنثى</SelectItem>
           </SelectContent>
         </Select>
         {form.formState.errors.gender && (
-          <p className="text-sm text-destructive mt-1">
+          <p className="text-xs sm:text-sm text-destructive mt-1">
             {form.formState.errors.gender.message}
           </p>
         )}
       </div>
 
       <div>
-        <Label htmlFor="relationship">القرابة *</Label>
+        <Label htmlFor="relationship" className="text-sm sm:text-base font-medium">القرابة *</Label>
         <Select
           value={form.watch("relationship")}
           onValueChange={(value) => form.setValue("relationship", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-10 sm:h-11 text-sm sm:text-base mt-1">
             <SelectValue placeholder="اختر القرابة" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="son">ابن</SelectItem>
-            <SelectItem value="daughter">ابنة</SelectItem>
-            <SelectItem value="mother">أم</SelectItem>
-            <SelectItem value="father">أب</SelectItem>
-            <SelectItem value="brother">أخ</SelectItem>
-            <SelectItem value="sister">أخت</SelectItem>
-            <SelectItem value="grandfather">جد</SelectItem>
-            <SelectItem value="grandmother">جدة</SelectItem>
-            <SelectItem value="uncle">عم</SelectItem>
-            <SelectItem value="aunt">عمة</SelectItem>
-            <SelectItem value="other">أخرى</SelectItem>
+            <SelectItem value="son" className="text-sm sm:text-base">ابن</SelectItem>
+            <SelectItem value="daughter" className="text-sm sm:text-base">ابنة</SelectItem>
+            <SelectItem value="mother" className="text-sm sm:text-base">أم</SelectItem>
+            <SelectItem value="father" className="text-sm sm:text-base">أب</SelectItem>
+            <SelectItem value="brother" className="text-sm sm:text-base">أخ</SelectItem>
+            <SelectItem value="sister" className="text-sm sm:text-base">أخت</SelectItem>
+            <SelectItem value="grandfather" className="text-sm sm:text-base">جد</SelectItem>
+            <SelectItem value="grandmother" className="text-sm sm:text-base">جدة</SelectItem>
+            <SelectItem value="uncle" className="text-sm sm:text-base">عم</SelectItem>
+            <SelectItem value="aunt" className="text-sm sm:text-base">عمة</SelectItem>
+            <SelectItem value="other" className="text-sm sm:text-base">أخرى</SelectItem>
           </SelectContent>
         </Select>
         {form.formState.errors.relationship && (
-          <p className="text-sm text-destructive mt-1">
+          <p className="text-xs sm:text-sm text-destructive mt-1">
             {form.formState.errors.relationship.message}
           </p>
         )}
       </div>
 
-      <div className="flex items-center space-x-2 space-x-reverse">
+      <div className="flex items-center space-x-2 space-x-reverse py-1">
         <Switch
           id="isDisabled"
           checked={form.watch("isDisabled")}
           onCheckedChange={(checked) => form.setValue("isDisabled", checked)}
         />
-        <Label htmlFor="isDisabled">يعاني من إعاقة</Label>
+        <Label htmlFor="isDisabled" className="text-sm sm:text-base font-medium">يعاني من إعاقة</Label>
       </div>
 
       {form.watch("isDisabled") && (
         <div>
-          <Label htmlFor="disabilityType">نوع الإعاقة</Label>
+          <Label htmlFor="disabilityType" className="text-sm sm:text-base font-medium">نوع الإعاقة</Label>
           <Input
             id="disabilityType"
             placeholder="اذكر نوع الإعاقة"
+            className="h-10 sm:h-11 text-sm sm:text-base mt-1"
             {...form.register("disabilityType")}
           />
         </div>
       )}
 
-      <div className="flex justify-end space-x-2 space-x-reverse pt-4">
+      <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 sm:space-x-reverse pt-4 sm:pt-6">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
+          className="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base order-2 sm:order-1"
         >
           إلغاء
         </Button>
         <Button
           type="submit"
           disabled={isLoading}
+          className="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base order-1 sm:order-2"
         >
           {isLoading ? "جاري الحفظ..." : isEdit ? "تحديث" : "إضافة"}
         </Button>

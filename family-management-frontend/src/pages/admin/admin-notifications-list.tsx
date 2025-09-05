@@ -60,10 +60,10 @@ export default function AdminNotificationsList() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-          <div className="flex items-center justify-between mb-8">
+          <div className="mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">التنبيهات التي استلمتها</h1>
-              <p className="text-muted-foreground">عرض جميع التنبيهات المستلمة</p>
+              <h1 className="text-xl md:text-2xl font-bold text-foreground mb-2">التنبيهات التي استلمتها</h1>
+              <p className="text-sm md:text-base text-muted-foreground">عرض جميع التنبيهات المستلمة</p>
             </div>
           </div>
           <Card>
@@ -78,53 +78,81 @@ export default function AdminNotificationsList() {
                   <table className="w-full">
                     <thead className="bg-muted">
                       <tr>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">العنوان</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">الرسالة</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">الهدف</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">المستقبلين</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">تاريخ الإرسال</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">من</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground">العنوان</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground hidden md:table-cell">الرسالة</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground">الهدف</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground hidden lg:table-cell">المستقبلين</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground hidden sm:table-cell">تاريخ الإرسال</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground hidden xl:table-cell">من</th>
                       </tr>
                     </thead>
                     <tbody className="bg-card divide-y divide-border">
                       {receivedNotifications.map((notification: any) => (
                         <tr key={notification.id} className="hover:bg-muted">
-                          <td className="py-2 px-4 text-sm text-foreground">{notification.title}</td>
-                          <td className="py-2 px-4 text-sm text-foreground">{notification.message}</td>
-                          <td className="py-2 px-4 text-sm text-foreground">
-                            {getTargetLabel(notification.target)}
-                            {getNotificationBadge(notification)}
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground">
+                            <div className="flex flex-col">
+                              <span className="font-medium">{notification.title}</span>
+                              <span className="md:hidden text-xs text-muted-foreground mt-1 truncate max-w-40">{notification.message}</span>
+                              <span className="sm:hidden text-xs text-muted-foreground mt-1">
+                                {new Date(notification.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}
+                              </span>
+                            </div>
                           </td>
-                          <td className="py-2 px-4 text-sm text-foreground">
-                            {notification.target === 'admin' && (!notification.recipients || notification.recipients.length === 0) ? (
-                              'جميع المشرفين'
-                            ) : notification.recipients && notification.recipients.length > 0 ? (
-                              notification.recipients.map((id: number) => {
-                                const userObj = users?.find((u: any) => u.id === id);
-                                if (userObj) {
-                                  return `${userObj.username} (${userObj.phone || 'بدون رقم'})`;
-                                }
-                                const family = families?.find((f: any) => f.userId === id);
-                                if (family) {
-                                  return `${family.husbandName} (${family.husbandID})`;
-                                }
-                                return id;
-                              }).join(', ')
-                            ) : (
-                              'جميع المستخدمين'
-                            )}
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground hidden md:table-cell">
+                            <span className="max-w-xs truncate block">{notification.message}</span>
                           </td>
-                          <td className="py-2 px-4 text-sm text-muted-foreground">{
-                            new Date(notification.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })
-                          }</td>
-                          <td className="py-2 px-4 text-sm text-foreground">الإدارة</td>
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-xs hidden sm:inline">{getTargetLabel(notification.target)}</span>
+                              {getNotificationBadge(notification)}
+                              <span className="lg:hidden text-xs text-muted-foreground mt-1">
+                                {notification.target === 'admin' && (!notification.recipients || notification.recipients.length === 0) ? (
+                                  'جميع المشرفين'
+                                ) : notification.recipients && notification.recipients.length > 0 ? (
+                                  `${notification.recipients.length} مستخدم`
+                                ) : (
+                                  'جميع المستخدمين'
+                                )}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground hidden lg:table-cell">
+                            <div className="max-w-xs">
+                              {notification.target === 'admin' && (!notification.recipients || notification.recipients.length === 0) ? (
+                                'جميع المشرفين'
+                              ) : notification.recipients && notification.recipients.length > 0 ? (
+                                <div className="truncate">
+                                  {notification.recipients.map((id: number) => {
+                                    const userObj = users?.find((u: any) => u.id === id);
+                                    if (userObj) {
+                                      return `${userObj.username} (${userObj.phone || 'بدون رقم'})`;
+                                    }
+                                    const family = families?.find((f: any) => f.userId === id);
+                                    if (family) {
+                                      return `${family.husbandName} (${family.husbandID})`;
+                                    }
+                                    return id;
+                                  }).join(', ')}
+                                </div>
+                              ) : (
+                                'جميع المستخدمين'
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-muted-foreground hidden sm:table-cell">
+                            {new Date(notification.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}
+                          </td>
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground hidden xl:table-cell">الإدارة</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">لا توجد تنبيهات</div>
+                <div className="text-center py-8">
+                  <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">لا توجد تنبيهات</p>
+                </div>
               )}
             </CardContent>
           </Card>

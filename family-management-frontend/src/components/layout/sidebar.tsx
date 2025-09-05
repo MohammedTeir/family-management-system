@@ -97,7 +97,7 @@ export function AppSidebar() {
   // - When sidebar is collapsed AND it's not mobile → hide header/footer
   // - When sidebar is collapsed AND it's mobile → show header/footer
   // - When sidebar is expanded → always show header/footer
-  const shouldShowHeaderFooter = state === "expanded" || (state === "collapsed" && isMobile);
+  const shouldShowHeaderFooter = state === "expanded" || isMobile;
 
   // For menu items, we want to show titles on mobile even when sidebar is collapsed
   const shouldShowItemTitles = state === "expanded" || isMobile;
@@ -105,12 +105,12 @@ export function AppSidebar() {
   return (
     <Sidebar side="right" collapsible="icon" className="flex flex-col h-full">
       <SidebarHeader className={`flex-shrink-0 ${shouldShowHeaderFooter ? "" : "hidden"}`}>
-        <div className="flex items-center gap-2 px-4 py-2">
+        <div className="flex items-center gap-2 px-2 sm:px-3 md:px-4 py-2">
           <div className="grid flex-1 text-right text-sm leading-tight">
-            <span className="truncate font-semibold">
+            <span className="truncate font-semibold text-xs sm:text-sm">
               {settings?.siteTitle || "نظام إدارة الأسر"}
             </span>
-            <span className="truncate text-xs">
+            <span className="truncate text-xs opacity-80">
               لوحة التحكم الإدارية
             </span>
           </div>
@@ -156,14 +156,16 @@ export function AppSidebar() {
               tooltip={state === "collapsed" && !isMobile ? user.username : undefined}
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground w-full"
             >
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex items-center gap-2 w-full min-w-0">
                 <UserCog className="h-4 w-4 flex-shrink-0" />
-                <div className="grid flex-1 text-right text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.username}</span>
-                  <span className="truncate text-xs">
-                    {user.role === 'root' ? 'مشرف رئيسي' : 'مشرف'}
-                  </span>
-                </div>
+                {shouldShowItemTitles && (
+                  <div className="grid flex-1 text-right text-sm leading-tight min-w-0">
+                    <span className="truncate font-semibold text-xs sm:text-sm">{user.username}</span>
+                    <span className="truncate text-xs opacity-80">
+                      {user.role === 'root' ? 'مشرف رئيسي' : 'مشرف'}
+                    </span>
+                  </div>
+                )}
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

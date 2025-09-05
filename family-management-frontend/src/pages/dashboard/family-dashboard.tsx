@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useSettings } from "@/hooks/use-settings";
 import { useEffect } from "react";
 import { PageWrapper } from "@/components/layout/page-wrapper";
+import { Header } from "@/components/layout/header";
 
 export default function FamilyDashboard() {
   const { user, isLoading: authLoading } = useAuth();
@@ -93,28 +94,28 @@ export default function FamilyDashboard() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
             مرحباً {family?.husbandName || user?.username}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {family ? `مرحباً بك في لوحة تحكم بيانات الأسرة` : "مرحباً بك في نظام إدارة البيانات العائلية"}
           </p>
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <Users className="h-6 w-6 text-primary" />
+                <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <div className="mr-4">
-                  <p className="text-sm text-muted-foreground">إجمالي أفراد الأسرة (محسوب)</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="mr-3 sm:mr-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground">إجمالي أفراد الأسرة (محسوب)</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">
                     {totalMembers}
                   </p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedTotalMembers}</p>
@@ -124,14 +125,14 @@ export default function FamilyDashboard() {
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-3 bg-green-100 rounded-lg">
-                  <FileText className="h-6 w-6 text-secondary" />
+                <div className="p-2 sm:p-3 bg-green-100 rounded-lg">
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
                 </div>
-                <div className="mr-4">
-                  <p className="text-sm text-muted-foreground">الطلبات المقدمة</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="mr-3 sm:mr-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground">الطلبات المقدمة</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">
                     {requests?.length || 0}
                   </p>
                 </div>
@@ -140,14 +141,14 @@ export default function FamilyDashboard() {
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-3 bg-yellow-100 rounded-lg">
-                  <Clock className="h-6 w-6 text-warning" />
+                <div className="p-2 sm:p-3 bg-yellow-100 rounded-lg">
+                  <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
                 </div>
-                <div className="mr-4">
-                  <p className="text-sm text-muted-foreground">طلبات معلقة</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="mr-3 sm:mr-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground">طلبات معلقة</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">
                     {pendingRequests.length}
                   </p>
                 </div>
@@ -156,14 +157,14 @@ export default function FamilyDashboard() {
           </Card>
 
           <Card>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center">
-                <div className="p-3 bg-red-100 rounded-lg">
-                  <Bell className="h-6 w-6 text-accent" />
+                <div className="p-2 sm:p-3 bg-red-100 rounded-lg">
+                  <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
                 </div>
-                <div className="mr-4">
-                  <p className="text-sm text-muted-foreground">تنبيهات جديدة</p>
-                  <p className="text-2xl font-bold text-foreground">
+                <div className="mr-3 sm:mr-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground">تنبيهات جديدة</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">
                     {notifications?.length || 0}
                   </p>
                 </div>
@@ -173,44 +174,44 @@ export default function FamilyDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <Card className="mb-8">
+        <Card className="mb-6 sm:mb-8">
           <CardHeader>
-            <CardTitle>الإجراءات السريعة</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">الإجراءات السريعة</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <Link href="/dashboard/family">
-                <Button variant="outline" className="w-full h-auto p-4 justify-start">
-                  <Edit className="h-5 w-5 ml-3" />
-                  <span>تحديث بيانات الأسرة</span>
+                <Button variant="outline" className="w-full h-auto p-3 sm:p-4 justify-start">
+                  <Edit className="h-4 w-4 sm:h-5 sm:w-5 ml-2 sm:ml-3" />
+                  <span className="text-sm sm:text-base">تحديث بيانات الأسرة</span>
                 </Button>
               </Link>
               
               <Link href="/dashboard/members">
-                <Button variant="outline" className="w-full h-auto p-4 justify-start">
-                  <Users className="h-5 w-5 ml-3" />
-                  <span>عرض أفراد الأسرة</span>
+                <Button variant="outline" className="w-full h-auto p-3 sm:p-4 justify-start">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 ml-2 sm:ml-3" />
+                  <span className="text-sm sm:text-base">عرض أفراد الأسرة</span>
                 </Button>
               </Link>
               
               <Link href="/dashboard/requests">
-                <Button variant="outline" className="w-full h-auto p-4 justify-start">
-                  <FileText className="h-5 w-5 ml-3" />
-                  <span>إدارة الطلبات</span>
+                <Button variant="outline" className="w-full h-auto p-3 sm:p-4 justify-start">
+                  <FileText className="h-4 w-4 sm:h-5 sm:w-5 ml-2 sm:ml-3" />
+                  <span className="text-sm sm:text-base">إدارة الطلبات</span>
                 </Button>
               </Link>
 
               <Link href="/dashboard/notifications">
-                <Button variant="outline" className="w-full h-auto p-4 justify-start">
-                  <Bell className="h-5 w-5 ml-3" />
-                  <span>التنبيهات</span>
+                <Button variant="outline" className="w-full h-auto p-3 sm:p-4 justify-start">
+                  <Bell className="h-4 w-4 sm:h-5 sm:w-5 ml-2 sm:ml-3" />
+                  <span className="text-sm sm:text-base">التنبيهات</span>
                 </Button>
               </Link>
               
               <Link href="/dashboard/print-summary">
-                <Button variant="outline" className="w-full h-auto p-4 justify-start">
-                  <Printer className="h-5 w-5 ml-3" />
-                  <span>طباعة بيانات الأسرة</span>
+                <Button variant="outline" className="w-full h-auto p-3 sm:p-4 justify-start">
+                  <Printer className="h-4 w-4 sm:h-5 sm:w-5 ml-2 sm:ml-3" />
+                  <span className="text-sm sm:text-base">طباعة بيانات الأسرة</span>
                 </Button>
               </Link>
             </div>
@@ -219,7 +220,7 @@ export default function FamilyDashboard() {
 
         {/* Branch and Damage Information */}
         {(family?.branch || family?.warDamage2024 || family?.socialStatus) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
             {/* Branch Information */}
             {family?.branch && (
               <Card>
@@ -286,16 +287,16 @@ export default function FamilyDashboard() {
             </CardHeader>
             <CardContent>
               {/* Filters above the recent requests */}
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 mb-4">
                 <input
                   type="text"
                   placeholder="بحث برقم الطلب أو الوصف..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="border rounded px-2 py-1 text-sm"
+                  className="flex-1 min-w-0 border rounded px-3 py-2 text-sm"
                 />
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-32"><SelectValue>{statusFilter === 'all' ? 'كل الحالات' : getRequestStatusInArabic(statusFilter)}</SelectValue></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-36"><SelectValue>{statusFilter === 'all' ? 'كل الحالات' : getRequestStatusInArabic(statusFilter)}</SelectValue></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">كل الحالات</SelectItem>
                     <SelectItem value="pending">{getRequestStatusInArabic('pending')}</SelectItem>
@@ -304,7 +305,7 @@ export default function FamilyDashboard() {
                   </SelectContent>
                 </Select>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="w-32"><SelectValue>{typeFilter === 'all' ? 'كل الأنواع' : getRequestTypeInArabic(typeFilter)}</SelectValue></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-36"><SelectValue>{typeFilter === 'all' ? 'كل الأنواع' : getRequestTypeInArabic(typeFilter)}</SelectValue></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">كل الأنواع</SelectItem>
                     <SelectItem value="financial">مساعدة مالية</SelectItem>
@@ -313,14 +314,14 @@ export default function FamilyDashboard() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {filteredRecentRequests.map((request: any) => (
-                  <div key={request.id} className="flex items-center justify-between p-4 bg-background rounded-lg">
-                    <div>
-                      <p className="font-medium text-foreground">
+                  <div key={request.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-background rounded-lg gap-3">
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground text-sm sm:text-base">
                         {getRequestTypeInArabic(request.type)}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {new Date(request.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}
                       </p>
                       {request.adminComment && (
@@ -333,12 +334,12 @@ export default function FamilyDashboard() {
                     <Badge variant={
                       request.status === 'pending' ? 'default' :
                       request.status === 'approved' ? 'success' : 'destructive'
-                    } className={request.status === 'approved' ? 'bg-green-600 text-white' : request.status === 'rejected' ? 'bg-red-600 text-white' : ''}>
+                    } className={`text-xs sm:text-sm ${request.status === 'approved' ? 'bg-green-600 text-white' : request.status === 'rejected' ? 'bg-red-600 text-white' : ''} shrink-0`}>
                       {getRequestStatusInArabic(request.status)}
                     </Badge>
                   </div>
                 )) || (
-                  <p className="text-muted-foreground text-center py-4">لا توجد طلبات</p>
+                  <p className="text-muted-foreground text-center py-4 text-sm sm:text-base">لا توجد طلبات</p>
                 )}
               </div>
             </CardContent>
@@ -351,17 +352,17 @@ export default function FamilyDashboard() {
               <CardDescription>آخر التنبيهات والرسائل</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {unreadNotifications.map((notification: any) => (
-                  <div key={notification.id} className="p-4 bg-blue-50 rounded-lg border-r-4 border-primary">
-                    <p className="font-medium text-foreground">{notification.title}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                  <div key={notification.id} className="p-3 sm:p-4 bg-blue-50 rounded-lg border-r-4 border-primary">
+                    <p className="font-medium text-foreground text-sm sm:text-base">{notification.title}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">{notification.message}</p>
                     <p className="text-xs text-muted-foreground mt-2">
                       {new Date(notification.createdAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}
                     </p>
                   </div>
                 )) || (
-                  <p className="text-muted-foreground text-center py-4">لا توجد تنبيهات</p>
+                  <p className="text-muted-foreground text-center py-4 text-sm sm:text-base">لا توجد تنبيهات</p>
                 )}
               </div>
             </CardContent>

@@ -11,6 +11,7 @@ import { Loader2, Save, Upload, Database, RefreshCw, UploadCloud, DownloadCloud,
 import { Switch } from "../../components/ui/switch";
 import { useSettings } from "@/hooks/use-settings";
 import { useLocation } from "wouter";
+import { PageWrapper } from "@/components/layout/page-wrapper";
 
 interface Settings {
   siteName?: string;
@@ -380,24 +381,25 @@ const SettingsPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <PageWrapper>
+    <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">إعدادات النظام</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">إعدادات النظام</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             إدارة إعدادات الموقع والعلامة التجارية
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <Button
             variant="outline"
             onClick={() => setLocation('/admin')}
-            className="border-border text-foreground hover:bg-muted"
+            className="border-border text-foreground hover:bg-muted w-full sm:w-auto"
           >
             <ArrowLeft className="ml-2 h-4 w-4" />
             العودة إلى لوحة التحكم
           </Button>
-          <Button onClick={saveSettings} disabled={saving}>
+          <Button onClick={saveSettings} disabled={saving} className="w-full sm:w-auto">
             {saving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -414,7 +416,7 @@ const SettingsPage = () => {
       </div>
 
       {/* Settings Sections Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* System/Application Settings */}
         <Card>
           <CardHeader>
@@ -424,7 +426,7 @@ const SettingsPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="siteName">اسم الموقع</Label>
                 <Input
@@ -450,11 +452,12 @@ const SettingsPage = () => {
             {/* Logo Upload */}
             <div className="space-y-2">
               <Label>شعار الموقع</Label>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
                     onClick={() => document.getElementById("logo-upload")?.click()}
+                    className="w-full sm:w-auto"
                   >
                     <Upload className="mr-2 h-4 w-4" />
                     اختيار ملف
@@ -488,7 +491,7 @@ const SettingsPage = () => {
                   </div>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 يفضل استخدام صورة PNG أو JPG بحجم 200x200 بكسل
               </p>
             </div>
@@ -504,7 +507,7 @@ const SettingsPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="authPageTitle">عنوان صفحة تسجيل الدخول</Label>
                 <Input
@@ -530,11 +533,12 @@ const SettingsPage = () => {
             {/* Auth Page Icon Upload */}
             <div className="space-y-2">
               <Label>أيقونة صفحة تسجيل الدخول</Label>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="outline"
                     onClick={() => document.getElementById("auth-icon-upload")?.click()}
+                    className="w-full sm:w-auto"
                   >
                     <Upload className="mr-2 h-4 w-4" />
                     اختيار ملف
@@ -575,7 +579,7 @@ const SettingsPage = () => {
                   </div>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 يفضل استخدام صورة PNG أو JPG بحجم 48x48 بكسل
               </p>
             </div>
@@ -585,7 +589,7 @@ const SettingsPage = () => {
         {/* Theme/Branding */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle>المظهر و العلامة </CardTitle>
                 <CardDescription>
@@ -595,35 +599,35 @@ const SettingsPage = () => {
               <Button 
                 variant="outline" 
                 onClick={resetToDefaults}
-                className="text-sm"
+                className="text-sm w-full sm:w-auto"
               >
                 استخدام الافتراضي
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="primaryColor">اللون الأساسي</Label>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2">
                   <Input
                     id="primaryColor"
                     type="color"
                     value={settings.primaryColor || "#3b82f6"}
                     onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                    className="w-16 h-10 p-1"
+                    className="w-full xs:w-16 h-10 p-1"
                   />
                   <Input
                     value={settings.primaryColor || "#3b82f6"}
                     onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
                     placeholder="#3b82f6"
-                    className="flex-1"
+                    className="flex-1 min-w-0"
                   />
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSettings({ ...settings, primaryColor: "#3b82f6" })}
-                    className="text-xs"
+                    className="text-xs shrink-0"
                   >
                     افتراضي
                   </Button>
@@ -631,25 +635,25 @@ const SettingsPage = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="secondaryColor">اللون الثانوي</Label>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2">
                   <Input
                     id="secondaryColor"
                     type="color"
                     value={settings.secondaryColor || "#64748b"}
                     onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                    className="w-16 h-10 p-1"
+                    className="w-full xs:w-16 h-10 p-1"
                   />
                   <Input
                     value={settings.secondaryColor || "#64748b"}
                     onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
                     placeholder="#64748b"
-                    className="flex-1"
+                    className="flex-1 min-w-0"
                   />
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSettings({ ...settings, secondaryColor: "#64748b" })}
-                    className="text-xs"
+                    className="text-xs shrink-0"
                   >
                     افتراضي
                   </Button>
@@ -659,10 +663,10 @@ const SettingsPage = () => {
 
             <Separator />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="themeMode">نمط المظهر</Label>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2">
                   <Select
                     value={settings.themeMode || "auto"}
                     onValueChange={(value) => setSettings({ ...settings, themeMode: value as "light" | "dark" | "auto" })}
@@ -680,7 +684,7 @@ const SettingsPage = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSettings({ ...settings, themeMode: "auto" })}
-                    className="text-xs"
+                    className="text-xs shrink-0"
                   >
                     افتراضي
                   </Button>
@@ -688,7 +692,7 @@ const SettingsPage = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fontFamily">نوع الخط</Label>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2">
                   <Select
                     value={settings.fontFamily || "Amiri"}
                     onValueChange={(value) => setSettings({ ...settings, fontFamily: value as "Amiri" | "Cairo" | "Tajawal" | "Noto Sans Arabic" })}
@@ -697,8 +701,8 @@ const SettingsPage = () => {
                       <SelectValue placeholder="اختر نوع الخط" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Amiri">أميري</SelectItem>
                       <SelectItem value="Cairo">القاهرة</SelectItem>
+                      <SelectItem value="Amiri">أميري</SelectItem>
                       <SelectItem value="Tajawal">تجوال</SelectItem>
                       <SelectItem value="Noto Sans Arabic">نوتو سانس عربي</SelectItem>
                     </SelectContent>
@@ -707,7 +711,7 @@ const SettingsPage = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSettings({ ...settings, fontFamily: "Amiri" })}
-                    className="text-xs"
+                    className="text-xs shrink-0"
                   >
                     افتراضي
                   </Button>
@@ -719,19 +723,21 @@ const SettingsPage = () => {
 
             <div className="space-y-2">
               <Label>معاينة المظهر</Label>
-              <div className="p-4 border rounded-lg bg-background">
-                <div className="flex items-center space-x-4">
-                  <div 
-                    className="w-8 h-8 rounded-full"
-                    style={{ backgroundColor: settings.primaryColor || "#3b82f6" }}
-                  ></div>
-                  <div 
-                    className="w-8 h-8 rounded-full"
-                    style={{ backgroundColor: settings.secondaryColor || "#64748b" }}
-                  ></div>
-                  <div className="flex-1">
+              <div className="p-3 sm:p-4 border rounded-lg bg-background">
+                <div className="flex flex-col xs:flex-row items-start xs:items-center gap-3 xs:gap-4">
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-6 h-6 xs:w-8 xs:h-8 rounded-full"
+                      style={{ backgroundColor: settings.primaryColor || "#3b82f6" }}
+                    ></div>
+                    <div 
+                      className="w-6 h-6 xs:w-8 xs:h-8 rounded-full"
+                      style={{ backgroundColor: settings.secondaryColor || "#64748b" }}
+                    ></div>
+                  </div>
+                  <div className="flex-1 min-w-0">
                     <p 
-                      className="text-sm"
+                      className="text-xs xs:text-sm break-words"
                       style={{ 
                         fontFamily: settings.fontFamily || "Amiri",
                         color: settings.primaryColor || "#3b82f6"
@@ -764,7 +770,7 @@ const SettingsPage = () => {
             {/* Password Requirements */}
             <div className="space-y-4">
               <h4 className="text-sm font-medium">متطلبات كلمة المرور</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="minPasswordLength">الحد الأدنى لطول كلمة المرور</Label>
                   <Input
@@ -774,12 +780,12 @@ const SettingsPage = () => {
                     max="50"
                     value={settings.minPasswordLength || 8}
                     onChange={(e) => setSettings({ ...settings, minPasswordLength: parseInt(e.target.value) || 8 })}
-                    className="w-24"
+                    className="w-full xs:w-24"
                   />
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -788,7 +794,7 @@ const SettingsPage = () => {
                     onChange={(e) => setSettings({ ...settings, requireUppercase: e.target.checked })}
                     className="rounded"
                   />
-                  <Label htmlFor="requireUppercase">تطلب أحرف كبيرة (A-Z)</Label>
+                  <Label htmlFor="requireUppercase" className="text-sm">تطلب أحرف كبيرة (A-Z)</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <input
@@ -798,7 +804,7 @@ const SettingsPage = () => {
                     onChange={(e) => setSettings({ ...settings, requireLowercase: e.target.checked })}
                     className="rounded"
                   />
-                  <Label htmlFor="requireLowercase">تطلب أحرف صغيرة (a-z)</Label>
+                  <Label htmlFor="requireLowercase" className="text-sm">تطلب أحرف صغيرة (a-z)</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <input
@@ -808,7 +814,7 @@ const SettingsPage = () => {
                     onChange={(e) => setSettings({ ...settings, requireNumbers: e.target.checked })}
                     className="rounded"
                   />
-                  <Label htmlFor="requireNumbers">تطلب أرقام (0-9)</Label>
+                  <Label htmlFor="requireNumbers" className="text-sm">تطلب أرقام (0-9)</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <input
@@ -818,7 +824,7 @@ const SettingsPage = () => {
                     onChange={(e) => setSettings({ ...settings, requireSpecialChars: e.target.checked })}
                     className="rounded"
                   />
-                  <Label htmlFor="requireSpecialChars">تطلب رموز خاصة (!@#$%^&*)</Label>
+                  <Label htmlFor="requireSpecialChars" className="text-sm">تطلب رموز خاصة (!@#$%^&*)</Label>
                 </div>
               </div>
             </div>
@@ -828,7 +834,7 @@ const SettingsPage = () => {
             {/* Login Security */}
             <div className="space-y-4">
               <h4 className="text-sm font-medium">أمان تسجيل الدخول</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="maxLoginAttempts">الحد الأقصى لمحاولات تسجيل الدخول</Label>
                   <Input
@@ -838,7 +844,7 @@ const SettingsPage = () => {
                     max="20"
                     value={settings.maxLoginAttempts || 5}
                     onChange={(e) => setSettings({ ...settings, maxLoginAttempts: parseInt(e.target.value) || 5 })}
-                    className="w-24"
+                    className="w-full xs:w-24"
                   />
                 </div>
                 <div className="space-y-2">
@@ -850,7 +856,7 @@ const SettingsPage = () => {
                     max="1440"
                     value={settings.lockoutDuration || 15}
                     onChange={(e) => setSettings({ ...settings, lockoutDuration: parseInt(e.target.value) || 15 })}
-                    className="w-24"
+                    className="w-full xs:w-24"
                   />
                 </div>
                 <div className="space-y-2">
@@ -862,7 +868,7 @@ const SettingsPage = () => {
                     max="1440"
                     value={settings.sessionTimeout || 60}
                     onChange={(e) => setSettings({ ...settings, sessionTimeout: parseInt(e.target.value) || 60 })}
-                    className="w-24"
+                    className="w-full xs:w-24"
                   />
                 </div>
               </div>
@@ -917,15 +923,15 @@ const SettingsPage = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Backup Card */}
-            <div className="p-6 border rounded-lg bg-background flex flex-col items-center text-center shadow-sm">
-              <DownloadCloud className="h-10 w-10 text-primary mb-2" />
-              <h4 className="font-bold mb-1">تحميل نسخة احتياطية</h4>
-              <p className="text-sm text-muted-foreground mb-4">قم بتنزيل نسخة احتياطية كاملة من جميع بيانات النظام والإعدادات.</p>
+            <div className="p-4 sm:p-6 border rounded-lg bg-background flex flex-col items-center text-center shadow-sm">
+              <DownloadCloud className="h-8 w-8 sm:h-10 sm:w-10 text-primary mb-2" />
+              <h4 className="font-bold mb-1 text-sm sm:text-base">تحميل نسخة احتياطية</h4>
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4">قم بتنزيل نسخة احتياطية كاملة من جميع بيانات النظام والإعدادات.</p>
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full text-xs sm:text-sm"
                 onClick={async () => {
                   try {
                     const res = await fetchApi("/api/admin/backup");
@@ -949,10 +955,10 @@ const SettingsPage = () => {
               </Button>
             </div>
             {/* Restore Card */}
-            <div className="p-6 border rounded-lg bg-background flex flex-col items-center text-center shadow-sm">
-              <UploadCloud className="h-10 w-10 text-primary mb-2" />
-              <h4 className="font-bold mb-1">استعادة نسخة احتياطية</h4>
-              <p className="text-sm text-muted-foreground mb-4">قم برفع ملف نسخة احتياطية لاستعادة جميع البيانات والإعدادات.</p>
+            <div className="p-4 sm:p-6 border rounded-lg bg-background flex flex-col items-center text-center shadow-sm">
+              <UploadCloud className="h-8 w-8 sm:h-10 sm:w-10 text-primary mb-2" />
+              <h4 className="font-bold mb-1 text-sm sm:text-base">استعادة نسخة احتياطية</h4>
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4">قم برفع ملف نسخة احتياطية لاستعادة جميع البيانات والإعدادات.</p>
               <input
                 id="restore-upload"
                 type="file"
@@ -977,27 +983,27 @@ const SettingsPage = () => {
               />
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full text-xs sm:text-sm"
                 onClick={() => document.getElementById("restore-upload")?.click()}
               >
                 رفع واستعادة
               </Button>
             </div>
             {/* Merge Card */}
-            <div className="p-6 border rounded-lg bg-background flex flex-col items-center text-center shadow-sm">
-              <RefreshCw className="h-10 w-10 text-primary mb-2" />
-              <h4 className="font-bold mb-1">دمج تلقائي (موصى به)</h4>
-              <p className="text-sm text-muted-foreground mb-4">ادمج البيانات مع قاعدة بيانات أخرى بناءً على المعرفات أو التواريخ. مناسب للدمج بين فروع أو نسخ متعددة.</p>
+            <div className="p-4 sm:p-6 border rounded-lg bg-background flex flex-col items-center text-center shadow-sm">
+              <RefreshCw className="h-8 w-8 sm:h-10 sm:w-10 text-primary mb-2" />
+              <h4 className="font-bold mb-1 text-sm sm:text-base">دمج تلقائي (موصى به)</h4>
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4">ادمج البيانات مع قاعدة بيانات أخرى بناءً على المعرفات أو التواريخ. مناسب للدمج بين فروع أو نسخ متعددة.</p>
               <Input
                 value={mergeUrl}
                 onChange={e => setMergeUrl(e.target.value)}
                 placeholder="رابط قاعدة البيانات للدمج (اتركه فارغاً لاستخدام الافتراضي)"
-                className="mb-2 text-center"
+                className="mb-2 text-center text-xs sm:text-sm"
                 dir="ltr"
               />
               <Button
                 variant="default"
-                className="w-full"
+                className="w-full text-xs sm:text-sm"
                 onClick={async () => {
                   try {
                     const res = await fetchApi("/api/admin/merge", {
@@ -1017,14 +1023,16 @@ const SettingsPage = () => {
               </Button>
             </div>
           </div>
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <Database className="inline h-5 w-5 mr-1 text-primary align-middle" />
-            يشمل النسخ الاحتياطي جميع البيانات والإعدادات. تأكد من حفظ الملف في مكان آمن.<br/>
-            زر الدمج التلقائي يقوم بمقارنة ودمج البيانات مع قاعدة بيانات أخرى بناءً على المعرفات أو التواريخ.
+          <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-muted-foreground">
+            <Database className="inline h-4 w-4 sm:h-5 sm:w-5 mr-1 text-primary align-middle" />
+            <span className="block xs:inline">يشمل النسخ الاحتياطي جميع البيانات والإعدادات. تأكد من حفظ الملف في مكان آمن.</span>
+            <br className="hidden xs:block"/>
+            <span className="block xs:inline mt-2 xs:mt-0">زر الدمج التلقائي يقوم بمقارنة ودمج البيانات مع قاعدة بيانات أخرى بناءً على المعرفات أو التواريخ.</span>
           </div>
         </CardContent>
       </Card>
     </div>
+    </PageWrapper>
   );
 };
 

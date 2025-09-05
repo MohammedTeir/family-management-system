@@ -16,6 +16,7 @@ import { Link, useRoute } from "wouter";
 import { useSettings } from "@/hooks/use-settings";
 import { useEffect } from "react";
 import { PageWrapper } from "@/components/layout/page-wrapper";
+import { Header } from "@/components/layout/header";
 
 export default function PrintSummary() {
   const { toast } = useToast();
@@ -1173,7 +1174,7 @@ export default function PrintSummary() {
     <div className="min-h-screen bg-white">
       <Header />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Print Header (hidden in screen view) */}
         <div className="text-center mb-8 print-only">
           <h1 className="text-3xl font-bold text-foreground mb-2">بيانات الأسرة - تقرير مفصل</h1>
@@ -1181,12 +1182,12 @@ export default function PrintSummary() {
         </div>
 
         {/* Control Panel (Hidden in print) */}
-        <Card className="mb-6 no-print">
+        <Card className="mb-4 sm:mb-6 no-print">
           <CardHeader>
-            <CardTitle>إعدادات العرض والطباعة</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">إعدادات العرض والطباعة</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <div className="flex items-center space-x-2 space-x-reverse">
                 <Switch
                   id="showSensitiveInfo"
@@ -1216,7 +1217,7 @@ export default function PrintSummary() {
 
               <Dialog open={showChildrenModal} onOpenChange={setShowChildrenModal}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full text-sm sm:text-base">
                     <Users className="h-4 w-4 ml-2" />
                     بيانات الأطفال
                   </Button>
@@ -1229,22 +1230,22 @@ export default function PrintSummary() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <p className="text-2xl font-bold text-blue-600">{children.length}</p>
-                        <p className="text-sm text-muted-foreground">إجمالي الأطفال</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                      <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+                        <p className="text-xl sm:text-2xl font-bold text-blue-600">{children.length}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">إجمالي الأطفال</p>
                       </div>
-                      <div className="text-center p-4 bg-green-50 rounded-lg">
-                        <p className="text-2xl font-bold text-green-600">
+                      <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+                        <p className="text-xl sm:text-2xl font-bold text-green-600">
                           {children.filter((child: any) => child.gender === 'male').length}
                         </p>
-                        <p className="text-sm text-muted-foreground">الأبناء</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">الأبناء</p>
                       </div>
-                      <div className="text-center p-4 bg-pink-50 rounded-lg">
-                        <p className="text-2xl font-bold text-pink-600">
+                      <div className="text-center p-3 sm:p-4 bg-pink-50 rounded-lg">
+                        <p className="text-xl sm:text-2xl font-bold text-pink-600">
                           {children.filter((child: any) => child.gender === 'female').length}
                         </p>
-                        <p className="text-sm text-muted-foreground">البنات</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">البنات</p>
               </div>
             </div>
 
@@ -1285,16 +1286,16 @@ export default function PrintSummary() {
                       </table>
                     </div>
 
-                    <div className="flex justify-center space-x-3 space-x-reverse pt-4">
-                      <Button onClick={handlePrintChildren} variant="outline">
+                    <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-3 pt-4">
+                      <Button onClick={handlePrintChildren} variant="outline" className="w-full sm:w-auto text-sm sm:text-base">
                         <Printer className="h-4 w-4 ml-2" />
                         طباعة
               </Button>
-                      <Button onClick={handleExportChildrenPDF} variant="outline">
+                      <Button onClick={handleExportChildrenPDF} variant="outline" className="w-full sm:w-auto text-sm sm:text-base">
                         <FileText className="h-4 w-4 ml-2" />
                         PDF
                       </Button>
-                      <Button onClick={handleExportChildrenExcel} variant="outline">
+                      <Button onClick={handleExportChildrenExcel} variant="outline" className="w-full sm:w-auto text-sm sm:text-base">
                         <FileSpreadsheet className="h-4 w-4 ml-2" />
                         Excel
                       </Button>
@@ -1305,16 +1306,16 @@ export default function PrintSummary() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 justify-center">
-                <Button onClick={handlePrint} className="bg-primary text-primary-foreground">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center">
+                <Button onClick={handlePrint} className="bg-primary text-primary-foreground w-full sm:w-auto text-sm sm:text-base">
                   <Printer className="h-4 w-4 ml-2" />
                   طباعة
                 </Button>
-                <Button onClick={handleExportPDF} className="bg-red-600 text-white hover:bg-red-700">
+                <Button onClick={handleExportPDF} className="bg-red-600 text-white hover:bg-red-700 w-full sm:w-auto text-sm sm:text-base">
                 <FileText className="h-4 w-4 ml-2" />
                 PDF
                 </Button>
-              <Button onClick={handleExportExcel} className="bg-green-600 text-white hover:bg-green-700">
+              <Button onClick={handleExportExcel} className="bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto text-sm sm:text-base">
                 <FileSpreadsheet className="h-4 w-4 ml-2" />
                 Excel
               </Button>
@@ -1332,43 +1333,43 @@ export default function PrintSummary() {
                 <Briefcase className="h-5 w-5 ml-2" />
                 بيانات رب الأسرة
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
-                  <p className="text-lg text-foreground">{family.husbandName}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
+                  <p className="text-base sm:text-lg text-foreground">{family.husbandName}</p>
                 </div>
                 {showSensitiveInfo && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">رقم الهوية</p>
-                    <p className="text-lg text-foreground">{family.husbandID}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الهوية</p>
+                    <p className="text-base sm:text-lg text-foreground">{family.husbandID}</p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
-                  <div className="flex items-center">
-                  <p className="text-lg text-foreground">{family.husbandBirthDate}</p>
-                    <Badge variant="outline" className="mr-2">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <p className="text-base sm:text-lg text-foreground">{family.husbandBirthDate}</p>
+                    <Badge variant="outline" className="text-xs w-fit">
                       {calculateAge(family.husbandBirthDate)} سنة
                     </Badge>
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">المهنة</p>
-                  <p className="text-lg text-foreground">{family.husbandJob}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">المهنة</p>
+                  <p className="text-base sm:text-lg text-foreground">{family.husbandJob}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">رقم الجوال الأساسي</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الجوال الأساسي</p>
                   <div className="flex items-center">
-                    <Phone className="h-4 w-4 ml-2 text-muted-foreground" />
-                  <p className="text-lg text-foreground">{family.primaryPhone}</p>
+                    <Phone className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2 text-muted-foreground" />
+                  <p className="text-base sm:text-lg text-foreground">{family.primaryPhone}</p>
                   </div>
                 </div>
                 {family.secondaryPhone && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">رقم الجوال البديل</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الجوال البديل</p>
                     <div className="flex items-center">
-                      <Phone className="h-4 w-4 ml-2 text-muted-foreground" />
-                    <p className="text-lg text-foreground">{family.secondaryPhone}</p>
+                      <Phone className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2 text-muted-foreground" />
+                    <p className="text-base sm:text-lg text-foreground">{family.secondaryPhone}</p>
                     </div>
                   </div>
                 )}
@@ -1382,23 +1383,23 @@ export default function PrintSummary() {
                   <Heart className="h-5 w-5 ml-2" />
                   بيانات الزوجة
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
-                    <p className="text-lg text-foreground">{family.wifeName}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
+                    <p className="text-base sm:text-lg text-foreground">{family.wifeName}</p>
                   </div>
                   {showSensitiveInfo && family.wifeID && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">رقم الهوية</p>
-                      <p className="text-lg text-foreground">{family.wifeID}</p>
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الهوية</p>
+                      <p className="text-base sm:text-lg text-foreground">{family.wifeID}</p>
                     </div>
                   )}
                   {family.wifeBirthDate && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
-                      <div className="flex items-center">
-                      <p className="text-lg text-foreground">{family.wifeBirthDate}</p>
-                        <Badge variant="outline" className="mr-2">
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                      <p className="text-base sm:text-lg text-foreground">{family.wifeBirthDate}</p>
+                        <Badge variant="outline" className="text-xs w-fit">
                           {calculateAge(family.wifeBirthDate)} سنة
                         </Badge>
                       </div>
@@ -1406,14 +1407,14 @@ export default function PrintSummary() {
                   )}
                   {family.wifeJob && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">المهنة</p>
-                      <p className="text-lg text-foreground">{family.wifeJob}</p>
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">المهنة</p>
+                      <p className="text-base sm:text-lg text-foreground">{family.wifeJob}</p>
                     </div>
                   )}
                   {family.wifePregnant && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">حالة الحمل</p>
-                      <Badge variant={family.wifePregnant ? "destructive" : "secondary"}>
+                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">حالة الحمل</p>
+                      <Badge variant={family.wifePregnant ? "destructive" : "secondary"} className="text-xs">
                         {family.wifePregnant ? 'حامل' : 'غير حامل'}
                       </Badge>
                     </div>
@@ -1431,8 +1432,8 @@ export default function PrintSummary() {
                     معلومات السكن
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground">المسكن الأصلي</Label>
                       <p className="text-sm text-foreground mt-1">
@@ -1509,33 +1510,33 @@ export default function PrintSummary() {
                 <Users className="h-5 w-5 ml-2" />
                 الحالة العامة للأسرة
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <p className="text-2xl font-bold text-primary">{totalMembers}</p>
-                  <p className="text-sm text-muted-foreground">إجمالي أفراد الأسرة  (محسوب)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+                  <p className="text-xl sm:text-2xl font-bold text-primary">{totalMembers}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">إجمالي أفراد الأسرة  (محسوب)</p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedTotalMembers}</p>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <p className="text-2xl font-bold text-secondary">{maleCount}</p>
-                  <p className="text-sm text-muted-foreground">عدد الذكور (محسوب)</p>
+                <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+                  <p className="text-xl sm:text-2xl font-bold text-secondary">{maleCount}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الذكور (محسوب)</p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedNumMales}</p>
                 </div>
-                <div className="text-center p-4 bg-pink-50 rounded-lg">
-                  <p className="text-2xl font-bold text-pink-600">{femaleCount}</p>
-                  <p className="text-sm text-muted-foreground">عدد الإناث (محسوب)</p>
+                <div className="text-center p-3 sm:p-4 bg-pink-50 rounded-lg">
+                  <p className="text-xl sm:text-2xl font-bold text-pink-600">{femaleCount}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الإناث (محسوب)</p>
                   <p className="text-xs text-muted-foreground">محفوظ: {storedNumFemales}</p>
                 </div>
-                <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                  <p className="text-2xl font-bold text-yellow-600">{children.length}</p>
-                  <p className="text-sm text-muted-foreground">عدد الأطفال (تحت 2 سنة)</p>
+                <div className="text-center p-3 sm:p-4 bg-yellow-50 rounded-lg">
+                  <p className="text-xl sm:text-2xl font-bold text-yellow-600">{children.length}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">عدد الأطفال (تحت 2 سنة)</p>
                   </div>
                 </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {family.socialStatus && (
-                  <div className="flex items-center">
-                    <span className="text-sm font-medium text-muted-foreground ml-2">الحالة الاجتماعية:</span>
-                    <Badge variant="outline" className="bg-blue-100 text-blue-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <span className="text-xs sm:text-sm font-medium text-muted-foreground">الحالة الاجتماعية:</span>
+                    <Badge variant="outline" className="bg-blue-100 text-blue-800 text-xs w-fit">
                       {getSocialStatusInArabic(family.socialStatus)}
                     </Badge>
                   </div>

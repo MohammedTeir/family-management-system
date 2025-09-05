@@ -283,16 +283,16 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
             </Button>
           </div>
           {/* Tabs and title bar */}
-          <div className="mb-6 flex flex-row-reverse items-center justify-between w-full">
+          <div className="mb-6 flex flex-col md:flex-row-reverse md:items-center md:justify-between w-full gap-4">
             <div className="flex flex-row-reverse items-center gap-4">
-              <h1 className="text-2xl font-bold text-foreground ml-4">
-                تعديل بيانات الأسرة <Badge className="bg-blue-100 text-blue-800">#{family.id}</Badge>
+              <h1 className="text-lg md:text-2xl font-bold text-foreground ml-2 md:ml-4">
+                تعديل بيانات الأسرة <Badge className="bg-blue-100 text-blue-800 text-xs md:text-sm">#{family.id}</Badge>
               </h1>
             </div>
-            <Tabs value={tab} onValueChange={setTab} className="mb-0">
-              <TabsList className="flex flex-row-reverse gap-2">
-                <TabsTrigger value="family">بيانات الأسرة</TabsTrigger>
-                <TabsTrigger value="members">أفراد الأسرة</TabsTrigger>
+            <Tabs value={tab} onValueChange={setTab} className="mb-0 w-full md:w-auto">
+              <TabsList className="flex flex-row-reverse gap-1 md:gap-2 w-full md:w-auto">
+                <TabsTrigger value="family" className="text-xs md:text-sm flex-1 md:flex-none">بيانات الأسرة</TabsTrigger>
+                <TabsTrigger value="members" className="text-xs md:text-sm flex-1 md:flex-none">أفراد الأسرة</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -303,9 +303,11 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                   <CardTitle className="flex items-center gap-2 text-blue-900">تعديل بيانات الأسرة <Badge className="bg-blue-200 text-blue-900">#{family.id}</Badge></CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleFamilySubmit} className="space-y-8">
+                  <form onSubmit={handleFamilySubmit} className="space-y-6 md:space-y-8">
                     {/* Husband Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h3 className="text-base md:text-lg font-semibold text-foreground border-b pb-2">بيانات رب الأسرة</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div className="flex flex-col items-end">
                         <Label htmlFor="husbandName" className="text-right w-full mb-1">الاسم الرباعي *</Label>
                         <Input id="husbandName" name="husbandName" value={familyForm.husbandName || ""} onChange={handleFamilyChange} required className="text-right mt-1" />
@@ -330,9 +332,12 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                         <Label htmlFor="secondaryPhone" className="text-right w-full mb-1">رقم الجوال البديل</Label>
                         <Input id="secondaryPhone" name="secondaryPhone" value={familyForm.secondaryPhone || ""} onChange={handleFamilyChange} className="text-right mt-1" />
                       </div>
+                      </div>
                     </div>
                     {/* Wife Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h3 className="text-base md:text-lg font-semibold text-foreground border-b pb-2">بيانات الزوجة</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div className="flex flex-col items-end">
                         <Label htmlFor="wifeName" className="text-right w-full mb-1">اسم الزوجة</Label>
                         <Input id="wifeName" name="wifeName" value={familyForm.wifeName || ""} onChange={handleFamilyChange} className="text-right mt-1" />
@@ -353,9 +358,12 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                         <Label htmlFor="wifePregnant" className="text-right w-full mb-1">حامل؟</Label>
                         <div className="mt-1"><Switch id="wifePregnant" name="wifePregnant" checked={!!familyForm.wifePregnant} onCheckedChange={(checked: boolean) => setFamilyForm((f: any) => ({ ...f, wifePregnant: checked }))} /></div>
                       </div>
+                      </div>
                     </div>
                     {/* Family Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h3 className="text-base md:text-lg font-semibold text-foreground border-b pb-2">بيانات الأسرة</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <div className="flex flex-col items-end">
                         <Label htmlFor="originalResidence" className="text-right w-full mb-1">السكن الأصلي *</Label>
                         <Input id="originalResidence" name="originalResidence" value={familyForm.originalResidence || ""} onChange={handleFamilyChange} required className="text-right mt-1" />
@@ -436,8 +444,9 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                         <Label htmlFor="numFemales" className="text-right w-full mb-1">عدد الإناث *</Label>
                         <Input id="numFemales" name="numFemales" type="number" value={familyForm.numFemales || 0} onChange={handleFamilyChange} required className="text-right mt-1" />
                       </div>
+                      </div>
                     </div>
-                    <div className="flex justify-end mt-8">
+                    <div className="flex justify-end mt-6 md:mt-8">
                       <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white" disabled={updateFamilyMutation.isPending}>
                         {updateFamilyMutation.isPending ? "جاري الحفظ..." : "حفظ التعديلات"}
                       </Button>
@@ -448,12 +457,13 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
             </TabsContent>
             <TabsContent value="members">
               <Card className="border-green-200 shadow-md">
-                <CardHeader className="flex flex-row-reverse items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-green-900"><Users className="h-5 w-5 ml-1 text-green-600" /> أفراد الأسرة</CardTitle>
-                  <Button onClick={() => { setEditingMember(null); setIsMemberDialogOpen(true); }} className="bg-green-600 hover:bg-green-700 text-white"><Plus className="h-4 w-4 ml-2" /> إضافة فرد</Button>
+                <CardHeader className="flex flex-col sm:flex-row-reverse sm:items-center sm:justify-between gap-4">
+                  <CardTitle className="flex items-center gap-2 text-green-900 text-base md:text-lg"><Users className="h-5 w-5 ml-1 text-green-600" /> أفراد الأسرة</CardTitle>
+                  <Button onClick={() => { setEditingMember(null); setIsMemberDialogOpen(true); }} className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto text-sm"><Plus className="h-4 w-4 ml-2" /> إضافة فرد</Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto">
+                  {/* Desktop table view */}
+                  <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-sm text-right">
                       <thead className="bg-background">
                         <tr>
@@ -483,6 +493,30 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                         )}
                       </tbody>
                     </table>
+                  </div>
+                  {/* Mobile card view */}
+                  <div className="md:hidden space-y-3">
+                    {family.members && family.members.length > 0 ? family.members.map((member: any) => (
+                      <div key={member.id} className="bg-muted/30 rounded-lg p-4 space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-1 flex-1">
+                            <h4 className="font-medium text-sm">{member.fullName}</h4>
+                            <div className="flex flex-wrap gap-1">
+                              <Badge className={member.gender === 'male' ? 'bg-blue-100 text-blue-800 text-xs' : 'bg-pink-100 text-pink-800 text-xs'}>{getGenderInArabic(member.gender)}</Badge>
+                              <Badge className="bg-muted text-foreground text-xs">{getRelationshipInArabic(member.relationship)}</Badge>
+                              {member.birthDate && <Badge className="bg-green-100 text-green-800 text-xs">{calculateDetailedAge(member.birthDate)}</Badge>}
+                            </div>
+                            <p className="text-xs text-muted-foreground">تاريخ الميلاد: {member.birthDate || 'غير محدد'}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline" onClick={() => { setEditingMember(member); setIsMemberDialogOpen(true); }} className="p-2"><Edit2 className="h-3 w-3" /></Button>
+                            <Button size="sm" variant="destructive" onClick={() => deleteMemberMutation.mutate(member.id)} className="p-2"><Trash2 className="h-3 w-3" /></Button>
+                          </div>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="text-center text-muted-foreground py-8">لا يوجد أفراد مسجلين لهذه الأسرة.</div>
+                    )}
                   </div>
                   {/* Member Dialog */}
                   {isMemberDialogOpen && (
@@ -566,10 +600,11 @@ function MemberFormModal({ initialData, onSubmit, onCancel, isLoading, isEdit, c
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg" dir="rtl">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 p-4">
+      <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" dir="rtl">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+          <h2 className="text-lg font-semibold mb-4">{isEdit ? 'تعديل بيانات الفرد' : 'إضافة فرد جديد'}</h2>
+          <div className="grid grid-cols-1 gap-3 md:gap-4">
             <div>
               <Label htmlFor="fullName">الاسم الكامل *</Label>
               <Input id="fullName" name="fullName" value={form.fullName} onChange={handleChange} required />
@@ -615,9 +650,9 @@ function MemberFormModal({ initialData, onSubmit, onCancel, isLoading, isEdit, c
               </div>
             )}
           </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onCancel}>إلغاء</Button>
-            <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white" disabled={isLoading}>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">إلغاء</Button>
+            <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto" disabled={isLoading}>
               {isLoading ? "جاري الحفظ..." : isEdit ? "تحديث" : "إضافة"}
             </Button>
           </div>

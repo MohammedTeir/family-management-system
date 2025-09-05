@@ -9,6 +9,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { useEffect } from "react";
 import { validatePasswordWithPolicy } from "@/lib/utils";
 import { fetchApi } from "@/lib/api";
+import { Header } from "@/components/layout/header";
 
 export default function ProfilePage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -81,83 +82,98 @@ export default function ProfilePage() {
 
   if (authLoading) {
     return (
-      <div className="max-w-xl mx-auto mt-10">
-        <Card>
-          <CardHeader>
-            <CardTitle>الملف الشخصي</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>جاري تحميل بيانات المستخدم...</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg sm:text-xl">الملف الشخصي</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm sm:text-base">جاري تحميل بيانات المستخدم...</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-xl mx-auto mt-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>الملف الشخصي</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-6">
-            <Label>اسم المستخدم</Label>
-            <Input value={user?.username || ""} disabled />
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="max-w-xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg sm:text-xl">الملف الشخصي</CardTitle>
+          </CardHeader>
+          <CardContent>
+          <div className="mb-4 sm:mb-6">
+            <Label className="text-sm sm:text-base">اسم المستخدم</Label>
+            <Input value={user?.username || ""} disabled className="text-sm sm:text-base" />
           </div>
           <form onSubmit={handlePasswordChange}>
-            <div className="mb-4">
-              <Label htmlFor="currentPassword">كلمة المرور الحالية</Label>
+            <div className="mb-3 sm:mb-4">
+              <Label htmlFor="currentPassword" className="text-sm sm:text-base">كلمة المرور الحالية</Label>
               <Input
                 id="currentPassword"
                 type="password"
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="mb-4">
-              <Label htmlFor="newPassword">كلمة المرور الجديدة</Label>
+            <div className="mb-3 sm:mb-4">
+              <Label htmlFor="newPassword" className="text-sm sm:text-base">كلمة المرور الجديدة</Label>
               <Input
                 id="newPassword"
                 type="password"
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="mb-4">
-              <Label htmlFor="confirmPassword">تأكيد كلمة المرور الجديدة</Label>
+            <div className="mb-4 sm:mb-4">
+              <Label htmlFor="confirmPassword" className="text-sm sm:text-base">تأكيد كلمة المرور الجديدة</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 required
+                className="text-sm sm:text-base"
               />
             </div>
-            {error && <div className="text-red-600 mb-2">{error}</div>}
-            {success && <div className="text-green-600 mb-2">{success}</div>}
-            <Button type="submit" disabled={loading} className="ml-2">
-              {loading ? "جاري الحفظ..." : "تغيير كلمة المرور"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                if (user?.role === "head") {
-                  navigate("/dashboard");
-                } else {
-                  navigate("/admin");
-                }
-              }}
-              className="mt-2"
-            >
-              العودة إلى لوحة التحكم
-            </Button>
+            {error && <div className="text-red-600 mb-3 text-sm sm:text-base">{error}</div>}
+            {success && <div className="text-green-600 mb-3 text-sm sm:text-base">{success}</div>}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full sm:w-auto text-sm sm:text-base order-1 sm:order-1"
+              >
+                {loading ? "جاري الحفظ..." : "تغيير كلمة المرور"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (user?.role === "head") {
+                    navigate("/dashboard");
+                  } else {
+                    navigate("/admin");
+                  }
+                }}
+                className="w-full sm:w-auto text-sm sm:text-base order-2 sm:order-2"
+              >
+                العودة إلى لوحة التحكم
+              </Button>
+            </div>
           </form>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

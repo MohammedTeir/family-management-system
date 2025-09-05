@@ -181,57 +181,57 @@ export default function AdminNotifications() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl font-bold text-foreground mb-2">قائمة التنبيهات</h1>
               <p className="text-muted-foreground">إرسال تنبيهات ورسائل للمستخدمين</p>
             </div>
             
-            <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2">
+            <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2 w-full sm:w-auto">
               <Plus className="h-4 w-4" />
               إرسال تنبيه جديد
             </Button>
           </div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <Bell className="h-6 w-6 text-primary" />
+                  <div className="p-2 md:p-3 bg-blue-100 rounded-lg">
+                    <Bell className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                   </div>
-                  <div className="mr-4">
-                    <p className="text-sm text-muted-foreground">إجمالي التنبيهات</p>
-                    <p className="text-2xl font-bold text-foreground">{totalNotifications}</p>
+                  <div className="mr-3 md:mr-4">
+                    <p className="text-xs md:text-sm text-muted-foreground">إجمالي التنبيهات</p>
+                    <p className="text-xl md:text-2xl font-bold text-foreground">{totalNotifications}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-green-100 rounded-lg">
-                    <Send className="h-6 w-6 text-secondary" />
+                  <div className="p-2 md:p-3 bg-green-100 rounded-lg">
+                    <Send className="h-5 w-5 md:h-6 md:w-6 text-secondary" />
                   </div>
-                  <div className="mr-4">
-                    <p className="text-sm text-muted-foreground">هذا الأسبوع</p>
-                    <p className="text-2xl font-bold text-foreground">{thisWeekNotifications.length}</p>
+                  <div className="mr-3 md:mr-4">
+                    <p className="text-xs md:text-sm text-muted-foreground">هذا الأسبوع</p>
+                    <p className="text-xl md:text-2xl font-bold text-foreground">{thisWeekNotifications.length}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent className="p-6">
+            <Card className="sm:col-span-2 lg:col-span-1">
+              <CardContent className="p-4 md:p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-purple-100 rounded-lg">
-                    <Users className="h-6 w-6 text-purple-600" />
+                  <div className="p-2 md:p-3 bg-purple-100 rounded-lg">
+                    <Users className="h-5 w-5 md:h-6 md:w-6 text-purple-600" />
                   </div>
-                  <div className="mr-4">
-                    <p className="text-sm text-muted-foreground">المستقبلين النشطين</p>
-                    <p className="text-2xl font-bold text-foreground">{families?.length || 0}</p>
+                  <div className="mr-3 md:mr-4">
+                    <p className="text-xs md:text-sm text-muted-foreground">المستقبلين النشطين</p>
+                    <p className="text-xl md:text-2xl font-bold text-foreground">{families?.length || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -244,7 +244,7 @@ export default function AdminNotifications() {
               <CardTitle>إرسال سريع</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <Button 
                   variant="outline" 
                   className="h-auto p-4 justify-start"
@@ -254,10 +254,10 @@ export default function AdminNotifications() {
                     setIsDialogOpen(true);
                   }}
                 >
-                  <AlertCircle className="h-5 w-5 ml-3 text-accent" />
+                  <AlertCircle className="h-4 w-4 md:h-5 md:w-5 ml-2 md:ml-3 text-accent flex-shrink-0" />
                   <div className="text-right">
-                    <div className="font-medium">تنبيه عاجل</div>
-                    <div className="text-sm text-muted-foreground">لجميع المستخدمين (بارز)</div>
+                    <div className="font-medium text-sm md:text-base">تنبيه عاجل</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">لجميع المستخدمين (بارز)</div>
                   </div>
                 </Button>
                 
@@ -270,26 +270,26 @@ export default function AdminNotifications() {
                     setIsDialogOpen(true);
                   }}
                 >
-                  <Users className="h-5 w-5 ml-3 text-secondary" />
+                  <Users className="h-4 w-4 md:h-5 md:w-5 ml-2 md:ml-3 text-secondary flex-shrink-0" />
                   <div className="text-right">
-                    <div className="font-medium">إشعار لرؤساء الأسر</div>
-                    <div className="text-sm text-muted-foreground">رؤساء الأسر فقط</div>
+                    <div className="font-medium text-sm md:text-base">إشعار لرؤساء الأسر</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">رؤساء الأسر فقط</div>
                   </div>
                 </Button>
 
                 <Button 
                   variant="outline" 
-                  className="h-auto p-4 justify-start"
+                  className="h-auto p-4 justify-start md:col-span-2 xl:col-span-1"
                   onClick={() => {
                     form.setValue("title", "إشعار للمشرفين");
                     form.setValue("target", "admin");
                     setIsDialogOpen(true);
                   }}
                 >
-                  <Users className="h-5 w-5 ml-3 text-orange-500" />
+                  <Users className="h-4 w-4 md:h-5 md:w-5 ml-2 md:ml-3 text-orange-500 flex-shrink-0" />
                   <div className="text-right">
-                    <div className="font-medium">إشعار للمشرفين</div>
-                    <div className="text-sm text-muted-foreground">جميع المشرفين فقط</div>
+                    <div className="font-medium text-sm md:text-base">إشعار للمشرفين</div>
+                    <div className="text-xs md:text-sm text-muted-foreground">جميع المشرفين فقط</div>
                   </div>
                 </Button>
               </div>
@@ -307,24 +307,45 @@ export default function AdminNotifications() {
                   <table className="w-full">
                     <thead className="bg-background">
                       <tr>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">العنوان</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">الرسالة</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">الهدف</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">المستقبلين</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">تاريخ الإرسال</th>
-                        <th className="py-2 px-4 text-left text-sm font-semibold text-muted-foreground">من</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground">العنوان</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground hidden md:table-cell">الرسالة</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground">الهدف</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground hidden lg:table-cell">المستقبلين</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground hidden sm:table-cell">تاريخ الإرسال</th>
+                        <th className="py-2 px-2 md:px-4 text-left text-xs md:text-sm font-semibold text-muted-foreground hidden xl:table-cell">من</th>
                       </tr>
                     </thead>
                     <tbody>
                       {paginatedNotifications.map((notification: any) => (
                         <tr key={notification.id} className="hover:bg-muted">
-                          <td className="py-2 px-4 text-sm text-foreground">{notification.title}</td>
-                          <td className="py-2 px-4 text-sm text-foreground">{notification.message}</td>
-                          <td className="py-2 px-4 text-sm text-foreground">
-                            {getTargetLabel(notification.target)}
-                              {getNotificationBadge(notification)}
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground">
+                            <div className="flex flex-col">
+                              <span className="font-medium">{notification.title}</span>
+                              <span className="md:hidden text-xs text-muted-foreground mt-1 truncate max-w-32">{notification.message}</span>
+                              <span className="sm:hidden text-xs text-muted-foreground mt-1">{formatDate(notification.createdAt)}</span>
+                            </div>
                           </td>
-                          <td className="py-2 px-4 text-sm text-foreground">
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground hidden md:table-cell">
+                            <span className="max-w-xs truncate block">{notification.message}</span>
+                          </td>
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-xs">{getTargetLabel(notification.target)}</span>
+                              {getNotificationBadge(notification)}
+                              <span className="lg:hidden text-xs text-muted-foreground mt-1">
+                                {notification.target === 'head' && (!notification.recipients || notification.recipients.length === 0) ? (
+                                  'جميع رؤساء الأسر'
+                                ) : notification.target === 'admin' && (!notification.recipients || notification.recipients.length === 0) ? (
+                                  'جميع المشرفين'
+                                ) : notification.recipients && notification.recipients.length > 0 ? (
+                                  `${notification.recipients.length} مستخدم`
+                                ) : (
+                                  'جميع المستخدمين'
+                                )}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground hidden lg:table-cell">
                             {notification.target === 'head' && (!notification.recipients || notification.recipients.length === 0) ? (
                               'جميع رؤساء الأسر'
                             ) : notification.target === 'admin' && (!notification.recipients || notification.recipients.length === 0) ? (
@@ -345,16 +366,16 @@ export default function AdminNotifications() {
                               'جميع المستخدمين'
                             )}
                           </td>
-                          <td className="py-2 px-4 text-sm text-foreground">
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground hidden sm:table-cell">
                             {formatDate(notification.createdAt)}
                           </td>
-                          <td className="py-2 px-4 text-sm text-foreground">الإدارة</td>
+                          <td className="py-2 px-2 md:px-4 text-xs md:text-sm text-foreground hidden xl:table-cell">الإدارة</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                   {/* Pagination Controls */}
-                  <div className="flex justify-center items-center gap-2 mt-4">
+                  <div className="flex justify-center items-center gap-2 mt-4 flex-wrap">
                     <Button
                       variant="outline"
                       size="sm"
@@ -363,16 +384,19 @@ export default function AdminNotifications() {
                     >
                       السابق
                     </Button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <Button
-                        key={page}
-                        variant={page === currentPage ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setCurrentPage(page)}
-                      >
-                        {page}
-                      </Button>
-                    ))}
+                    <div className="flex gap-1 flex-wrap justify-center">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={page === currentPage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(page)}
+                          className="min-w-8"
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"
@@ -381,7 +405,7 @@ export default function AdminNotifications() {
                     >
                       التالي
                     </Button>
-                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -397,7 +421,7 @@ export default function AdminNotifications() {
 
           {/* New Notification Dialog */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl w-[95vw] md:w-full max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>إرسال تنبيه جديد</DialogTitle>
               </DialogHeader>
@@ -451,31 +475,33 @@ export default function AdminNotifications() {
                 {form.watch("target") === "specific" && (
                   <div>
                     <Label htmlFor="recipients">اختر رؤساء الأسر</Label>
-                    <div className="flex gap-2 mb-2">
+                    <div className="space-y-2 md:space-y-0 md:flex md:gap-2 mb-2">
                       <Input
                         placeholder="بحث بالاسم أو رقم الهوية..."
                         value={recipientSearch}
                         onChange={e => setRecipientSearch(e.target.value)}
-                        className="w-48"
+                        className="w-full md:w-48"
                       />
-                      <Select value={branchFilter} onValueChange={setBranchFilter}>
-                        <SelectTrigger className="w-32"><SelectValue>{branchFilter === 'all' ? 'كل الفروع' : branchFilter}</SelectValue></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">كل الفروع</SelectItem>
-                          {branchOptions.map((branch) => (
-                            <SelectItem key={branch} value={branch}>{branch}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-32"><SelectValue>{statusFilter === 'all' ? 'كل الحالات الاجتماعية' : statusFilter}</SelectValue></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">كل الحالات الاجتماعية</SelectItem>
-                          {statusOptions.map((status) => (
-                            <SelectItem key={status} value={status}>{status}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-2 gap-2 md:flex md:gap-2">
+                        <Select value={branchFilter} onValueChange={setBranchFilter}>
+                          <SelectTrigger className="w-full md:w-32"><SelectValue>{branchFilter === 'all' ? 'كل الفروع' : branchFilter}</SelectValue></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">كل الفروع</SelectItem>
+                            {branchOptions.map((branch) => (
+                              <SelectItem key={branch} value={branch}>{branch}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                          <SelectTrigger className="w-full md:w-32"><SelectValue>{statusFilter === 'all' ? 'كل الحالات' : statusFilter}</SelectValue></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">كل الحالات الاجتماعية</SelectItem>
+                            {statusOptions.map((status) => (
+                              <SelectItem key={status} value={status}>{status}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="max-h-40 overflow-y-auto border rounded p-2 bg-background">
                       {/* Heads only, no admins */}
@@ -520,18 +546,19 @@ export default function AdminNotifications() {
                   )}
                 </div>
 
-                <div className="flex justify-end space-x-2 space-x-reverse pt-4">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-0 sm:space-x-2 sm:space-x-reverse pt-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setIsDialogOpen(false)}
+                    className="w-full sm:w-auto"
                   >
                     إلغاء
                   </Button>
                   <Button
                     type="submit"
                     disabled={createNotificationMutation.isPending}
-                    className="bg-primary text-primary-foreground"
+                    className="bg-primary text-primary-foreground w-full sm:w-auto"
                   >
                     {createNotificationMutation.isPending ? (
                       <>
