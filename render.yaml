@@ -3,8 +3,9 @@ services:
     name: family-management-backend
     runtime: node
     plan: free
-    buildCommand: cd family-management-backend && npm ci && npm run build
-    startCommand: cd family-management-backend && npm start
+    rootDir: family-management-backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
@@ -29,8 +30,9 @@ services:
     name: family-management-frontend
     runtime: node
     plan: free
-    buildCommand: cd family-management-frontend && npm ci && npm run build
-    staticPublishPath: family-management-frontend/dist
+    rootDir: family-management-frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
     envVars:
       - key: VITE_API_BASE_URL
         fromService:
