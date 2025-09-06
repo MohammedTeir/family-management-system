@@ -14,21 +14,15 @@ services:
         value: postgresql://neondb_owner:npg_EYCLU1Hw5ohB@ep-rapid-darkness-a5nh2lls.us-east-2.aws.neon.tech/neondb?sslmode=require
       - key: SESSION_SECRET
         value: EqfUSaaC7OYwIOdc7VSGR8lImNQ/p+y18418A//QbL8=
-      - key: PORT
-        value: 3000
       - key: FRONTEND_URL
         fromService:
           type: web
           name: family-management-frontend
           property: host
-    disk:
-      name: family-backend-disk
-      mountPath: /data
-      sizeGB: 1
 
   - type: web
     name: family-management-frontend
-    runtime: node
+    runtime: static
     plan: free
     rootDir: family-management-frontend
     buildCommand: npm ci && npm run build
