@@ -2,7 +2,6 @@ services:
   - type: web
     name: family-management-backend
     runtime: node
-    plan: free
     rootDir: family-management-backend
     buildCommand: npm ci && npm run build
     startCommand: npm start
@@ -23,7 +22,6 @@ services:
   - type: web
     name: family-management-frontend
     runtime: static
-    plan: free
     rootDir: family-management-frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
@@ -33,5 +31,3 @@ services:
           type: web
           name: family-management-backend
           property: host
-
-previewsEnabled: true
