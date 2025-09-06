@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: family-management-backend
+    runtime: node
+    plan: free
+    buildCommand: cd family-management-backend && npm ci && npm run build
+    startCommand: cd family-management-backend && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_EYCLU1Hw5ohB@ep-rapid-darkness-a5nh2lls.us-east-2.aws.neon.tech/neondb?sslmode=require
+      - key: SESSION_SECRET
+        value: EqfUSaaC7OYwIOdc7VSGR8lImNQ/p+y18418A//QbL8=
+      - key: PORT
+        value: 3000
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: family-management-frontend
+          property: host
+    disk:
+      name: family-backend-disk
+      mountPath: /data
+      sizeGB: 1
+
+  - type: web
+    name: family-management-frontend
+    runtime: node
+    plan: free
+    buildCommand: cd family-management-frontend && npm ci && npm run build
+    staticPublishPath: family-management-frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: family-management-backend
+          property: host
+
+previewsEnabled: true

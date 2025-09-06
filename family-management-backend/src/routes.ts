@@ -49,6 +49,11 @@ export function registerRoutes(app: Express): Server {
 
   setupAuth(app);
 
+  // Health check endpoint for Render
+  app.get("/health", (req, res) => {
+    res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
+  });
+
   // Patch: Return Arabic error for login failures as plain text
   app.post("/api/login", async (req, res, next) => {
     try {
