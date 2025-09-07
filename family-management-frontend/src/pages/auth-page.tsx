@@ -20,7 +20,17 @@ import { useSettings } from "@/hooks/use-settings";
 const loginSchema = z.object({
   loginType: z.enum(["head", "admin", "root"]),
   identifier: z.string().min(1, "هذا الحقل مطلوب"),
-  password: z.string().min(1, "كلمة المرور مطلوبة"),
+  password: z.string().optional(),
+}).refine((data) => {
+  // Password required for admin/root, optional for head and promoted heads (9-digit admin usernames)
+  const isPromotedHead = data.loginType === "admin" && /^\d{9}$/.test(data.identifier);
+  if (data.loginType !== "head" && !isPromotedHead && (!data.password || data.password.length < 1)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "كلمة المرور مطلوبة",
+  path: ["password"],
 });
 
 const registrationSchema = z.object({
@@ -115,10 +125,13 @@ export default function AuthPage() {
 
   // Custom login error handling for lockout/ban/max try
   const onLogin = (data: LoginFormData) => {
+    // Check if this is a promoted head (admin with 9-digit username)
+    const isPromotedHead = data.loginType === "admin" && /^\d{9}$/.test(data.identifier);
+    
     loginMutation.mutate(
       {
-        username: data.loginType === "head" ? data.identifier : data.identifier,
-        password: data.password,
+        username: data.identifier,
+        password: (data.loginType === "head" || isPromotedHead) ? "" : data.password, // Empty password for heads and promoted heads
       },
       {
         onSuccess: (user: any) => {
@@ -275,13 +288,12 @@ export default function AuthPage() {
           <Card className="w-full max-w-md mx-auto">
             <CardHeader className="text-center p-4 sm:p-6">
               <CardTitle className="text-xl sm:text-2xl font-bold">مرحباً بك</CardTitle>
-              <CardDescription className="text-sm sm:text-base">يرجى تسجيل الدخول أو إنشاء حساب جديد</CardDescription>
+              <CardDescription className="text-sm sm:text-base">يرجى تسجيل الدخول</CardDescription>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsList className="grid w-full grid-cols-1 mb-6">
                   <TabsTrigger value="login" className="text-sm sm:text-base">تسجيل الدخول</TabsTrigger>
-                  <TabsTrigger value="register" className="text-sm sm:text-base">حساب جديد</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="login">
@@ -323,6 +335,7 @@ export default function AuthPage() {
                       )}
                     </div>
 
+{loginType !== "head" && !(loginType === "admin" && /^\d{9}$/.test(loginForm.watch("identifier") || "")) && (
                     <div>
                       <Label htmlFor="password" className="text-sm sm:text-base font-medium">كلمة المرور</Label>
                       <Input
@@ -338,6 +351,7 @@ export default function AuthPage() {
                         </p>
                       )}
                     </div>
+                    )}
 
                     <Button 
                       type="submit" 

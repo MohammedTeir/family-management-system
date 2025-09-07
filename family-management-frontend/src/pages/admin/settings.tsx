@@ -710,7 +710,7 @@ const SettingsPage = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSettings({ ...settings, fontFamily: "Amiri" })}
+                    onClick={() => setSettings({ ...settings, fontFamily: "Cairo" })}
                     className="text-xs shrink-0"
                   >
                     افتراضي

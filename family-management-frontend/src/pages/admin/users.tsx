@@ -25,9 +25,8 @@ import { PageWrapper } from "@/components/layout/page-wrapper";
 const userSchema = z.object({
   username: z.string().min(3, "اسم المستخدم يجب أن يكون 3 أحرف على الأقل"),
   password: z.string().optional(),
-  role: z.enum(["admin", "head"], { required_error: "نوع المستخدم مطلوب" }),
+  role: z.literal("admin"),
   phone: z.string().optional(),
-  identityId: z.string().optional(),
   isProtected: z.boolean().optional(),
 });
 
@@ -86,6 +85,7 @@ export default function Users() {
       password: "",
       role: "admin",
       phone: "",
+      isProtected: false,
     },
   });
 
@@ -277,26 +277,21 @@ export default function Users() {
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const onSubmit = (data: UserFormData) => {
-    // For new user, password required and must match policy
-    if (!editingUser) {
-      if (!data.password) {
-        form.setError("password", { type: "manual", message: "كلمة المرور مطلوبة" });
-        return;
-      }
+    // For new admin user, password is required
+    if (!editingUser && !data.password) {
+      form.setError("password", { type: "manual", message: "كلمة المرور مطلوبة للمشرفين" });
+      return;
+    }
+    
+    // If password is provided, validate it
+    if (data.password) {
       const passwordErrors = validatePasswordWithPolicy(data.password, settings);
       if (passwordErrors.length > 0) {
         passwordErrors.forEach(msg => form.setError("password", { type: "manual", message: msg }));
         return;
       }
     }
-    // For edit, if password entered, must match policy
-    if (editingUser && data.password && data.password.length > 0) {
-      const passwordErrors = validatePasswordWithPolicy(data.password, settings);
-      if (passwordErrors.length > 0) {
-        passwordErrors.forEach(msg => form.setError("password", { type: "manual", message: msg }));
-        return;
-      }
-    }
+
     if (editingUser) {
       const updateData: Partial<UserFormData> = { ...data };
       if (!data.password) {
@@ -325,7 +320,7 @@ export default function Users() {
     form.reset({
       username: "",
       password: "",
-      role: "head", // or your default
+      role: "admin",
       phone: "",
       isProtected: false,
     });
@@ -413,10 +408,20 @@ export default function Users() {
               <p className="text-sm sm:text-base text-muted-foreground">إدارة المستخدمين وصلاحياتهم</p>
             </div>
             
-            <Button onClick={handleAdd} className="flex items-center gap-2 w-full sm:w-auto">
-              <UserPlus className="h-4 w-4" />
-              <span className="sm:inline">إضافة مستخدم جديد</span>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={handleAdd} className="flex items-center gap-2 w-full sm:w-auto">
+                <Shield className="h-4 w-4" />
+                <span className="sm:inline">إضافة مشرف</span>
+              </Button>
+              <Button 
+                onClick={() => window.location.href = '/auth?tab=register'}
+                variant="outline" 
+                className="flex items-center gap-2 w-full sm:w-auto"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span className="sm:inline">إضافة رب أسرة</span>
+              </Button>
+            </div>
           </div>
 
           <div className="flex items-center justify-end gap-2 mb-8">
@@ -539,7 +544,7 @@ export default function Users() {
                               {isDeleted ? (
                                 <Badge variant="destructive" className="text-xs">محذوف</Badge>
                               ) : isLocked ? (
-                                <Badge variant="warning" className="text-xs"><Lock className="inline w-3 h-3 mr-1" />محظور مؤقتاً</Badge>
+                                <Badge variant="destructive" className="text-xs"><Lock className="inline w-3 h-3 mr-1" />محظور مؤقتاً</Badge>
                               ) : (
                                 <Badge variant="outline" className="text-xs">نشط</Badge>
                               )}
@@ -608,8 +613,11 @@ export default function Users() {
             <DialogContent className="max-w-[95vw] w-full sm:max-w-md lg:max-w-lg p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingUser ? "تعديل المستخدم" : "إضافة مستخدم جديد"}
+                  {editingUser ? "تعديل المشرف" : "إضافة مشرف جديد"}
                 </DialogTitle>
+                <p className="text-sm text-muted-foreground mt-2">
+                  الحقول المتاحة: اسم المستخدم، كلمة المرور، رقم الجوال، حالة الحماية
+                </p>
               </DialogHeader>
               
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -617,44 +625,26 @@ export default function Users() {
                   <Label htmlFor="username" className="text-sm sm:text-base">اسم المستخدم *</Label>
                   <Input
                     id="username"
-                    placeholder="اسم المستخدم"
+                    placeholder="أدخل اسم المستخدم (مثال: admin01)"
                     {...form.register("username", { required: true })}
                     className="mt-1"
                   />
+                  {form.formState.errors.username && (
+                    <p className="text-xs sm:text-sm text-destructive mt-1">{form.formState.errors.username.message}</p>
+                  )}
                 </div>
 
                 <div>
-                  <Label htmlFor="password" className="text-sm sm:text-base">كلمة المرور (اتركها فارغة للاحتفاظ بالحالية)</Label>
+                  <Label htmlFor="password" className="text-sm sm:text-base">كلمة المرور {!editingUser ? "*" : "(اتركها فارغة للاحتفاظ بالحالية)"}</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="أدخل كلمة المرور"
                     {...form.register("password")}
                     className="mt-1"
                   />
                   {form.formState.errors.password && (
                     <p className="text-xs sm:text-sm text-destructive mt-1">{form.formState.errors.password.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="role" className="text-sm sm:text-base">نوع المستخدم *</Label>
-                  <Select
-                    value={form.watch("role")}
-                    onValueChange={(value: "admin" | "head") => form.setValue("role", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="admin">مشرف</SelectItem>
-                      <SelectItem value="head">رب أسرة</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {form.formState.errors.role && (
-                    <p className="text-xs sm:text-sm text-destructive mt-1">
-                      {form.formState.errors.role.message}
-                    </p>
                   )}
                 </div>
 
@@ -665,8 +655,8 @@ export default function Users() {
                   </div>
                 )}
 
-                {/* Visual badge for dual-role only when editing a dual-role user */}
-                {editingUser && editingUser.role === 'admin' && editingUser.identityId && (
+                {/* Visual badge for dual-role only when editing a dual-role user with numeric username */}
+                {editingUser && editingUser.role === 'admin' && /^\d+$/.test(editingUser.username) && (
                   <div className="mb-2">
                     <span className="inline-block bg-secondary/10 text-secondary px-3 py-1 rounded text-xs font-bold">مشرف + رب أسرة</span>
                   </div>
@@ -676,11 +666,12 @@ export default function Users() {
                   <Label htmlFor="phone" className="text-sm sm:text-base">رقم الجوال</Label>
                   <Input
                     id="phone"
-                    placeholder="0592524815"
+                    placeholder="أدخل رقم الجوال (مثال: 0592524815)"
                     {...form.register("phone")}
                     className="mt-1"
                   />
                 </div>
+
 
                 
                 {currentUser?.role === 'root' && editingUser && editingUser.id !== currentUser.id && (

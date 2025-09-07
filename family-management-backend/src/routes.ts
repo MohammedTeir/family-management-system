@@ -49,15 +49,43 @@ export function registerRoutes(app: Express): Server {
 
   setupAuth(app);
 
-  // Health check endpoint for Render
-  app.get("/health", (req, res) => {
-    res.status(200).json({ status: "healthy", timestamp: new Date().toISOString() });
-  });
-
   // Patch: Return Arabic error for login failures as plain text
   app.post("/api/login", async (req, res, next) => {
     try {
       const { username, password } = req.body;
+      
+      // Special case: If password is empty, look for user with head role by identity number
+      if (!password || password === "") {
+        const user = await storage.getUserByUsername(username);
+        if (!user) {
+          return res.status(401).send("فشل تسجيل الدخول: رقم الهوية غير موجود");
+        }
+        
+        // Allow heads OR admins with 9-digit usernames (promoted heads) to login without password
+        const isPromotedHead = user.role === 'admin' && /^\d{9}$/.test(user.username);
+        if (user.role !== 'head' && !isPromotedHead) {
+          return res.status(401).send("فشل تسجيل الدخول: كلمة المرور مطلوبة");
+        }
+        
+        // Check if account is locked out
+        if (user.lockoutUntil && new Date() < user.lockoutUntil) {
+          const remainingMinutes = Math.ceil((user.lockoutUntil.getTime() - new Date().getTime()) / (1000 * 60));
+          return res.status(423).send(`الحساب محظور مؤقتاً. يرجى المحاولة بعد ${remainingMinutes} دقيقة`);
+        }
+        
+        // Login successful for head - reset failed attempts
+        await storage.updateUser(user.id, {
+          failedLoginAttempts: 0,
+          lockoutUntil: null
+        });
+        
+        // Complete the login process
+        req.login(user, (err: any) => {
+          if (err) return next(err);
+          res.status(200).json(user);
+        });
+        return;
+      }
       
       // Get user by username first to check lockout status
       const user = await storage.getUserByUsername(username);
@@ -536,8 +564,7 @@ export function registerRoutes(app: Express): Server {
     const familyId = parseInt(req.params.id);
       const family = await getFamilyByIdOrDualRole(familyId);
       if (!family) return res.status(404).json({ message: "Family not found" });
-    const memberData = insertMemberSchema.omit({ familyId: true }).parse(req.body);
-    memberData.familyId = familyId;
+    const memberData = { ...insertMemberSchema.omit({ familyId: true }).parse(req.body), familyId };
     const member = await storage.createMember(memberData);
     res.status(201).json(member);
   } catch (error) {

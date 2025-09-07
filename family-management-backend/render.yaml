@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: family-management-backend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:npg_EYCLU1Hw5ohB@ep-rap
+      - key: SESSION_SECRET
+        value: EqfUSaaC7OYwIOdc7VSGR8lImNQ/p+y18418A//QbL8=
+      - key: PORT
+        value: 3000
+      - key: FRONTEND_URL
+        value: https://abutair.vercel.app
