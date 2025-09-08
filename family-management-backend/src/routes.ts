@@ -589,7 +589,7 @@ export function registerRoutes(app: Express): Server {
       // Create user
       const user = await storage.createUser({
         username: familyData.husbandID,
-        password: await hashPassword(userData.password), // <-- hash the password!
+        password: userData.password ? await hashPassword(userData.password) : await hashPassword(familyData.husbandID),
         role: 'head',
         phone: familyData.primaryPhone
       });
@@ -610,11 +610,17 @@ export function registerRoutes(app: Express): Server {
         }
       }
       
-      // Log in the user
-      req.login(user, (err) => {
-        if (err) return res.status(500).json({ message: "Registration successful but login failed" });
+      // Only log in the user if they provided a password (self-registration)
+      // If no password provided, this is admin creating a head, so don't auto-login
+      if (userData.password) {
+        req.login(user, (err) => {
+          if (err) return res.status(500).json({ message: "Registration successful but login failed" });
+          res.status(201).json({ user, family });
+        });
+      } else {
+        // Admin creating head - don't auto-login
         res.status(201).json({ user, family });
-      });
+      }
     } catch (error: any) {
     if (error.code === "23505") {
       return res.status(400).json({ message: "رقم الهوية مسجل مسبقاً" });
