@@ -58,7 +58,7 @@ export function registerRoutes(app: Express): Server {
       if (!password || password === "") {
         const user = await storage.getUserByUsername(username);
         if (!user) {
-          return res.status(401).send("فشل تسجيل الدخول: رقم الهوية غير موجود");
+          return res.status(401).send("فشل تسجيل الدخول: رقم الهوية غير موجود - راجع لجنة العائلة");
         }
         
         // Allow heads OR admins with 9-digit usernames (promoted heads) to login without password
