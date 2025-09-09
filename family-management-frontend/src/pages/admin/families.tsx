@@ -110,27 +110,33 @@ export default function AdminFamilies() {
     return matchesSearch && matchesBranch && matchesDisplaced && matchesDamaged && matchesAbroad;
   }) : [];
 
-  // Dynamically count sons and children from filtered data
+  // Dynamically count sons, children, and wives from filtered data
   const safeFamilies: any[] = Array.isArray(filteredFamilies) ? filteredFamilies : [];
   let maxSons = 0;
   let maxChildren = 0;
+  let maxWives = 0;
   if (Array.isArray(safeFamilies) && safeFamilies.length > 0) {
     maxSons = Math.max(0, ...safeFamilies.map(f => (Array.isArray(f.members) ? f.members.filter((m: any) => !isChild(m.birthDate)).length : 0)));
     maxChildren = Math.max(0, ...safeFamilies.map(f => (Array.isArray(f.members) ? f.members.filter((m: any) => isChild(m.birthDate)).length : 0)));
+    maxWives = Math.max(0, ...safeFamilies.map(f => (Array.isArray(f.wives) ? f.wives.length : (f.wifeName ? 1 : 0))));
   }
 
-  // Build columns in the exact order provided, only add sons/children columns if there are any
+  // Build columns in the exact order provided, only add dynamic columns if there are any
   const orderedColumns = [
     { key: 'husbandName', label: 'اسم الزوج رباعي', checked: true },
     { key: 'husbandID', label: 'رقم هوية الزوج', checked: true },
     { key: 'husbandJob', label: 'عمل الزوج', checked: true },
     { key: 'husbandBirthDate', label: 'تاريخ ميلاد الزوج', checked: true },
     { key: 'husbandAge', label: 'عمر الزوج', checked: true },
-    { key: 'wifeName', label: 'اسم الزوجة رباعي', checked: true },
-    { key: 'wifeID', label: 'رقم هوية الزوجة', checked: true },
-    { key: 'wifeJob', label: 'عمل الزوجة', checked: true },
-    { key: 'wifeBirthDate', label: 'تاريخ ميلاد الزوجة', checked: true },
-    { key: 'wifeAge', label: 'عمر الزوجة', checked: true },
+    // Wives columns (dynamic, only if maxWives > 0)
+    ...(maxWives > 0 ? Array.from({length: maxWives}).flatMap((_, i) => [
+      { key: `wifeName${i+1}`, label: `اسم الزوجة${maxWives > 1 ? ` ${i+1}` : ''} رباعي`, checked: true },
+      { key: `wifeID${i+1}`, label: `رقم هوية الزوجة${maxWives > 1 ? ` ${i+1}` : ''}`, checked: true },
+      { key: `wifeJob${i+1}`, label: `عمل الزوجة${maxWives > 1 ? ` ${i+1}` : ''}`, checked: true },
+      { key: `wifeBirthDate${i+1}`, label: `تاريخ ميلاد الزوجة${maxWives > 1 ? ` ${i+1}` : ''}`, checked: true },
+      { key: `wifeAge${i+1}`, label: `عمر الزوجة${maxWives > 1 ? ` ${i+1}` : ''}`, checked: true },
+      { key: `wifePregnant${i+1}`, label: `هل الزوجة${maxWives > 1 ? ` ${i+1}` : ''} حامل`, checked: true },
+    ]) : []),
     { key: 'primaryPhone', label: 'رقم الجوال للتواصل', checked: true },
     { key: 'secondaryPhone', label: 'رقم الجوال البديل', checked: true },
     { key: 'originalResidence', label: 'السكن الأصلي', checked: true },
@@ -155,7 +161,6 @@ export default function AdminFamilies() {
       { key: `childBirthDate${i+1}`, label: `تاريخ الميلاد`, checked: true },
     ]) : []),
     { key: 'hasChildrenAboveTwo', label: 'هل لديك ابناء أكبر من سنتين', checked: true },
-    { key: 'wifePregnant', label: 'هل الزوجة حامل', checked: true },
     { key: 'numMales', label: 'عدد الافراد الذكور', checked: true },
     { key: 'numFemales', label: 'عدد الافراد الاناث', checked: true },
     { key: 'socialStatus', label: 'الحالة الاجتماعية لرب الاسرة', checked: true },
@@ -163,7 +168,7 @@ export default function AdminFamilies() {
     { key: 'adminNotes', label: 'ملاحظات إدارية', checked: true },
   ];
 
-  const excelColumns = useMemo(() => orderedColumns, [maxSons, maxChildren]);
+  const excelColumns = useMemo(() => orderedColumns, [maxSons, maxChildren, maxWives]);
 
   const [checkedColumns, setCheckedColumns] = useState<{ [key: string]: boolean }>({});
 
@@ -184,11 +189,13 @@ export default function AdminFamilies() {
   };
 
   // Group toggles
-  const handleGroupToggle = (group: "sons" | "children") => {
+  const handleGroupToggle = (group: "sons" | "children" | "wives") => {
     setCheckedColumns(prev => {
       const next = { ...prev };
       const groupCols = excelColumns.filter(col =>
-        group === "sons" ? col.key.startsWith("son") : col.key.startsWith("child")
+        group === "sons" ? col.key.startsWith("son") : 
+        group === "children" ? col.key.startsWith("child") : 
+        col.key.startsWith("wife")
       );
       const allChecked = groupCols.every(col => prev[col.key]);
       for (const col of groupCols) {
@@ -209,8 +216,10 @@ export default function AdminFamilies() {
   // For UI
   const sonCols = excelColumns.filter(col => col.key.startsWith('son'));
   const childCols = excelColumns.filter(col => col.key.startsWith('child'));
+  const wifeCols = excelColumns.filter(col => col.key.startsWith('wife'));
   const isSonsChecked = sonCols.length > 0 && sonCols.every(col => checkedColumns[col.key]);
   const isChildrenChecked = childCols.length > 0 && childCols.every(col => checkedColumns[col.key]);
+  const isWivesChecked = wifeCols.length > 0 && wifeCols.every(col => checkedColumns[col.key]);
 
   // For export
   const selectedCols = excelColumns.filter(col => checkedColumns[col.key]);
@@ -267,11 +276,51 @@ export default function AdminFamilies() {
         // Use isChild for children, !isChild for sons (age-based only)
         const children: any[] = Array.isArray(members) ? members.filter((member: any) => isChild(member.birthDate)) : [];
         const sons: any[] = Array.isArray(members) ? members.filter((member: any) => !isChild(member.birthDate)) : [];
+        const wives: any[] = Array.isArray(family.wives) ? family.wives : (family.wifeName ? [{
+          wifeName: family.wifeName,
+          wifeID: family.wifeID,
+          wifeJob: family.wifeJob,
+          wifeBirthDate: family.wifeBirthDate,
+          wifePregnant: family.wifePregnant
+        }] : []);
         const sonsData: (any|null)[] = Array.isArray(sons) ? Array.from({length: maxSons}).map((_, i) => sons[i] || null) : [];
         const childrenData: (any|null)[] = Array.isArray(children) ? Array.from({length: maxChildren}).map((_, i) => children[i] || null) : [];
+        const wivesData: (any|null)[] = Array.isArray(wives) ? Array.from({length: maxWives}).map((_, i) => wives[i] || null) : [];
         const disabledMembers: any[] = Array.isArray(members) ? members.filter((m: any) => m.isDisabled) : [];
         const disabilityTypes = Array.isArray(disabledMembers) ? disabledMembers.map((m: any) => m.disabilityType || '').filter(Boolean).join(', ') : '';
         const rowData = Array.isArray(selectedCols) ? selectedCols.map(col => {
+          // Dynamic wives export
+          // Wives: wifeNameX, wifeIDX, wifeJobX, wifeBirthDateX, wifeAgeX, wifePregnantX
+          const wifeNameMatch = typeof col.key === 'string' ? col.key.match(/^wifeName(\d+)$/) : null;
+          const wifeIDMatch = typeof col.key === 'string' ? col.key.match(/^wifeID(\d+)$/) : null;
+          const wifeJobMatch = typeof col.key === 'string' ? col.key.match(/^wifeJob(\d+)$/) : null;
+          const wifeBirthDateMatch = typeof col.key === 'string' ? col.key.match(/^wifeBirthDate(\d+)$/) : null;
+          const wifeAgeMatch = typeof col.key === 'string' ? col.key.match(/^wifeAge(\d+)$/) : null;
+          const wifePregnantMatch = typeof col.key === 'string' ? col.key.match(/^wifePregnant(\d+)$/) : null;
+          if (wifeNameMatch) {
+            const idx = parseInt(wifeNameMatch[1], 10) - 1;
+            return Array.isArray(wives) && wives[idx] ? wives[idx].wifeName || '' : '';
+          }
+          if (wifeIDMatch) {
+            const idx = parseInt(wifeIDMatch[1], 10) - 1;
+            return Array.isArray(wives) && wives[idx] ? wives[idx].wifeID || '' : '';
+          }
+          if (wifeJobMatch) {
+            const idx = parseInt(wifeJobMatch[1], 10) - 1;
+            return Array.isArray(wives) && wives[idx] ? wives[idx].wifeJob || '' : '';
+          }
+          if (wifeBirthDateMatch) {
+            const idx = parseInt(wifeBirthDateMatch[1], 10) - 1;
+            return Array.isArray(wives) && wives[idx] ? wives[idx].wifeBirthDate || '' : '';
+          }
+          if (wifeAgeMatch) {
+            const idx = parseInt(wifeAgeMatch[1], 10) - 1;
+            return Array.isArray(wives) && wives[idx] && wives[idx].wifeBirthDate ? getAge(wives[idx].wifeBirthDate) : '';
+          }
+          if (wifePregnantMatch) {
+            const idx = parseInt(wifePregnantMatch[1], 10) - 1;
+            return Array.isArray(wives) && wives[idx] ? (wives[idx].wifePregnant ? 'نعم' : 'لا') : '';
+          }
           // Dynamic sons/children export
           // Sons: sonNameX, sonIDX, sonBirthDateX
           const sonNameMatch = typeof col.key === 'string' ? col.key.match(/^sonName(\d+)$/) : null;
@@ -312,11 +361,6 @@ export default function AdminFamilies() {
             case 'husbandJob': return family.husbandJob || '';
             case 'husbandBirthDate': return family.husbandBirthDate || '';
             case 'husbandAge': return family.husbandBirthDate ? getAge(family.husbandBirthDate) : '';
-            case 'wifeName': return family.wifeName || '';
-            case 'wifeID': return family.wifeID || '';
-            case 'wifeJob': return family.wifeJob || '';
-            case 'wifeBirthDate': return family.wifeBirthDate || '';
-            case 'wifeAge': return family.wifeBirthDate ? getAge(family.wifeBirthDate) : '';
             case 'primaryPhone': return family.primaryPhone || '';
             case 'secondaryPhone': return family.secondaryPhone || '';
             case 'originalResidence': return family.originalResidence || '';
@@ -329,7 +373,6 @@ export default function AdminFamilies() {
             case 'disabilityTypes': return disabilityTypes;
             case 'hasChildrenUnderTwo': return Array.isArray(children) && children.length > 0 ? 'نعم' : 'لا';
             case 'hasChildrenAboveTwo': return Array.isArray(sons) && sons.length > 0 ? 'نعم' : 'لا';
-            case 'wifePregnant': return family.wifePregnant ? 'نعم' : 'لا';
             case 'numMales': return family.numMales || '';
             case 'numFemales': return family.numFemales || '';
             case 'socialStatus': return family.socialStatus ? getSocialStatusInArabic(family.socialStatus) : '';
@@ -867,12 +910,20 @@ export default function AdminFamilies() {
                     <span className="text-md">الأطفال</span>
                   </label>
                 )}
-                {/* Render the rest of the columns except sons/children */}
-                {excelColumns.filter(col => !col.key.startsWith('son') && !col.key.startsWith('child')).map((col, idx) => (
+                {/* Wives group checkbox */}
+                {wifeCols.length > 0 && (
+                  <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all select-none shadow-sm ${isWivesChecked ? 'bg-green-50 border-green-500 text-green-800 font-bold ring-2 ring-green-200' : 'bg-white border-gray-200 text-gray-700 hover:border-green-300'}`}
+                    style={{ order: 3 }}>
+                    <input type="checkbox" checked={isWivesChecked} onChange={() => handleGroupToggle('wives')} className="accent-green-600 w-4 h-4" />
+                    <span className="text-md">الزوجات</span>
+                  </label>
+                )}
+                {/* Render the rest of the columns except sons/children/wives */}
+                {excelColumns.filter(col => !col.key.startsWith('son') && !col.key.startsWith('child') && !col.key.startsWith('wife')).map((col, idx) => (
                   <label
                     key={col.key}
                     className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all select-none shadow-sm ${checkedColumns[col.key] ?? true ? 'bg-green-50 border-green-500 text-green-800 font-bold ring-2 ring-green-200' : 'bg-white border-gray-200 text-gray-700 hover:border-green-300'}`}
-                    style={{ order: idx + 3 }}
+                    style={{ order: idx + 4 }}
                   >
                     <input
                       type="checkbox"

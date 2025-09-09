@@ -177,10 +177,20 @@ export default function PrintSummary() {
         ['اسم الزوج رباعي', family.husbandName || ''],
         ['رقم هوية الزوج', family.husbandID || ''],
         ['عمل الزوج', family.husbandJob || ''],
-        ['اسم الزوجة رباعي', family.wifeName || ''],
-        ['رقم هوية الزوجة', family.wifeID || ''],
-        ['عمل الزوجة', family.wifeJob || ''],
-        ['هل الزوجة حامل', family.wifePregnant ? 'نعم' : 'لا'],
+        ...(family.wives && family.wives.length > 0 ? 
+          family.wives.flatMap((wife: any, index: number) => [
+            [`اسم الزوجة${family.wives.length > 1 ? ` ${index + 1}` : ''} رباعي`, wife.wifeName || ''],
+            [`رقم هوية الزوجة${family.wives.length > 1 ? ` ${index + 1}` : ''}`, wife.wifeID || ''],
+            [`عمل الزوجة${family.wives.length > 1 ? ` ${index + 1}` : ''}`, wife.wifeJob || ''],
+            [`هل الزوجة${family.wives.length > 1 ? ` ${index + 1}` : ''} حامل`, wife.wifePregnant ? 'نعم' : 'لا'],
+          ]) : 
+          [
+            ['اسم الزوجة رباعي', family.wifeName || ''],
+            ['رقم هوية الزوجة', family.wifeID || ''],
+            ['عمل الزوجة', family.wifeJob || ''],
+            ['هل الزوجة حامل', family.wifePregnant ? 'نعم' : 'لا'],
+          ]
+        ),
         ['رقم الجوال للتواصل', family.primaryPhone || ''],
         ['رقم الجوال البديل', family.secondaryPhone || ''],
         ['السكن الأصلي', family.originalResidence || ''],
@@ -361,7 +371,13 @@ export default function PrintSummary() {
         ['الأبناء', children.filter((child: any) => child.gender === 'male').length.toString()],
         ['البنات', children.filter((child: any) => child.gender === 'female').length.toString()],
         ['الحالة الاجتماعية', family.socialStatus ? getSocialStatusInArabic(family.socialStatus) : 'غير محدد'],
-        ['حالة الحمل', family.wifePregnant ? 'حامل' : 'غير حامل'],
+        ...(family.wives && family.wives.length > 0 ?
+          family.wives.map((wife: any, index: number) => [
+            `حالة الحمل${family.wives.length > 1 ? ` للزوجة ${index + 1}` : ''}`,
+            wife.wifePregnant ? 'حامل' : 'غير حامل'
+          ]) :
+          [['حالة الحمل', family.wifePregnant ? 'حامل' : 'غير حامل']]
+        ),
         ['نازح', family.isDisplaced ? 'نعم' : 'لا'],
         ['موقع النزوح', family.isDisplaced ? (family.displacedLocation || '') : ''],
         ['مغترب بالخارج', family.isAbroad ? 'نعم' : 'لا'],
@@ -494,12 +510,56 @@ export default function PrintSummary() {
       // 1. Family Information Sheet (بيانات الأسرة)
       const familySheet = workbook.addWorksheet('بيانات الأسرة');
       
+      // Create dynamic headers based on number of wives
+      const wifeHeaders = [];
+      const wifeData = [];
+      
+      if (family.wives && family.wives.length > 0) {
+        family.wives.forEach((wife: any, index: number) => {
+          const suffix = family.wives.length > 1 ? ` ${index + 1}` : '';
+          wifeHeaders.push(
+            `هل الزوجة${suffix} حامل`,
+            `عمل الزوجة${suffix}`,
+            `عمر الزوجة${suffix}`,
+            `تاريخ ميلاد الزوجة${suffix}`,
+            `رقم هوية الزوجة${suffix}`,
+            `اسم الزوجة${suffix} رباعي`
+          );
+          wifeData.push(
+            wife.wifePregnant ? 'نعم' : 'لا',
+            wife.wifeJob || '',
+            formatAgeForPDF(wife.wifeBirthDate || ''),
+            wife.wifeBirthDate || '',
+            wife.wifeID || '',
+            wife.wifeName || ''
+          );
+        });
+      } else {
+        // Fallback to old wife fields if wives array is not available
+        wifeHeaders.push(
+          'هل الزوجة حامل',
+          'عمل الزوجة',
+          'عمر الزوجة',
+          'تاريخ ميلاد الزوجة',
+          'رقم هوية الزوجة',
+          'اسم الزوجة رباعي'
+        );
+        wifeData.push(
+          family.wifePregnant ? 'نعم' : 'لا',
+          family.wifeJob || '',
+          formatAgeForPDF(family.wifeBirthDate || ''),
+          family.wifeBirthDate || '',
+          family.wifeID || '',
+          family.wifeName || ''
+        );
+      }
+
       const familyHeaders = [
         'مغترب بالخارج', 'الحالة الاجتماعية', 'عدد الأطفال', 
         'عدد الإناث', 'عدد الذكور', 'إجمالي أفراد الأسرة', 'هل لديك ابناء اقل من سنتين', 
         'هل يوجد افراد ذوي اعاقة في العائلة', 'الفرع', 'الاضرار الناجمة عن حرب 2024', 
-        'حالة السكن الحالي', 'السكن الأصلي', 'رقم الجوال البديل', 'رقم الجوال للتواصل', 
-        'هل الزوجة حامل', 'عمل الزوجة', 'عمر الزوجة', 'تاريخ ميلاد الزوجة', 'رقم هوية الزوجة', 'اسم الزوجة رباعي', 
+        'حالة السكن الحالي', 'السكن الأصلي', 'رقم الجوال البديل', 'رقم الجوال للتواصل',
+        ...wifeHeaders,
         'عمل الزوج', 'عمر الزوج', 'تاريخ ميلاد الزوج', 'رقم هوية الزوج', 'اسم الزوج رباعي'
       ];
 
@@ -518,15 +578,10 @@ export default function PrintSummary() {
         family.originalResidence || '',
         family.secondaryPhone || '',
         family.primaryPhone || '',
-        family.wifePregnant ? 'نعم' : 'لا',
-        family.wifeJob || '',
-        formatAgeForPDF(family.wifeBirthDate || ''), // عمر الزوجة
-        family.wifeBirthDate || '', // تاريخ ميلاد الزوجة
-        family.wifeID || '',
-        family.wifeName || '',
+        ...wifeData,
         family.husbandJob || '',
-        formatAgeForPDF(family.husbandBirthDate || ''), // عمر الزوج
-        family.husbandBirthDate || '', // تاريخ ميلاد الزوج
+        formatAgeForPDF(family.husbandBirthDate || ''),
+        family.husbandBirthDate || '',
         family.husbandID || '',
         family.husbandName || ''
       ];
@@ -681,7 +736,13 @@ export default function PrintSummary() {
         ['الأبناء', children.filter((child: any) => child.gender === 'male').length.toString()],
         ['البنات', children.filter((child: any) => child.gender === 'female').length.toString()],
         ['الحالة الاجتماعية', family.socialStatus ? getSocialStatusInArabic(family.socialStatus) : 'غير محدد'],
-        ['حالة الحمل', family.wifePregnant ? 'حامل' : 'غير حامل'],
+        ...(family.wives && family.wives.length > 0 ?
+          family.wives.map((wife: any, index: number) => [
+            `حالة الحمل${family.wives.length > 1 ? ` للزوجة ${index + 1}` : ''}`,
+            wife.wifePregnant ? 'حامل' : 'غير حامل'
+          ]) :
+          [['حالة الحمل', family.wifePregnant ? 'حامل' : 'غير حامل']]
+        ),
         ['نازح', family.isDisplaced ? 'نعم' : 'لا'],
         ['موقع النزوح', family.isDisplaced ? (family.displacedLocation || '') : ''],
         ['مغترب بالخارج', family.isAbroad ? 'نعم' : 'لا'],
@@ -1376,49 +1437,56 @@ export default function PrintSummary() {
               </div>
             </div>
 
-            {/* Wife Information */}
-            {family.wifeName && (
+            {/* Wives Information */}
+            {family.wives && family.wives.length > 0 && (
               <div className="mb-8">
                 <h3 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-gray-300 flex items-center">
                   <Heart className="h-5 w-5 ml-2" />
-                  بيانات الزوجة
+                  {family.socialStatus === "polygamous" ? "بيانات الزوجات" : "بيانات الزوجة"}
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                  <div>
-                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
-                    <p className="text-base sm:text-lg text-foreground">{family.wifeName}</p>
-                  </div>
-                  {showSensitiveInfo && family.wifeID && (
-                    <div>
-                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الهوية</p>
-                      <p className="text-base sm:text-lg text-foreground">{family.wifeID}</p>
-                    </div>
-                  )}
-                  {family.wifeBirthDate && (
-                    <div>
-                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                      <p className="text-base sm:text-lg text-foreground">{family.wifeBirthDate}</p>
-                        <Badge variant="outline" className="text-xs w-fit">
-                          {calculateAge(family.wifeBirthDate)} سنة
-                        </Badge>
+                <div className="space-y-6">
+                  {family.wives.map((wife: any, index: number) => (
+                    <div key={wife.id} className="border-l-4 border-pink-400 pl-4">
+                      <h4 className="text-lg font-semibold text-foreground mb-3">
+                        {family.wives.length > 1 ? `الزوجة ${index + 1}` : "الزوجة"}
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
+                          <p className="text-xs sm:text-sm font-medium text-muted-foreground">الاسم الرباعي</p>
+                          <p className="text-base sm:text-lg text-foreground">{wife.wifeName}</p>
+                        </div>
+                        {showSensitiveInfo && wife.wifeID && (
+                          <div>
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground">رقم الهوية</p>
+                            <p className="text-base sm:text-lg text-foreground">{wife.wifeID}</p>
+                          </div>
+                        )}
+                        {wife.wifeBirthDate && (
+                          <div>
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground">تاريخ الميلاد</p>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                              <p className="text-base sm:text-lg text-foreground">{wife.wifeBirthDate}</p>
+                              <Badge variant="outline" className="text-xs w-fit">
+                                {calculateAge(wife.wifeBirthDate)} سنة
+                              </Badge>
+                            </div>
+                          </div>
+                        )}
+                        {wife.wifeJob && (
+                          <div>
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground">المهنة</p>
+                            <p className="text-base sm:text-lg text-foreground">{wife.wifeJob}</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-xs sm:text-sm font-medium text-muted-foreground">حالة الحمل</p>
+                          <Badge variant={wife.wifePregnant ? "destructive" : "secondary"} className="text-xs">
+                            {wife.wifePregnant ? 'حامل' : 'غير حامل'}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-                  )}
-                  {family.wifeJob && (
-                    <div>
-                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">المهنة</p>
-                      <p className="text-base sm:text-lg text-foreground">{family.wifeJob}</p>
-                    </div>
-                  )}
-                  {family.wifePregnant && (
-                    <div>
-                      <p className="text-xs sm:text-sm font-medium text-muted-foreground">حالة الحمل</p>
-                      <Badge variant={family.wifePregnant ? "destructive" : "secondary"} className="text-xs">
-                        {family.wifePregnant ? 'حامل' : 'غير حامل'}
-                      </Badge>
-                    </div>
-                  )}
+                  ))}
                 </div>
               </div>
             )}

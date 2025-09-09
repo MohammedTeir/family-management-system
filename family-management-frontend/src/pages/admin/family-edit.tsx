@@ -335,31 +335,156 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                       </div>
                       </div>
                     </div>
-                    {/* Wife Info */}
+                    {/* Wives Info */}
                     <div className="space-y-4">
-                      <h3 className="text-base md:text-lg font-semibold text-foreground border-b pb-2">بيانات الزوجة</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                      <div className="flex flex-col items-end">
-                        <Label htmlFor="wifeName" className="text-right w-full mb-1">اسم الزوجة</Label>
-                        <Input id="wifeName" name="wifeName" value={familyForm.wifeName || ""} onChange={handleFamilyChange} className="text-right mt-1" />
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-base md:text-lg font-semibold text-foreground border-b pb-2">
+                          {familyForm.socialStatus === "polygamous" ? "بيانات الزوجات" : "بيانات الزوجة"}
+                        </h3>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const newWife = {
+                              id: Date.now(), // temporary ID for new wife
+                              wifeName: "",
+                              wifeID: "",
+                              wifeBirthDate: "",
+                              wifeJob: "",
+                              wifePregnant: false
+                            };
+                            setFamilyForm((prev: any) => ({
+                              ...prev,
+                              wives: [...(prev.wives || []), newWife]
+                            }));
+                          }}
+                        >
+                          <Plus className="h-4 w-4 ml-1" />
+                          إضافة زوجة
+                        </Button>
                       </div>
-                      <div className="flex flex-col items-end">
-                        <Label htmlFor="wifeID" className="text-right w-full mb-1">رقم هوية الزوجة</Label>
-                        <Input id="wifeID" name="wifeID" value={familyForm.wifeID || ""} onChange={handleFamilyChange} className="text-right mt-1" />
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <Label htmlFor="wifeBirthDate" className="text-right w-full mb-1">تاريخ ميلاد الزوجة</Label>
-                        <Input id="wifeBirthDate" name="wifeBirthDate" type="date" value={familyForm.wifeBirthDate || ""} onChange={handleFamilyChange} className="text-right mt-1" />
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <Label htmlFor="wifeJob" className="text-right w-full mb-1">مهنة الزوجة</Label>
-                        <Input id="wifeJob" name="wifeJob" value={familyForm.wifeJob || ""} onChange={handleFamilyChange} className="text-right mt-1" />
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <Label htmlFor="wifePregnant" className="text-right w-full mb-1">حامل؟</Label>
-                        <div className="mt-1"><Switch id="wifePregnant" name="wifePregnant" checked={!!familyForm.wifePregnant} onCheckedChange={(checked: boolean) => setFamilyForm((f: any) => ({ ...f, wifePregnant: checked }))} /></div>
-                      </div>
-                      </div>
+                      
+                      {familyForm.wives && familyForm.wives.length > 0 ? (
+                        <div className="space-y-6">
+                          {familyForm.wives.map((wife: any, index: number) => (
+                            <div key={wife.id || index} className="border-l-4 border-pink-400 pl-4 relative">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-lg font-medium text-foreground">
+                                  {familyForm.wives.length > 1 ? `الزوجة ${index + 1}` : "الزوجة"}
+                                </h4>
+                                {familyForm.wives.length > 1 && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setFamilyForm((prev: any) => ({
+                                        ...prev,
+                                        wives: prev.wives.filter((_: any, i: number) => i !== index)
+                                      }));
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                <div className="flex flex-col items-end">
+                                  <Label className="text-right w-full mb-1">اسم الزوجة</Label>
+                                  <Input 
+                                    value={wife.wifeName || ""} 
+                                    onChange={(e) => {
+                                      const updatedWives = [...familyForm.wives];
+                                      updatedWives[index] = { ...updatedWives[index], wifeName: e.target.value };
+                                      setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
+                                    }}
+                                    className="text-right mt-1" 
+                                  />
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <Label className="text-right w-full mb-1">رقم هوية الزوجة</Label>
+                                  <Input 
+                                    value={wife.wifeID || ""} 
+                                    onChange={(e) => {
+                                      const updatedWives = [...familyForm.wives];
+                                      updatedWives[index] = { ...updatedWives[index], wifeID: e.target.value };
+                                      setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
+                                    }}
+                                    className="text-right mt-1" 
+                                  />
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <Label className="text-right w-full mb-1">تاريخ ميلاد الزوجة</Label>
+                                  <Input 
+                                    type="date"
+                                    value={wife.wifeBirthDate || ""} 
+                                    onChange={(e) => {
+                                      const updatedWives = [...familyForm.wives];
+                                      updatedWives[index] = { ...updatedWives[index], wifeBirthDate: e.target.value };
+                                      setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
+                                    }}
+                                    className="text-right mt-1" 
+                                  />
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <Label className="text-right w-full mb-1">مهنة الزوجة</Label>
+                                  <Input 
+                                    value={wife.wifeJob || ""} 
+                                    onChange={(e) => {
+                                      const updatedWives = [...familyForm.wives];
+                                      updatedWives[index] = { ...updatedWives[index], wifeJob: e.target.value };
+                                      setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
+                                    }}
+                                    className="text-right mt-1" 
+                                  />
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <Label className="text-right w-full mb-1">حامل؟</Label>
+                                  <div className="mt-1">
+                                    <Switch 
+                                      checked={!!wife.wifePregnant} 
+                                      onCheckedChange={(checked: boolean) => {
+                                        const updatedWives = [...familyForm.wives];
+                                        updatedWives[index] = { ...updatedWives[index], wifePregnant: checked };
+                                        setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center text-muted-foreground py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                          <p>لا توجد زوجة مسجلة</p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="mt-2"
+                            onClick={() => {
+                              const newWife = {
+                                id: Date.now(),
+                                wifeName: "",
+                                wifeID: "",
+                                wifeBirthDate: "",
+                                wifeJob: "",
+                                wifePregnant: false
+                              };
+                              setFamilyForm((prev: any) => ({
+                                ...prev,
+                                wives: [newWife]
+                              }));
+                            }}
+                          >
+                            <Plus className="h-4 w-4 ml-1" />
+                            إضافة زوجة
+                          </Button>
+                        </div>
+                      )}
                     </div>
                     {/* Family Info */}
                     <div className="space-y-4">
