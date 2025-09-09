@@ -26,7 +26,8 @@ const BRANCHES = [
 const SOCIAL_STATUSES = [
   { value: "married", label: "متزوج" },
   { value: "divorced", label: "مطلق" },
-  { value: "widowed", label: "أرمل" },
+  { value: "widowed", label: "أرملة" },
+  { value: "polygamous", label: "متعدد الزوجات" },
   { value: "custom", label: "أخرى (حدد)" },
 ];
 const DAMAGE_DESCRIPTIONS = [

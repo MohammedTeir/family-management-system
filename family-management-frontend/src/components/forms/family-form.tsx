@@ -341,8 +341,10 @@ export default function FamilyForm({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="married" className="text-sm sm:text-base">متزوج</SelectItem>
+                  <SelectItem value="polygamous" className="text-sm sm:text-base">متعدد الزوجات</SelectItem>
                   <SelectItem value="divorced" className="text-sm sm:text-base">مطلق</SelectItem>
-                  <SelectItem value="widowed" className="text-sm sm:text-base">أرمل</SelectItem>
+                  <SelectItem value="widowed" className="text-sm sm:text-base">أرملة</SelectItem>
+                  <SelectItem value="custom" className="text-sm sm:text-base">أخرى</SelectItem>
                 </SelectContent>
               </Select>
             </div>

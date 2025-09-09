@@ -1,6 +1,6 @@
 import { 
-  users, families, members, requests, notifications, documents, logs, settings, supportVouchers, voucherRecipients,
-  type User, type InsertUser, type Family, type InsertFamily,
+  users, families, wives, members, requests, notifications, documents, logs, settings, supportVouchers, voucherRecipients,
+  type User, type InsertUser, type Family, type InsertFamily, type Wife, type InsertWife,
   type Member, type InsertMember, type Request, type InsertRequest,
   type Notification, type InsertNotification, type Document, type InsertDocument,
   type Log, type InsertLog, type Settings, type InsertSettings,
@@ -33,6 +33,13 @@ export interface IStorage {
   getAllFamilies(): Promise<Family[]>;
   deleteFamily(id: number): Promise<boolean>;
   getFamiliesByUserId(userId: number): Promise<Family[]>;
+
+  // Wives
+  getWivesByFamilyId(familyId: number): Promise<Wife[]>;
+  getWife(id: number): Promise<Wife | undefined>;
+  createWife(wife: InsertWife): Promise<Wife>;
+  updateWife(id: number, wife: Partial<InsertWife>): Promise<Wife | undefined>;
+  deleteWife(id: number): Promise<boolean>;
   
   // Members
   getMembersByFamilyId(familyId: number): Promise<Member[]>;
@@ -188,6 +195,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteFamily(id: number): Promise<boolean> {
+    // Delete all wives of the family
+    await db.delete(wives).where(eq(wives.familyId, id));
     // Delete all members of the family
     await db.delete(members).where(eq(members.familyId, id));
     // Delete all requests of the family
@@ -201,6 +210,31 @@ export class DatabaseStorage implements IStorage {
 
   async getFamiliesByUserId(userId: number): Promise<Family[]> {
     return await db.select().from(families).where(eq(families.userId, userId));
+  }
+
+  // Wives
+  async getWivesByFamilyId(familyId: number): Promise<Wife[]> {
+    return await db.select().from(wives).where(eq(wives.familyId, familyId));
+  }
+
+  async getWife(id: number): Promise<Wife | undefined> {
+    const [wife] = await db.select().from(wives).where(eq(wives.id, id));
+    return wife || undefined;
+  }
+
+  async createWife(wife: InsertWife): Promise<Wife> {
+    const [createdWife] = await db.insert(wives).values(wife).returning();
+    return createdWife;
+  }
+
+  async updateWife(id: number, wife: Partial<InsertWife>): Promise<Wife | undefined> {
+    const [updatedWife] = await db.update(wives).set(wife).where(eq(wives.id, id)).returning();
+    return updatedWife || undefined;
+  }
+
+  async deleteWife(id: number): Promise<boolean> {
+    const result = await db.delete(wives).where(eq(wives.id, id));
+    return (result?.rowCount ?? 0) > 0;
   }
 
   // Members

@@ -168,9 +168,9 @@ export function getDamageDescriptionInArabic(damageType: string): string {
 export function getSocialStatusInArabic(status: string): string {
   const socialStatuses: Record<string, string> = {
     married: "متزوج",
+    polygamous: "متعدد الزوجات",
     divorced: "مطلق",
-    widowed: "أرمل",
-  };
+    widowed: "أرملة",  };
 
   return socialStatuses[status] || status;
 }

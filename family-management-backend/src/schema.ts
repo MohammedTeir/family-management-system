@@ -24,11 +24,6 @@ export const families = pgTable("families", {
   husbandJob: text("husband_job"),
   primaryPhone: varchar("primary_phone", { length: 20 }),
   secondaryPhone: varchar("secondary_phone", { length: 20 }),
-  wifeName: text("wife_name"),
-  wifeID: varchar("wife_id", { length: 20 }),
-  wifeBirthDate: varchar("wife_birth_date", { length: 10 }),
-  wifeJob: text("wife_job"),
-  wifePregnant: boolean("wife_pregnant").default(false),
   originalResidence: text("original_residence"),
   currentHousing: text("current_housing"),
   isDisplaced: boolean("is_displaced").default(false),
@@ -43,6 +38,17 @@ export const families = pgTable("families", {
   numFemales: integer("num_females").notNull().default(0),
   socialStatus: varchar("social_status", { length: 50 }),
   adminNotes: text("admin_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const wives = pgTable("wives", {
+  id: serial("id").primaryKey(),
+  familyId: integer("family_id").references(() => families.id).notNull(),
+  wifeName: text("wife_name").notNull(),
+  wifeID: varchar("wife_id", { length: 20 }),
+  wifeBirthDate: varchar("wife_birth_date", { length: 10 }),
+  wifeJob: text("wife_job"),
+  wifePregnant: boolean("wife_pregnant").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -151,6 +157,7 @@ export const familiesRelations = relations(families, ({ one, many }) => ({
     fields: [families.userId],
     references: [users.id],
   }),
+  wives: many(wives),
   members: many(members),
   requests: many(requests),
   documents: many(documents),
@@ -187,6 +194,13 @@ export const supportVouchersRelations = relations(supportVouchers, ({ one, many 
   recipients: many(voucherRecipients),
 }));
 
+export const wivesRelations = relations(wives, ({ one }) => ({
+  family: one(families, {
+    fields: [wives.familyId],
+    references: [families.id],
+  }),
+}));
+
 export const voucherRecipientsRelations = relations(voucherRecipients, ({ one }) => ({
   voucher: one(supportVouchers, {
     fields: [voucherRecipients.voucherId],
@@ -210,6 +224,11 @@ export const insertUserSchema = createInsertSchema(users).omit({
 });
 
 export const insertFamilySchema = createInsertSchema(families).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertWifeSchema = createInsertSchema(wives).omit({
   id: true,
   createdAt: true,
 });
@@ -262,6 +281,8 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertFamily = z.infer<typeof insertFamilySchema>;
 export type Family = typeof families.$inferSelect;
+export type InsertWife = z.infer<typeof insertWifeSchema>;
+export type Wife = typeof wives.$inferSelect;
 export type InsertMember = z.infer<typeof insertMemberSchema>;
 export type Member = typeof members.$inferSelect;
 export type InsertRequest = z.infer<typeof insertRequestSchema>;

@@ -11,7 +11,7 @@ const memberSchema = z.object({
   fullName: z.string().min(1, "الاسم مطلوب"),
   memberID: z.string().optional(), // Add memberID as optional
   birthDate: z.string().min(1, "تاريخ الميلاد مطلوب"),
-  gender: z.enum(["male", "female"], { required_error: "النوع مطلوب" }),
+  gender: z.enum(["male", "female"], { required_error: "الجنس مطلوب" }),
   relationship: z.string().min(1, "القرابة مطلوبة"),
   isDisabled: z.boolean().default(false),
   disabilityType: z.string().optional(),
@@ -99,7 +99,7 @@ export default function MemberForm({
       </div>
 
       <div>
-        <Label htmlFor="gender" className="text-sm sm:text-base font-medium">النوع *</Label>
+        <Label htmlFor="gender" className="text-sm sm:text-base font-medium">الجنس *</Label>
         <Select
           value={form.watch("gender")}
           onValueChange={(value: "male" | "female") => form.setValue("gender", value)}

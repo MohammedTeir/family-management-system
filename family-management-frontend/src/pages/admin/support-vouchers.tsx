@@ -800,8 +800,9 @@ export default function SupportVouchers() {
                     <SelectContent>
                       <SelectItem value="all">جميع الحالات</SelectItem>
                       <SelectItem value="married">متزوج</SelectItem>
+                      <SelectItem value="polygamous">متعدد الزوجات</SelectItem>
                       <SelectItem value="divorced">مطلق</SelectItem>
-                      <SelectItem value="widowed">أرمل</SelectItem>
+                      <SelectItem value="widowed">أرملة</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
-import { Users } from "lucide-react";
+import { Users, Plus, Edit, Trash2 } from "lucide-react";
 import { Link } from "wouter";
 import { getSocialStatusInArabic } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -28,37 +29,44 @@ import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Header } from "@/components/layout/header";
 
 const familySchema = z.object({
-  husbandName: z.string().min(1, "الاسم مطلوب"),
-  husbandID: z.string().regex(/^\d{9}$/, "رقم الهوية يجب أن يكون 9 أرقام"),
-  husbandBirthDate: z.string().min(1, "تاريخ الميلاد مطلوب"),
-  husbandJob: z.string().min(1, "المهنة مطلوبة"),
-  primaryPhone: z.string().min(1, "رقم الجوال مطلوب"),
-  secondaryPhone: z.string().optional(),
-  wifeName: z.string().optional(),
-  wifeID: z.string().optional(),
-  wifeBirthDate: z.string().optional(),
-  wifeJob: z.string().optional(),
-  wifePregnant: z.boolean().default(false),
-  originalResidence: z.string().min(1, "السكن الأصلي مطلوب"),
-  currentHousing: z.string().min(1, "السكن الحالي مطلوب"),
-  isDisplaced: z.boolean().default(false),
-  displacedLocation: z.string().optional(),
-  isAbroad: z.boolean().default(false),
-  warDamage2024: z.boolean().default(false),
-  warDamageDescription: z.string().optional(),
-  branch: z.string().optional(),
-  landmarkNear: z.string().optional(),
-  socialStatus: z.string().optional(),
-  totalMembers: z.coerce.number().min(1, "عدد الأفراد مطلوب"),
-  numMales: z.coerce.number().min(0, "عدد الذكور مطلوب"),
-  numFemales: z.coerce.number().min(0, "عدد الإناث مطلوب"),
+  husbandName: z.string({ required_error: "الاسم مطلوب", invalid_type_error: "الاسم يجب أن يكون نص" }).min(1, "الاسم مطلوب"),
+  husbandID: z.string({ required_error: "رقم الهوية مطلوب", invalid_type_error: "رقم الهوية يجب أن يكون نص" }).regex(/^\d{9}$/, "رقم الهوية يجب أن يكون 9 أرقام"),
+  husbandBirthDate: z.string({ required_error: "تاريخ الميلاد مطلوب", invalid_type_error: "تاريخ الميلاد يجب أن يكون نص" }).min(1, "تاريخ الميلاد مطلوب"),
+  husbandJob: z.string({ required_error: "المهنة مطلوبة", invalid_type_error: "المهنة يجب أن تكون نص" }).min(1, "المهنة مطلوبة"),
+  primaryPhone: z.string({ required_error: "رقم الجوال مطلوب", invalid_type_error: "رقم الجوال يجب أن يكون نص" }).min(1, "رقم الجوال مطلوب"),
+  secondaryPhone: z.string({ invalid_type_error: "رقم الجوال البديل يجب أن يكون نص" }).nullable().optional(),
+  originalResidence: z.string({ required_error: "السكن الأصلي مطلوب", invalid_type_error: "السكن الأصلي يجب أن يكون نص" }).min(1, "السكن الأصلي مطلوب"),
+  currentHousing: z.string({ required_error: "السكن الحالي مطلوب", invalid_type_error: "السكن الحالي يجب أن يكون نص" }).min(1, "السكن الحالي مطلوب"),
+  isDisplaced: z.boolean({ invalid_type_error: "حقل النزوح يجب أن يكون صحيح أو خطأ" }).default(false),
+  displacedLocation: z.string({ invalid_type_error: "موقع النزوح يجب أن يكون نص" }).nullable().optional(),
+  isAbroad: z.boolean({ invalid_type_error: "حقل الاغتراب يجب أن يكون صحيح أو خطأ" }).default(false),
+  warDamage2024: z.boolean({ invalid_type_error: "حقل أضرار 2024 يجب أن يكون صحيح أو خطأ" }).default(false),
+  warDamageDescription: z.string({ invalid_type_error: "وصف الأضرار يجب أن يكون نص" }).nullable().optional(),
+  branch: z.string({ invalid_type_error: "الفرع يجب أن يكون نص" }).nullable().optional(),
+  landmarkNear: z.string({ invalid_type_error: "أقرب معلم يجب أن يكون نص" }).nullable().optional(),
+  socialStatus: z.string({ invalid_type_error: "الحالة الاجتماعية يجب أن تكون نص" }).nullable().optional(),
+  totalMembers: z.coerce.number({ required_error: "عدد الأفراد مطلوب", invalid_type_error: "عدد الأفراد يجب أن يكون رقم" }).min(1, "عدد الأفراد مطلوب"),
+  numMales: z.coerce.number({ required_error: "عدد الذكور مطلوب", invalid_type_error: "عدد الذكور يجب أن يكون رقم" }).min(0, "عدد الذكور مطلوب"),
+  numFemales: z.coerce.number({ required_error: "عدد الإناث مطلوب", invalid_type_error: "عدد الإناث يجب أن يكون رقم" }).min(0, "عدد الإناث مطلوب"),
+});
+
+const wifeSchema = z.object({
+  wifeName: z.string({ required_error: "اسم الزوجة مطلوب", invalid_type_error: "اسم الزوجة يجب أن يكون نص" }).min(1, "اسم الزوجة مطلوب"),
+  wifeID: z.string({ invalid_type_error: "رقم هوية الزوجة يجب أن يكون نص" }).nullable().optional(),
+  wifeBirthDate: z.string({ invalid_type_error: "تاريخ ميلاد الزوجة يجب أن يكون نص" }).nullable().optional(),
+  wifeJob: z.string({ invalid_type_error: "مهنة الزوجة يجب أن تكون نص" }).nullable().optional(),
+  wifePregnant: z.boolean({ invalid_type_error: "حقل الحمل يجب أن يكون صحيح أو خطأ" }).default(false),
 });
 
 type FamilyFormData = z.infer<typeof familySchema>;
+type WifeFormData = z.infer<typeof wifeSchema>;
 
 export default function FamilyData() {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingWife, setIsAddingWife] = useState(false);
+  const [editingWifeId, setEditingWifeId] = useState<number | null>(null);
+  const [deleteWifeId, setDeleteWifeId] = useState<number | null>(null);
   const [customSocialStatus, setCustomSocialStatus] = useState("");
   const [customDamageDescription, setCustomDamageDescription] = useState("");
   const [customBranch, setCustomBranch] = useState("");
@@ -77,11 +85,6 @@ export default function FamilyData() {
       husbandJob: "",
       primaryPhone: "",
       secondaryPhone: "",
-      wifeName: "",
-      wifeID: "",
-      wifeBirthDate: "",
-      wifeJob: "",
-      wifePregnant: false,
       originalResidence: "",
       currentHousing: "",
       isDisplaced: false,
@@ -98,12 +101,22 @@ export default function FamilyData() {
     },
   });
 
+  const wifeForm = useForm<WifeFormData>({
+    resolver: zodResolver(wifeSchema),
+    defaultValues: {
+      wifeName: "",
+      wifeID: "",
+      wifeBirthDate: "",
+      wifeJob: "",
+      wifePregnant: false,
+    },
+  });
+
   useEffect(() => {
     if (family) {
       form.reset({
         ...family,
         husbandBirthDate: family.husbandBirthDate ? formatDateForInput(family.husbandBirthDate) : "",
-        wifeBirthDate: family.wifeBirthDate ? formatDateForInput(family.wifeBirthDate) : "",
       });
     }
   }, [family, form]);
@@ -118,7 +131,7 @@ export default function FamilyData() {
 
   useEffect(() => {
     if (family?.socialStatus && 
-        !["married", "divorced", "widowed"].includes(family.socialStatus)) {
+        !["married", "polygamous", "divorced", "widowed"].includes(family.socialStatus)) {
       setCustomSocialStatus(family.socialStatus);
       form.setValue("socialStatus", "custom");
     }
@@ -186,6 +199,74 @@ export default function FamilyData() {
     },
   });
 
+  const createWifeMutation = useMutation({
+    mutationFn: async (data: WifeFormData) => {
+      const res = await apiRequest("POST", "/api/wives", data);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/family"] });
+      setIsAddingWife(false);
+      wifeForm.reset();
+      toast({
+        title: "تم الإضافة بنجاح",
+        description: "تم إضافة الزوجة بنجاح",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "خطأ في الإضافة",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateWifeMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<WifeFormData> }) => {
+      const res = await apiRequest("PUT", `/api/wives/${id}`, data);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/family"] });
+      setEditingWifeId(null);
+      setIsAddingWife(false);
+      wifeForm.reset();
+      toast({
+        title: "تم التحديث بنجاح",
+        description: "تم تحديث بيانات الزوجة",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "خطأ في التحديث",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteWifeMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/wives/${id}`);
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/family"] });
+      toast({
+        title: "تم الحذف بنجاح",
+        description: "تم حذف الزوجة بنجاح",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "خطأ في الحذف",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: FamilyFormData) => {
     if (data.socialStatus === "custom") {
       data.socialStatus = customSocialStatus;
@@ -204,6 +285,43 @@ export default function FamilyData() {
     } else {
       createFamilyMutation.mutate(data);
     }
+  };
+
+  const onSubmitWife = (data: WifeFormData) => {
+    if (editingWifeId) {
+      updateWifeMutation.mutate({ id: editingWifeId, data });
+    } else {
+      createWifeMutation.mutate(data);
+    }
+  };
+
+  const handleEditWife = (wife: any) => {
+    setEditingWifeId(wife.id);
+    setIsAddingWife(true);
+    wifeForm.reset({
+      wifeName: wife.wifeName || "",
+      wifeID: wife.wifeID || "",
+      wifeBirthDate: wife.wifeBirthDate ? formatDateForInput(wife.wifeBirthDate) : "",
+      wifeJob: wife.wifeJob || "",
+      wifePregnant: wife.wifePregnant || false,
+    });
+  };
+
+  const handleDeleteWife = (id: number) => {
+    setDeleteWifeId(id);
+  };
+
+  const confirmDeleteWife = () => {
+    if (deleteWifeId) {
+      deleteWifeMutation.mutate(deleteWifeId);
+      setDeleteWifeId(null);
+    }
+  };
+
+  const handleCancelWife = () => {
+    setIsAddingWife(false);
+    setEditingWifeId(null);
+    wifeForm.reset();
   };
 
   // Helper function to format date for display
@@ -348,71 +466,170 @@ export default function FamilyData() {
               </div>
             </CardContent>
           </Card>
+        </form>
 
-          {/* Wife Information */}
+        {/* Wives Information */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">بيانات الزوجة</CardTitle>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle className="text-lg sm:text-xl">
+                {(() => {
+                  const socialStatus = form.watch("socialStatus");
+                  if (socialStatus === "polygamous") return "بيانات الزوجات";
+                  if (socialStatus === "married") return "بيانات الزوجة";
+                  return "بيانات الزوجة"; // default
+                })()}
+              </CardTitle>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAddingWife(true)}
+                className="w-full sm:w-auto text-sm sm:text-base"
+              >
+                <Plus className="h-4 w-4 ml-2" />
+                إضافة زوجة
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div>
-                  <Label htmlFor="wifeName">الاسم الرباعي</Label>
-                  <Input
-                    id="wifeName"
-                    disabled={!isEditing}
-                    {...form.register("wifeName")}
-                  />
+              {family?.wives && family.wives.length > 0 ? (
+                <div className="space-y-4">
+                  {family.wives.map((wife: any, index: number) => (
+                    <div key={wife.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-semibold text-lg">{wife.wifeName}</h4>
+                          {wife.wifeID && (
+                            <p className="text-sm text-muted-foreground">رقم الهوية: {wife.wifeID}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditWife(wife)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteWife(wife.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                        {wife.wifeBirthDate && (
+                          <div>
+                            <span className="text-muted-foreground">تاريخ الميلاد: </span>
+                            <span>{formatDateForDisplay(wife.wifeBirthDate)}</span>
+                            <Badge variant="outline" className="ml-2">
+                              {calculateDetailedAge(wife.wifeBirthDate)}
+                            </Badge>
+                          </div>
+                        )}
+                        {wife.wifeJob && (
+                          <div>
+                            <span className="text-muted-foreground">المهنة: </span>
+                            <span>{wife.wifeJob}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-4 mt-2">
+                        {wife.wifePregnant && (
+                          <Badge variant="secondary">حامل</Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  لا توجد زوجة مسجلة
+                </div>
+              )}
 
-                <div>
-                  <Label htmlFor="wifeID">رقم الهوية</Label>
-                  <Input
-                    id="wifeID"
-                    disabled={!isEditing}
-                    {...form.register("wifeID")}
-                  />
-                </div>
+              {/* Add/Edit Wife Form */}
+              {isAddingWife && (
+                <div className="border-t pt-6">
+                  <h4 className="text-lg font-semibold mb-4">
+                    {editingWifeId ? "تعديل بيانات الزوجة" : "إضافة زوجة جديدة"}
+                  </h4>
+                  <form onSubmit={wifeForm.handleSubmit(onSubmitWife)} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="wifeName">الاسم الرباعي *</Label>
+                        <Input
+                          id="wifeName"
+                          {...wifeForm.register("wifeName")}
+                        />
+                        {wifeForm.formState.errors.wifeName && (
+                          <p className="text-sm text-destructive mt-1">
+                            {wifeForm.formState.errors.wifeName.message}
+                          </p>
+                        )}
+                      </div>
 
-                <div>
-                  <Label htmlFor="wifeBirthDate">تاريخ الميلاد</Label>
-                  <div className="flex items-center space-x-2 space-x-reverse">
-                  <Input
-                    id="wifeBirthDate"
-                    type="date"
-                    disabled={!isEditing}
-                    {...form.register("wifeBirthDate")}
-                  />
-                    {form.watch("wifeBirthDate") && (
-                      <Badge variant="outline">
-                        {calculateDetailedAge(form.watch("wifeBirthDate"))}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
+                      <div>
+                        <Label htmlFor="wifeID">رقم الهوية</Label>
+                        <Input
+                          id="wifeID"
+                          {...wifeForm.register("wifeID")}
+                        />
+                      </div>
 
-                <div>
-                  <Label htmlFor="wifeJob">المهنة</Label>
-                  <Input
-                    id="wifeJob"
-                    disabled={!isEditing}
-                    {...form.register("wifeJob")}
-                  />
-                </div>
+                      <div>
+                        <Label htmlFor="wifeBirthDate">تاريخ الميلاد</Label>
+                        <Input
+                          id="wifeBirthDate"
+                          type="date"
+                          {...wifeForm.register("wifeBirthDate")}
+                        />
+                      </div>
 
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <Switch
-                    id="wifePregnant"
-                    disabled={!isEditing}
-                    checked={form.watch("wifePregnant")}
-                    onCheckedChange={(checked) => form.setValue("wifePregnant", checked)}
-                  />
-                  <Label htmlFor="wifePregnant">حامل</Label>
+                      <div>
+                        <Label htmlFor="wifeJob">المهنة</Label>
+                        <Input
+                          id="wifeJob"
+                          {...wifeForm.register("wifeJob")}
+                        />
+                      </div>
+
+
+                      <div className="flex items-center space-x-2 space-x-reverse">
+                        <Switch
+                          id="wifePregnant"
+                          checked={wifeForm.watch("wifePregnant")}
+                          onCheckedChange={(checked) => wifeForm.setValue("wifePregnant", checked)}
+                        />
+                        <Label htmlFor="wifePregnant">حامل</Label>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancelWife}
+                      >
+                        إلغاء
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={createWifeMutation.isPending || updateWifeMutation.isPending}
+                      >
+                        {createWifeMutation.isPending || updateWifeMutation.isPending ? "جاري الحفظ..." : "حفظ"}
+                      </Button>
+                    </div>
+                  </form>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
           {/* Family Members */}
           <Card>
             <CardHeader>
@@ -524,7 +741,7 @@ export default function FamilyData() {
                       <SelectItem value="married_daughters_displaced">بنات العائلة متزوجات خارج العائلة, نازحين عند عائلة ابو طير</SelectItem>
                       <SelectItem value="alnogra">النقرة</SelectItem>
                       <SelectItem value="abushalbia_abumatar">ابو شلبية + ابو مطر</SelectItem>
-                      <SelectItem value="custom">تخصيص</SelectItem>
+                      <SelectItem value="custom">أخرى</SelectItem>
                     </SelectContent>
                   </Select>
                   {form.watch("branch") === "custom" && (
@@ -609,7 +826,7 @@ export default function FamilyData() {
                           <SelectItem value="total_destruction_uninhabitable">هدم كلي غير قابل للسكن</SelectItem>
                           <SelectItem value="partial_destruction_habitable">هدم جزئي قابل للسكن</SelectItem>
                           <SelectItem value="minor_damage">اضرار بسيطة</SelectItem>
-                          <SelectItem value="custom">تخصيص</SelectItem>
+                          <SelectItem value="custom">أخرى</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -649,9 +866,10 @@ export default function FamilyData() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="married">متزوج</SelectItem>
+                      <SelectItem value="polygamous">متعدد الزوجات</SelectItem>
                       <SelectItem value="divorced">مطلق</SelectItem>
-                      <SelectItem value="widowed">أرمل</SelectItem>
-                      <SelectItem value="custom">تخصيص</SelectItem>
+                      <SelectItem value="widowed">أرملة</SelectItem>
+                      <SelectItem value="custom">أخرى</SelectItem>
                     </SelectContent>
                   </Select>
                   {form.watch("socialStatus") === "custom" && (
@@ -691,6 +909,33 @@ export default function FamilyData() {
           )}
         </form>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteWifeId !== null} onOpenChange={(open) => !open && setDeleteWifeId(null)}>
+        <AlertDialogContent className="w-[90vw] max-w-md mx-auto">
+          <AlertDialogHeader className="space-y-3">
+            <AlertDialogTitle className="text-lg sm:text-xl text-center">تأكيد الحذف</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm sm:text-base text-center">
+              هل أنت متأكد من حذف هذه الزوجة؟ لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <AlertDialogCancel 
+              onClick={() => setDeleteWifeId(null)}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
+              إلغاء
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteWife}
+              disabled={deleteWifeMutation.isPending}
+              className="w-full sm:w-auto order-1 sm:order-2 bg-destructive hover:bg-destructive/90"
+            >
+              {deleteWifeMutation.isPending ? "جاري الحذف..." : "حذف"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
