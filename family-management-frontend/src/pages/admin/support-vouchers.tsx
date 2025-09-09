@@ -182,7 +182,9 @@ export default function SupportVouchers() {
         userId: family.userId,
         // Add identity IDs for search functionality
         husbandID: family.husbandID,
-        wifeID: family.wifeID,
+        wifeID: family.wives && family.wives.length > 0 ? 
+          family.wives.map((wife: any) => wife.wifeID).filter(Boolean).join(', ') : 
+          family.wifeID,
         // Add additional family data for filtering
         branch: family.branch,
         isDisplaced: family.isDisplaced,
@@ -193,7 +195,9 @@ export default function SupportVouchers() {
         numMales: family.numMales,
         numFemales: family.numFemales,
         // Add pregnant and children data
-        wifePregnant: family.wifePregnant,
+        wifePregnant: family.wives && family.wives.length > 0 ? 
+          family.wives.some((wife: any) => wife.wifePregnant) : 
+          family.wifePregnant,
         childrenCount: children.length,
         hasChildren: children.length > 0
       };
@@ -229,7 +233,9 @@ export default function SupportVouchers() {
           userId: user.id,
           // Add identity IDs for search functionality (if user has family)
           husbandID: userFamily?.husbandID || null,
-          wifeID: userFamily?.wifeID || null,
+          wifeID: userFamily?.wives && userFamily.wives.length > 0 ? 
+            userFamily.wives.map((wife: any) => wife.wifeID).filter(Boolean).join(', ') : 
+            userFamily?.wifeID || null,
           // Use family data if available, otherwise use defaults
           branch: userFamily?.branch || null,
           isDisplaced: userFamily?.isDisplaced || false,
@@ -240,7 +246,9 @@ export default function SupportVouchers() {
           numMales: userFamily?.numMales || 0,
           numFemales: userFamily?.numFemales || 0,
           // Add pregnant and children data from family if available
-          wifePregnant: userFamily?.wifePregnant || false,
+          wifePregnant: userFamily?.wives && userFamily.wives.length > 0 ? 
+            userFamily.wives.some((wife: any) => wife.wifePregnant) : 
+            userFamily?.wifePregnant || false,
           childrenCount: userFamily ? userFamily.members?.filter((member: any) => {
             if (!member.birthDate) return false;
             const age = calculateAge(member.birthDate);

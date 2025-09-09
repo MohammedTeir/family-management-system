@@ -790,14 +790,41 @@ export default function AdminFamilies() {
                         <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">الجوال الإضافي:</span> <span className="sm:mr-2">{familyDetails.secondaryPhone || 'غير محدد'}</span></div>
                           </div>
                     </div>
-                    {familyDetails.wifeName && (
+                    {/* Wives Information */}
+                    {((familyDetails.wives && familyDetails.wives.length > 0) || familyDetails.wifeName) && (
                       <div className="bg-white rounded-lg p-3 md:p-4 border">
-                        <h4 className="font-semibold text-pink-900 mb-3 flex flex-wrap items-center gap-2">الزوجة <Badge className="bg-pink-200 text-pink-900">{familyDetails.wifeName}</Badge></h4>
-                        <div className="space-y-1 text-sm">
-                          <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="sm:mr-2">{familyDetails.wifeID || 'غير محدد'}</span></div>
-                          <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{familyDetails.wifeBirthDate || 'غير محدد'}{familyDetails.wifeBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(familyDetails.wifeBirthDate)}</span>)</>}</span></div>
-                          <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">المهنة:</span> <span className="sm:mr-2">{familyDetails.wifeJob || 'غير محدد'}</span></div>
-                          <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">حامل:</span> <span className="sm:mr-2">{familyDetails.wifePregnant ? <Badge className="bg-yellow-200 text-yellow-900">نعم</Badge> : 'لا'}</span></div>
+                        <h4 className="font-semibold text-pink-900 mb-3">
+                          {familyDetails.socialStatus === "polygamous" || (familyDetails.wives && familyDetails.wives.length > 1) ? "الزوجات" : "الزوجة"}
+                        </h4>
+                        <div className="space-y-4">
+                          {familyDetails.wives && familyDetails.wives.length > 0 ? (
+                            familyDetails.wives.map((wife: any, index: number) => (
+                              <div key={wife.id || index} className="border-l-4 border-pink-400 pl-3">
+                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                  {familyDetails.wives.length > 1 && <Badge className="bg-pink-200 text-pink-900">الزوجة {index + 1}</Badge>}
+                                  <Badge className="bg-pink-200 text-pink-900">{wife.wifeName}</Badge>
+                                </div>
+                                <div className="space-y-1 text-sm">
+                                  <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="sm:mr-2">{wife.wifeID || 'غير محدد'}</span></div>
+                                  <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{wife.wifeBirthDate || 'غير محدد'}{wife.wifeBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(wife.wifeBirthDate)}</span>)</>}</span></div>
+                                  <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">المهنة:</span> <span className="sm:mr-2">{wife.wifeJob || 'غير محدد'}</span></div>
+                                  <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">حامل:</span> <span className="sm:mr-2">{wife.wifePregnant ? <Badge className="bg-yellow-200 text-yellow-900">نعم</Badge> : 'لا'}</span></div>
+                                </div>
+                              </div>
+                            ))
+                          ) : familyDetails.wifeName ? (
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
+                                <Badge className="bg-pink-200 text-pink-900">{familyDetails.wifeName}</Badge>
+                              </div>
+                              <div className="space-y-1 text-sm">
+                                <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="sm:mr-2">{familyDetails.wifeID || 'غير محدد'}</span></div>
+                                <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{familyDetails.wifeBirthDate || 'غير محدد'}{familyDetails.wifeBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(familyDetails.wifeBirthDate)}</span>)</>}</span></div>
+                                <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">المهنة:</span> <span className="sm:mr-2">{familyDetails.wifeJob || 'غير محدد'}</span></div>
+                                <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">حامل:</span> <span className="sm:mr-2">{familyDetails.wifePregnant ? <Badge className="bg-yellow-200 text-yellow-900">نعم</Badge> : 'لا'}</span></div>
+                              </div>
+                            </div>
+                          ) : null}
                         </div>
                       </div>
                     )}

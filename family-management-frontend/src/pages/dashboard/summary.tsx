@@ -365,7 +365,13 @@ export default function Summary() {
         ['الأبناء', children.filter((child: any) => child.gender === 'male').length.toString()],
         ['البنات', children.filter((child: any) => child.gender === 'female').length.toString()],
         ['الحالة الاجتماعية', family.socialStatus ? getSocialStatusInArabic(family.socialStatus) : 'غير محدد'],
-        ['حالة الحمل', family.wifePregnant ? 'حامل' : 'غير حامل'],
+        ...(family.wives && family.wives.length > 0 ?
+          family.wives.map((wife: any, index: number) => [
+            `حالة الحمل${family.wives.length > 1 ? ` للزوجة ${index + 1}` : ''}`,
+            wife.wifePregnant ? 'حامل' : 'غير حامل'
+          ]) :
+          [['حالة الحمل', family.wifePregnant ? 'حامل' : 'غير حامل']]
+        ),
         ['نازح', family.isDisplaced ? 'نعم' : 'لا'],
         ['موقع النزوح', family.isDisplaced ? (family.displacedLocation || '') : ''],
         ['مغترب بالخارج', family.isAbroad ? 'نعم' : 'لا'],
@@ -436,6 +442,16 @@ export default function Summary() {
         }
       };
 
+      // Create wives array for both Excel sheets
+      const wives = family.wives && family.wives.length > 0 ? family.wives : 
+        (family.wifeName ? [{
+          wifeName: family.wifeName,
+          wifeID: family.wifeID,
+          wifeJob: family.wifeJob,
+          wifeBirthDate: family.wifeBirthDate,
+          wifePregnant: family.wifePregnant
+        }] : []);
+
       // Create a new workbook
       const workbook = new ExcelJS.Workbook();
       
@@ -497,13 +513,31 @@ export default function Summary() {
 
       // 1. Family Information Sheet (بيانات الأسرة)
       const familySheet = workbook.addWorksheet('بيانات الأسرة');
-      
+
+      const wifeHeaders = wives.flatMap((wife: any, index: number) => [
+        `هل الزوجة${wives.length > 1 ? ` ${index + 1}` : ''} حامل`,
+        `عمل الزوجة${wives.length > 1 ? ` ${index + 1}` : ''}`,
+        `عمر الزوجة${wives.length > 1 ? ` ${index + 1}` : ''}`,
+        `تاريخ ميلاد الزوجة${wives.length > 1 ? ` ${index + 1}` : ''}`,
+        `رقم هوية الزوجة${wives.length > 1 ? ` ${index + 1}` : ''}`,
+        `اسم الزوجة${wives.length > 1 ? ` ${index + 1}` : ''} رباعي`
+      ]);
+
+      const wifeData = wives.flatMap((wife: any) => [
+        wife.wifePregnant ? 'نعم' : 'لا',
+        wife.wifeJob || '',
+        formatAgeForPDF(wife.wifeBirthDate || ''),
+        wife.wifeBirthDate || '',
+        wife.wifeID || '',
+        wife.wifeName || ''
+      ]);
+
       const familyHeaders = [
         'مغترب بالخارج', 'الحالة الاجتماعية', 'عدد الأطفال', 
         'عدد الإناث', 'عدد الذكور', 'إجمالي أفراد الأسرة', 'هل لديك ابناء اقل من سنتين', 
         'هل يوجد افراد ذوي اعاقة في العائلة', 'الفرع', 'الاضرار الناجمة عن حرب 2024', 
         'حالة السكن الحالي', 'السكن الأصلي', 'رقم الجوال البديل', 'رقم الجوال للتواصل', 
-        'هل الزوجة حامل', 'عمل الزوجة', 'عمر الزوجة', 'تاريخ ميلاد الزوجة', 'رقم هوية الزوجة', 'اسم الزوجة رباعي', 
+        ...wifeHeaders,
         'عمل الزوج', 'عمر الزوج', 'تاريخ ميلاد الزوج', 'رقم هوية الزوج', 'اسم الزوج رباعي'
       ];
 
@@ -522,15 +556,10 @@ export default function Summary() {
         family.originalResidence || '',
         family.secondaryPhone || '',
         family.primaryPhone || '',
-        family.wifePregnant ? 'نعم' : 'لا',
-        family.wifeJob || '',
-        formatAgeForPDF(family.wifeBirthDate || ''), // عمر الزوجة
-        family.wifeBirthDate || '', // تاريخ ميلاد الزوجة
-        family.wifeID || '',
-        family.wifeName || '',
+        ...wifeData,
         family.husbandJob || '',
-        formatAgeForPDF(family.husbandBirthDate || ''), // عمر الزوج
-        family.husbandBirthDate || '', // تاريخ ميلاد الزوج
+        formatAgeForPDF(family.husbandBirthDate || ''),
+        family.husbandBirthDate || '',
         family.husbandID || '',
         family.husbandName || ''
       ];
@@ -685,7 +714,10 @@ export default function Summary() {
         ['الأبناء', children.filter((child: any) => child.gender === 'male').length.toString()],
         ['البنات', children.filter((child: any) => child.gender === 'female').length.toString()],
         ['الحالة الاجتماعية', family.socialStatus ? getSocialStatusInArabic(family.socialStatus) : 'غير محدد'],
-        ['حالة الحمل', family.wifePregnant ? 'حامل' : 'غير حامل'],
+        ...(wives.map((wife: any, index: number) => [
+          `حالة الحمل${wives.length > 1 ? ` للزوجة ${index + 1}` : ''}`,
+          wife.wifePregnant ? 'حامل' : 'غير حامل'
+        ])),
         ['نازح', family.isDisplaced ? 'نعم' : 'لا'],
         ['موقع النزوح', family.isDisplaced ? (family.displacedLocation || '') : ''],
         ['مغترب بالخارج', family.isAbroad ? 'نعم' : 'لا'],
