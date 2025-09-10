@@ -58,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
+      // Clear any existing user data before login attempt
+      queryClient.setQueryData(["/api/user"], null);
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
@@ -65,6 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], user);
     },
     onError: (error: Error) => {
+      // Ensure user data is cleared on login failure
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
       let message = error.message;
       // Show Arabic toast for common English errors
       if (

@@ -67,6 +67,14 @@ export function registerRoutes(app: Express): Server {
           return res.status(401).send("فشل تسجيل الدخول: كلمة المرور مطلوبة");
         }
         
+        // For head users, verify they have a family record
+        if (user.role === 'head') {
+          const family = await storage.getFamilyByUserId(user.id);
+          if (!family) {
+            return res.status(401).send("معلومات الدخول خاطئة - راجع لجنة العائلة");
+          }
+        }
+        
         // Check if account is locked out
         if (user.lockoutUntil && new Date() < user.lockoutUntil) {
           const remainingMinutes = Math.ceil((user.lockoutUntil.getTime() - new Date().getTime()) / (1000 * 60));
