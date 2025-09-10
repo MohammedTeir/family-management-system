@@ -13,11 +13,20 @@ export const fetchApi = async (endpoint: string, options?: RequestInit) => {
   const url = apiUrl(endpoint);
   const defaultOptions: RequestInit = {
     credentials: 'include', // Include cookies for session management
-    headers: {
+  };
+
+  // Only set Content-Type header for non-FormData requests
+  if (options?.body && !(options.body instanceof FormData)) {
+    defaultOptions.headers = {
       'Content-Type': 'application/json',
       ...options?.headers,
-    },
-  };
+    };
+  } else {
+    // For FormData or no body, just use the provided headers
+    defaultOptions.headers = {
+      ...options?.headers,
+    };
+  }
 
   return fetch(url, {
     ...defaultOptions,
