@@ -124,7 +124,7 @@ export default function FamilyMembers() {
     onError: (error: any) => {
       toast({
         title: "خطأ في الإضافة",
-        description: error.message || "حدث خطأ أثناء إضافة الفرد",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -178,7 +178,7 @@ export default function FamilyMembers() {
       console.error('Update mutation error:', error);
       toast({
         title: "خطأ في التحديث",
-        description: error.message || "حدث خطأ أثناء تحديث البيانات",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -236,7 +236,7 @@ export default function FamilyMembers() {
       console.error('Delete mutation error:', error);
       toast({
         title: "خطأ في الحذف",
-        description: error.message || "حدث خطأ أثناء حذف الفرد",
+        description: error.message,
         variant: "destructive",
       });
     },
