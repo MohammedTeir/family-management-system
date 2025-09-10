@@ -52,22 +52,41 @@ export function registerRoutes(app: Express): Server {
 
   // Excel import route for bulk importing head users
   app.post("/api/admin/import-heads", upload.single("excel"), async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) {
+      console.log(`❌ Unauthorized import attempt by user: ${req.user?.username || 'anonymous'}`);
+      return res.sendStatus(403);
+    }
+    
+    console.log(`📊 Excel import started by user: ${req.user!.username}`);
     
     try {
       if (!req.file) {
+        console.log('❌ No file uploaded');
         return res.status(400).json({ message: "يرجى رفع ملف Excel" });
+      }
+
+      console.log(`📁 File uploaded: ${req.file.originalname}, Size: ${req.file.size} bytes`);
+
+      // Validate file size (max 10MB)
+      if (req.file.size > 10 * 1024 * 1024) {
+        console.log(`❌ File too large: ${req.file.size} bytes`);
+        return res.status(400).json({ message: "حجم الملف كبير جداً. الحد الأقصى 10 ميجابايت" });
       }
 
       // Parse Excel file
       const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
       const sheetName = workbook.SheetNames[0];
+      console.log(`📋 Processing sheet: ${sheetName}`);
+      
       const worksheet = workbook.Sheets[sheetName];
       const data = XLSX.utils.sheet_to_json(worksheet);
 
       if (!data || data.length === 0) {
+        console.log('❌ Empty Excel file');
         return res.status(400).json({ message: "ملف Excel فارغ أو لا يحتوي على بيانات" });
       }
+
+      console.log(`📊 Found ${data.length} rows to process`);
 
       let successCount = 0;
       let errorCount = 0;
@@ -142,16 +161,30 @@ export function registerRoutes(app: Express): Server {
         }
       }
 
+      const resultMessage = `تم استيراد ${successCount} عائلة بنجاح، فشل في ${errorCount} صف`;
+      console.log(`✅ Import completed: ${resultMessage}`);
+      
       res.json({
-        message: `تم استيراد ${successCount} عائلة بنجاح، فشل في ${errorCount} صف`,
+        message: resultMessage,
         successCount,
         errorCount,
         errors: errors.slice(0, 20) // Limit errors to first 20 to avoid huge responses
       });
 
     } catch (error: any) {
-      console.error('Excel import error:', error);
-      res.status(500).json({ message: "خطأ في استيراد ملف Excel: " + error.message });
+      console.error('❌ Excel import error:', error);
+      console.error('Stack trace:', error.stack);
+      
+      let errorMessage = "خطأ في استيراد ملف Excel";
+      if (error.message.includes('Invalid file format')) {
+        errorMessage = "تنسيق الملف غير صحيح. يرجى استخدام ملف Excel (.xlsx أو .xls)";
+      } else if (error.message.includes('Permission denied')) {
+        errorMessage = "ليس لديك صلاحية لهذه العملية";
+      } else {
+        errorMessage += ": " + error.message;
+      }
+      
+      res.status(500).json({ message: errorMessage });
     }
   });
 

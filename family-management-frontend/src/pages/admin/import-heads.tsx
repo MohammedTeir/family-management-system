@@ -30,15 +30,45 @@ export default function ImportHeads() {
     },
     onSuccess: (data) => {
       setImportResults(data);
-      toast({
-        title: "تم الاستيراد",
-        description: data.message,
-      });
+      
+      // Show appropriate toast based on results
+      if (data.errorCount === 0) {
+        toast({
+          title: "تم الاستيراد بنجاح",
+          description: `تم استيراد ${data.successCount} عائلة بنجاح`,
+        });
+      } else if (data.successCount === 0) {
+        toast({
+          title: "فشل الاستيراد",
+          description: `فشل في استيراد جميع الصفوف (${data.errorCount} خطأ)`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "استيراد جزئي",
+          description: data.message,
+          variant: "default",
+        });
+      }
     },
     onError: (error: any) => {
+      console.error('Import error:', error);
+      let errorMessage = error.message;
+      
+      // Handle specific error types
+      if (error.message.includes('404')) {
+        errorMessage = "الخدمة غير متوفرة. تأكد من تشغيل الخادم";
+      } else if (error.message.includes('403')) {
+        errorMessage = "غير مصرح لك بهذه العملية";
+      } else if (error.message.includes('500')) {
+        errorMessage = "خطأ في الخادم. يرجى المحاولة لاحقاً";
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorMessage = "خطأ في الاتصال. تحقق من الإنترنت";
+      }
+
       toast({
         title: "خطأ في الاستيراد",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -70,6 +100,19 @@ export default function ImportHeads() {
       return;
     }
 
+    // Validate file size (max 10MB)
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      toast({
+        title: "حجم الملف كبير",
+        description: "يجب أن يكون حجم الملف أقل من 10 ميجابايت",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Clear previous results
+    setImportResults(null);
+    
     importMutation.mutate(selectedFile);
   };
 
