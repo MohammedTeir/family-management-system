@@ -149,44 +149,12 @@ export default function AuthPage() {
           }
         },
         onError: (error: any) => {
-          let message = error.message;
-          // Improved parsing for lockout and remaining attempts
-          // Lockout: "الحساب محظور مؤقتاً. يرجى المحاولة بعد {n} دقيقة"
-          // Lockout (alt): "تم حظر الحساب لمدة {n} دقيقة بسبب محاولات تسجيل الدخول الفاشلة المتكررة"
-          // Remaining: "فشل تسجيل الدخول: اسم المستخدم أو كلمة المرور غير صحيحة. المحاولات المتبقية: {n}"
-          const lockoutMatch = message.match(/(?:محظور مؤقتاً|حظر الحساب).*?(\d+) دقيقة/);
-          const remainingMatch = message.match(/المحاولات المتبقية: (\d+)/);
-          if (lockoutMatch) {
-            const minutes = lockoutMatch[1];
-            toast({
-              title: "الحساب محظور مؤقتاً",
-              description: `تم حظر الحساب. يرجى الانتظار ${minutes} دقيقة قبل المحاولة مرة أخرى.`,
-              variant: "destructive",
-            });
-          } else if (remainingMatch) {
-            const tries = remainingMatch[1];
-            toast({
-              title: "محاولة تسجيل دخول فاشلة",
-              description: `اسم المستخدم أو كلمة المرور غير صحيحة. المحاولات المتبقية: ${tries}`,
-              variant: "destructive",
-            });
-          } else if (
-            message.includes("401") ||
-            message.toLowerCase().includes("unauthorized") ||
-            message.toLowerCase().includes("forbidden")
-          ) {
-            toast({
-              title: "فشل تسجيل الدخول",
-              description: "فشل تسجيل الدخول: اسم المستخدم أو كلمة المرور غير صحيحة",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "فشل تسجيل الدخول",
-              description: message,
-              variant: "destructive",
-            });
-          }
+          // Use the exact error message from the backend
+          toast({
+            title: "فشل تسجيل الدخول",
+            description: error.message,
+            variant: "destructive",
+          });
         },
       }
     );

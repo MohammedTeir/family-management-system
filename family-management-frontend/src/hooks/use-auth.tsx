@@ -71,18 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], null);
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       
-      let message = error.message;
-      // Show Arabic toast for common English errors
-      if (
-        message.includes('401') ||
-        message.toLowerCase().includes('unauthorized') ||
-        message.toLowerCase().includes('forbidden')
-      ) {
-        message = "فشل تسجيل الدخول: اسم المستخدم أو كلمة المرور غير صحيحة";
-      }
+      // Use the exact error message from the backend
       toast({
         title: "فشل تسجيل الدخول",
-        description: message,
+        description: error.message,
         variant: "destructive",
       });
     },
