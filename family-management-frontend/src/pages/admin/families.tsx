@@ -948,7 +948,7 @@ export default function AdminFamilies() {
                   <label className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all select-none shadow-sm ${isWivesChecked ? 'bg-green-50 border-green-500 text-green-800 font-bold ring-2 ring-green-200' : 'bg-white border-gray-200 text-gray-700 hover:border-green-300'}`}
                     style={{ order: 3 }}>
                     <input type="checkbox" checked={isWivesChecked} onChange={() => handleGroupToggle('wives')} className="accent-green-600 w-4 h-4" />
-                    <span className="text-md">الزوجات</span>
+                    <span className="text-md">{maxWives > 1 ? 'الزوجات' : 'الزوجة'}</span>
                   </label>
                 )}
                 {/* Render the rest of the columns except sons/children/wives */}
