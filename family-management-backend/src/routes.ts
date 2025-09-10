@@ -104,38 +104,41 @@ export function registerRoutes(app: Express): Server {
             continue;
           }
 
+          // Convert husbandID to string to handle Excel numeric conversion
+          const husbandID = String(row.husbandID);
+
           // Check if user already exists
-          const existingUser = await storage.getUserByNationalId(row.husbandID);
+          const existingUser = await storage.getUserByNationalId(husbandID);
           if (existingUser) {
-            errors.push(`الصف ${rowIndex}: رقم الهوية ${row.husbandID} مسجل مسبقاً`);
+            errors.push(`الصف ${rowIndex}: رقم الهوية ${husbandID} مسجل مسبقاً`);
             errorCount++;
             continue;
           }
 
           // Validate ID format (9 digits)
-          if (!/^\d{9}$/.test(row.husbandID)) {
-            errors.push(`الصف ${rowIndex}: رقم الهوية ${row.husbandID} يجب أن يكون 9 أرقام`);
+          if (!/^\d{9}$/.test(husbandID)) {
+            errors.push(`الصف ${rowIndex}: رقم الهوية ${husbandID} يجب أن يكون 9 أرقام`);
             errorCount++;
             continue;
           }
 
           // Create user
           const user = await storage.createUser({
-            username: row.husbandID,
-            password: await hashPassword(row.husbandID), // Use ID as default password
+            username: husbandID,
+            password: await hashPassword(husbandID), // Use ID as default password
             role: 'head',
-            phone: row.primaryPhone || null
+            phone: row.primaryPhone ? String(row.primaryPhone) : null
           });
 
           // Create family
           const familyData = {
             userId: user.id,
             husbandName: row.husbandName,
-            husbandID: row.husbandID,
+            husbandID: husbandID,
             husbandBirthDate: row.husbandBirthDate || null,
             husbandJob: row.husbandJob || null,
-            primaryPhone: row.primaryPhone || null,
-            secondaryPhone: row.secondaryPhone || null,
+            primaryPhone: row.primaryPhone ? String(row.primaryPhone) : null,
+            secondaryPhone: row.secondaryPhone ? String(row.secondaryPhone) : null,
             originalResidence: row.originalResidence || null,
             currentHousing: row.currentHousing || null,
             isDisplaced: Boolean(row.isDisplaced),
@@ -145,9 +148,9 @@ export function registerRoutes(app: Express): Server {
             warDamageDescription: row.warDamageDescription || null,
             branch: row.branch || null,
             landmarkNear: row.landmarkNear || null,
-            totalMembers: parseInt(row.totalMembers) || 0,
-            numMales: parseInt(row.numMales) || 0,
-            numFemales: parseInt(row.numFemales) || 0,
+            totalMembers: parseInt(String(row.totalMembers)) || 0,
+            numMales: parseInt(String(row.numMales)) || 0,
+            numFemales: parseInt(String(row.numFemales)) || 0,
             socialStatus: row.socialStatus || null,
             adminNotes: row.adminNotes || null
           };
