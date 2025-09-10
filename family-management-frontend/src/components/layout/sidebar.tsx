@@ -8,7 +8,8 @@ import {
   UserCog,
   Settings,
   Activity,
-  Gift
+  Gift,
+  Upload
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useSettings } from "@/hooks/use-settings";
@@ -61,6 +62,11 @@ const adminNavItems = [
     title: "إدارة المستخدمين",
     href: "/admin/users",
     icon: UserCog,
+  },
+  {
+    title: "استيراد العائلات",
+    href: "/admin/import-heads",
+    icon: Upload,
   },
   {
     title: "الإعدادات",

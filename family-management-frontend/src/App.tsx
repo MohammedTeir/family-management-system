@@ -29,6 +29,7 @@ import AdminLogs from "@/pages/admin/logs";
 import SettingsPage from "@/pages/admin/settings";
 import SupportVouchers from "./pages/admin/support-vouchers";
 import VoucherDetails from "./pages/admin/voucher-details";
+import ImportHeads from "./pages/admin/import-heads";
 import { useEffect, useState, createContext, useContext } from "react";
 import { useAuth } from "./hooks/use-auth"; // adjust import as needed
 import { fetchApi } from "./lib/api";
@@ -58,6 +59,7 @@ function Router() {
       <ProtectedRoute path="/admin/settings" component={SettingsPage} roles={['root']} />
       <ProtectedRoute path="/admin/support-vouchers" component={SupportVouchers} roles={['admin', 'root']} />
       <ProtectedRoute path="/admin/support-vouchers/:id" component={props => <VoucherDetails {...props} />} roles={['admin', 'root']} />
+      <ProtectedRoute path="/admin/import-heads" component={ImportHeads} roles={['admin', 'root']} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>

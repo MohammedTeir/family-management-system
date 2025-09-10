@@ -8,6 +8,7 @@ import passport from "passport";
 import multer from "multer";
 import cors from "cors";
 import pg from "pg";
+import * as XLSX from "xlsx";
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Utility function for request type translation
@@ -1564,6 +1565,111 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       res.status(500).json({ message: "خطأ في الخادم" });
   }
+  });
+
+  // Excel import route for bulk importing head users
+  app.post("/api/admin/import-heads", upload.single("excel"), async (req, res) => {
+    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+    
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "يرجى رفع ملف Excel" });
+      }
+
+      // Parse Excel file
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet);
+
+      if (!data || data.length === 0) {
+        return res.status(400).json({ message: "ملف Excel فارغ أو لا يحتوي على بيانات" });
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+
+      for (let i = 0; i < data.length; i++) {
+        const row: any = data[i];
+        const rowIndex = i + 2; // Excel rows start from 2 (accounting for header)
+
+        try {
+          // Validate required fields
+          if (!row.husbandName || !row.husbandID) {
+            errors.push(`الصف ${rowIndex}: اسم رب الأسرة ورقم الهوية مطلوبان`);
+            errorCount++;
+            continue;
+          }
+
+          // Check if user already exists
+          const existingUser = await storage.getUserByNationalId(row.husbandID);
+          if (existingUser) {
+            errors.push(`الصف ${rowIndex}: رقم الهوية ${row.husbandID} مسجل مسبقاً`);
+            errorCount++;
+            continue;
+          }
+
+          // Validate ID format (9 digits)
+          if (!/^\d{9}$/.test(row.husbandID)) {
+            errors.push(`الصف ${rowIndex}: رقم الهوية ${row.husbandID} يجب أن يكون 9 أرقام`);
+            errorCount++;
+            continue;
+          }
+
+          // Create user
+          const user = await storage.createUser({
+            username: row.husbandID,
+            password: await hashPassword(row.husbandID), // Use ID as default password
+            role: 'head',
+            phone: row.primaryPhone || null
+          });
+
+          // Create family
+          const familyData = {
+            userId: user.id,
+            husbandName: row.husbandName,
+            husbandID: row.husbandID,
+            husbandBirthDate: row.husbandBirthDate || null,
+            husbandJob: row.husbandJob || null,
+            primaryPhone: row.primaryPhone || null,
+            secondaryPhone: row.secondaryPhone || null,
+            originalResidence: row.originalResidence || null,
+            currentHousing: row.currentHousing || null,
+            isDisplaced: Boolean(row.isDisplaced),
+            displacedLocation: row.displacedLocation || null,
+            isAbroad: Boolean(row.isAbroad),
+            warDamage2024: Boolean(row.warDamage2024),
+            warDamageDescription: row.warDamageDescription || null,
+            branch: row.branch || null,
+            landmarkNear: row.landmarkNear || null,
+            totalMembers: parseInt(row.totalMembers) || 0,
+            numMales: parseInt(row.numMales) || 0,
+            numFemales: parseInt(row.numFemales) || 0,
+            socialStatus: row.socialStatus || null,
+            adminNotes: row.adminNotes || null
+          };
+
+          await storage.createFamily(familyData);
+          successCount++;
+
+        } catch (error: any) {
+          errors.push(`الصف ${rowIndex}: ${error.message}`);
+          errorCount++;
+        }
+      }
+
+      res.json({
+        message: `تم استيراد ${successCount} عائلة بنجاح، فشل في ${errorCount} صف`,
+        successCount,
+        errorCount,
+        errors: errors.slice(0, 20) // Limit errors to first 20 to avoid huge responses
+      });
+
+    } catch (error: any) {
+      console.error('Excel import error:', error);
+      res.status(500).json({ message: "خطأ في استيراد ملف Excel: " + error.message });
+    }
   });
 
   const httpServer = createServer(app);

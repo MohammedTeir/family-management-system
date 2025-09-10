@@ -12,11 +12,15 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  options?: { headers?: Record<string, string> }
 ): Promise<Response> {
+  // Handle FormData specially - don't set Content-Type, let browser handle it
+  const isFormData = data instanceof FormData;
+  
   const res = await fetchApi(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
+    headers: isFormData ? (options?.headers || {}) : (data ? { "Content-Type": "application/json", ...(options?.headers || {}) } : (options?.headers || {})),
+    body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
     credentials: "include",
   });
 
