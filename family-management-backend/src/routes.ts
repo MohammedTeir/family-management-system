@@ -57,6 +57,10 @@ export function registerRoutes(app: Express): Server {
       return res.sendStatus(403);
     }
     
+    // Set timeout to 10 minutes for large imports
+    req.setTimeout(10 * 60 * 1000);
+    res.setTimeout(10 * 60 * 1000);
+    
     console.log(`📊 Excel import started by user: ${req.user!.username}`);
     
     try {
@@ -95,6 +99,11 @@ export function registerRoutes(app: Express): Server {
       for (let i = 0; i < data.length; i++) {
         const row: any = data[i];
         const rowIndex = i + 2; // Excel rows start from 2 (accounting for header)
+
+        // Log progress every 50 rows
+        if (i % 50 === 0) {
+          console.log(`📊 Processing row ${i + 1}/${data.length} (${Math.round((i / data.length) * 100)}%)`);
+        }
 
         try {
           // Validate required fields
@@ -159,6 +168,7 @@ export function registerRoutes(app: Express): Server {
           successCount++;
 
         } catch (error: any) {
+          console.error(`❌ Error processing row ${rowIndex}:`, error.message);
           errors.push(`الصف ${rowIndex}: ${error.message}`);
           errorCount++;
         }
