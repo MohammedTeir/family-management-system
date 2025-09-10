@@ -21,12 +21,26 @@ export default function ImportHeads() {
       const formData = new FormData();
       formData.append('excel', file);
       
-      const res = await apiRequest("POST", "/api/admin/import-heads", formData, {
-        headers: {
-          // Don't set Content-Type, let the browser set it for FormData
+      // Create AbortController with 10 minute timeout for large imports
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10 * 60 * 1000); // 10 minutes
+      
+      try {
+        const res = await apiRequest("POST", "/api/admin/import-heads", formData, {
+          headers: {
+            // Don't set Content-Type, let the browser set it for FormData
+          },
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return await res.json();
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          throw new Error('Import timeout - the file is too large or the process is taking too long');
         }
-      });
-      return await res.json();
+        throw error;
+      }
     },
     onSuccess: (data) => {
       setImportResults(data);
@@ -119,7 +133,7 @@ export default function ImportHeads() {
   const downloadTemplate = () => {
     const templateData = [
       {
-        husbandName: "محمد أحمد علي",
+        husbandName: "محمد أحمد ابو طير",
         husbandID: "123456789",
         husbandBirthDate: "1980-01-15",
         husbandJob: "مهندس",
@@ -224,8 +238,19 @@ export default function ImportHeads() {
               disabled={!selectedFile || importMutation.isPending}
               className="w-full"
             >
-              {importMutation.isPending ? "جاري الاستيراد..." : "استيراد البيانات"}
+              {importMutation.isPending ? "جاري الاستيراد... (قد يستغرق عدة دقائق للملفات الكبيرة)" : "استيراد البيانات"}
             </Button>
+
+            {/* Loading message for large imports */}
+            {importMutation.isPending && (
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-sm text-blue-800">
+                  <strong>يتم معالجة الملف...</strong>
+                  <br />
+                  الملفات الكبيرة قد تستغرق عدة دقائق. يرجى الانتظار وعدم إغلاق الصفحة.
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 

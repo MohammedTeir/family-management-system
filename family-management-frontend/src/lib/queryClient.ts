@@ -12,7 +12,7 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
-  options?: { headers?: Record<string, string> }
+  options?: { headers?: Record<string, string>; signal?: AbortSignal }
 ): Promise<Response> {
   // Handle FormData specially - don't set Content-Type, let browser handle it
   const isFormData = data instanceof FormData;
@@ -22,6 +22,7 @@ export async function apiRequest(
     headers: isFormData ? (options?.headers || {}) : (data ? { "Content-Type": "application/json", ...(options?.headers || {}) } : (options?.headers || {})),
     body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
     credentials: "include",
+    signal: options?.signal,
   });
 
   await throwIfResNotOk(res);
