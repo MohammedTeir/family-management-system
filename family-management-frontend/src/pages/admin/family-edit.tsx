@@ -265,10 +265,7 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     const { name, value, type, checked } = e.target;
     setFamilyForm((prev: any) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked
-        : ["totalMembers", "numMales", "numFemales"].includes(name)
-          ? value === "" ? "" : Number(value)
-          : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
     if (name === "branch" && value === "custom") setCustomBranch("");
     if (name === "socialStatus" && value === "custom") setCustomSocialStatus("");
@@ -280,9 +277,6 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     e.preventDefault();
     updateFamilyMutation.mutate({
       ...familyForm,
-      totalMembers: Number(familyForm.totalMembers),
-      numMales: Number(familyForm.numMales),
-      numFemales: Number(familyForm.numFemales),
       branch: familyForm.branch === "custom" ? customBranch : familyForm.branch,
       socialStatus: familyForm.socialStatus === "custom" ? customSocialStatus : familyForm.socialStatus,
       warDamageDescription: familyForm.warDamageDescription === "custom" ? customDamageDescription : familyForm.warDamageDescription,
@@ -632,15 +626,15 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                       </div>
                       <div className="flex flex-col items-end">
                         <Label htmlFor="totalMembers" className="text-right w-full mb-1">عدد الأفراد *</Label>
-                        <Input id="totalMembers" name="totalMembers" type="number" value={familyForm.totalMembers || 0} onChange={handleFamilyChange} required className="text-right mt-1" />
+                        <Input id="totalMembers" name="totalMembers" value={familyForm.totalMembers || ""} onChange={handleFamilyChange} required className="text-right mt-1" />
                       </div>
                       <div className="flex flex-col items-end">
                         <Label htmlFor="numMales" className="text-right w-full mb-1">عدد الذكور *</Label>
-                        <Input id="numMales" name="numMales" type="number" value={familyForm.numMales || 0} onChange={handleFamilyChange} required className="text-right mt-1" />
+                        <Input id="numMales" name="numMales" value={familyForm.numMales || ""} onChange={handleFamilyChange} required className="text-right mt-1" />
                       </div>
                       <div className="flex flex-col items-end">
                         <Label htmlFor="numFemales" className="text-right w-full mb-1">عدد الإناث *</Label>
-                        <Input id="numFemales" name="numFemales" type="number" value={familyForm.numFemales || 0} onChange={handleFamilyChange} required className="text-right mt-1" />
+                        <Input id="numFemales" name="numFemales" value={familyForm.numFemales || ""} onChange={handleFamilyChange} required className="text-right mt-1" />
                       </div>
                       </div>
                     </div>
