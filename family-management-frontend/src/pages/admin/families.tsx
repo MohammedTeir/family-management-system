@@ -757,7 +757,7 @@ export default function AdminFamilies() {
                       {familyDetails.isDisplaced && <Badge variant="destructive">نازح</Badge>}
                       {familyDetails.warDamage2024 && <Badge variant="outline">متضرر</Badge>}
                       {familyDetails.isAbroad && <Badge className="bg-blue-100 text-blue-800">مغترب</Badge>}
-                      {familyDetails.branch && <Badge className="bg-green-100 text-green-800">{familyDetails.branch}</Badge>}
+                      {familyDetails.branch && <Badge className="bg-green-100 text-green-800">{getBranchInArabic(familyDetails.branch)}</Badge>}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
@@ -768,6 +768,12 @@ export default function AdminFamilies() {
                         <span className="font-medium text-muted-foreground">مكان السكن الحالي:</span>
                         <span className="mr-2">{familyDetails.currentHousing || 'غير محدد'}</span>
                       </div>
+                      {familyDetails.isDisplaced && (
+                        <div>
+                          <span className="font-medium text-muted-foreground">موقع النزوح:</span>
+                          <span className="mr-2">{familyDetails.displacedLocation || 'غير محدد'}</span>
+                        </div>
+                      )}
                       <div>
                         <span className="font-medium text-muted-foreground">أقرب معلم:</span>
                         <span className="mr-2">{familyDetails.landmarkNear || 'غير محدد'}</span>
