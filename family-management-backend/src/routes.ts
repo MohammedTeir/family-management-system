@@ -166,12 +166,12 @@ export function registerRoutes(app: Express): Server {
     try {
       // Allow dual-role admin to access their family
       const family = await storage.getFamilyByUserId(req.user!.id);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
       const wives = await storage.getWivesByFamilyId(family.id);
       const members = await storage.getMembersByFamilyId(family.id);
       res.json({ ...family, wives, members });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -186,9 +186,9 @@ export function registerRoutes(app: Express): Server {
       res.status(201).json(family);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -203,19 +203,19 @@ export function registerRoutes(app: Express): Server {
       if (req.user!.role === 'head') {
         const family = await storage.getFamily(id);
         if (!family || family.userId !== req.user!.id) {
-          return res.status(403).json({ message: "Forbidden" });
+          return res.status(403).json({ message: "غير مصرح لك" });
         }
       }
       
       const family = await storage.updateFamily(id, familyData);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
       
       res.json(family);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -226,14 +226,14 @@ export function registerRoutes(app: Express): Server {
       const familyId = parseInt(req.params.familyId);
       // Allow dual-role admin to access their family
         const family = await storage.getFamily(familyId);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
       if (isHeadOrDualRole(req.user!, family) && family.userId !== req.user!.id) {
-          return res.status(403).json({ message: "Forbidden" });
+          return res.status(403).json({ message: "غير مصرح لك" });
       }
       const members = await storage.getMembersByFamilyId(familyId);
       res.json(members);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -243,7 +243,7 @@ export function registerRoutes(app: Express): Server {
       // Allow dual-role admin to add members to their family
         const family = await storage.getFamilyByUserId(req.user!.id);
         if (!family) {
-          return res.status(404).json({ message: "Family not found" });
+          return res.status(404).json({ message: "العائلة غير موجودة" });
         }
       if (isHeadOrDualRole(req.user!, family)) {
         const memberDataSchema = insertMemberSchema.omit({ familyId: true });
@@ -252,13 +252,13 @@ export function registerRoutes(app: Express): Server {
       const member = await storage.createMember(memberData);
       res.status(201).json(member);
       } else {
-        return res.status(403).json({ message: "Forbidden" });
+        return res.status(403).json({ message: "غير مصرح لك" });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -269,14 +269,14 @@ export function registerRoutes(app: Express): Server {
     const id = parseInt(req.params.id);
     const memberData = insertMemberSchema.partial().parse(req.body);
       const member = await storage.getMember(id);
-      if (!member) return res.status(404).json({ message: "Member not found" });
+      if (!member) return res.status(404).json({ message: "الفرد غير موجود" });
       const family = await storage.getFamily(member.familyId);
-    if (!family) return res.status(404).json({ message: "Family not found" });
+    if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
     if (isHeadOrDualRole(req.user!, family) && family.userId !== req.user!.id) {
-        return res.status(403).json({ message: "Forbidden" });
+        return res.status(403).json({ message: "غير مصرح لك" });
     }
     const updatedMember = await storage.updateMember(id, memberData);
-    if (!updatedMember) return res.status(404).json({ message: "Member not found" });
+    if (!updatedMember) return res.status(404).json({ message: "الفرد غير موجود" });
 
     // Don't update family statistics - keep them as stored
     // The family statistics will remain unchanged
@@ -284,9 +284,9 @@ export function registerRoutes(app: Express): Server {
     res.json(updatedMember);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "خطأ في الخادم" });
   }
 });
 
@@ -306,7 +306,7 @@ export function registerRoutes(app: Express): Server {
       
       if (!member) {
         console.log('Server: Member not found for ID:', id);
-        return res.status(404).json({ message: "Member not found" });
+        return res.status(404).json({ message: "الفرد غير موجود" });
       }
 
       const family = await storage.getFamily(member.familyId);
@@ -314,7 +314,7 @@ export function registerRoutes(app: Express): Server {
       
       if (!family || family.userId !== req.user!.id) {
         console.log('Server: Forbidden - family not found or user mismatch');
-        return res.status(403).json({ message: "Forbidden" });
+        return res.status(403).json({ message: "غير مصرح لك" });
     }
 
       // 🗑️ تنفيذ الحذف بعد التأكد من الصلاحيات
@@ -323,7 +323,7 @@ export function registerRoutes(app: Express): Server {
       
       if (!success) {
         console.log('Server: Delete failed for ID:', id);
-        return res.status(404).json({ message: "Member not found" });
+        return res.status(404).json({ message: "الفرد غير موجود" });
       }
 
       // Don't update family statistics - keep them as stored
@@ -334,13 +334,13 @@ export function registerRoutes(app: Express): Server {
       // For admin users, just delete directly
       const success = await storage.deleteMember(id);
       if (!success) {
-        return res.status(404).json({ message: "Member not found" });
+        return res.status(404).json({ message: "الفرد غير موجود" });
       }
       res.sendStatus(204);
     }
   } catch (error: any) {
     console.error('Server: Error deleting member:', error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "خطأ في الخادم" });
   }
  });
 
@@ -350,16 +350,16 @@ export function registerRoutes(app: Express): Server {
     try {
       const familyId = parseInt(req.params.familyId);
       const family = await storage.getFamily(familyId);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
       
       if (isHeadOrDualRole(req.user!, family) && family.userId !== req.user!.id) {
-        return res.status(403).json({ message: "Forbidden" });
+        return res.status(403).json({ message: "غير مصرح لك" });
       }
       
       const wives = await storage.getWivesByFamilyId(familyId);
       res.json(wives);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -368,7 +368,7 @@ export function registerRoutes(app: Express): Server {
     try {
       const family = await storage.getFamilyByUserId(req.user!.id);
       if (!family) {
-        return res.status(404).json({ message: "Family not found" });
+        return res.status(404).json({ message: "العائلة غير موجودة" });
       }
       
       if (isHeadOrDualRole(req.user!, family)) {
@@ -378,13 +378,13 @@ export function registerRoutes(app: Express): Server {
         const wife = await storage.createWife(wifeData);
         res.status(201).json(wife);
       } else {
-        return res.status(403).json({ message: "Forbidden" });
+        return res.status(403).json({ message: "غير مصرح لك" });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -394,24 +394,24 @@ export function registerRoutes(app: Express): Server {
       const id = parseInt(req.params.id);
       const wifeData = insertWifeSchema.partial().parse(req.body);
       const wife = await storage.getWife(id);
-      if (!wife) return res.status(404).json({ message: "Wife not found" });
+      if (!wife) return res.status(404).json({ message: "الزوجة غير موجودة" });
       
       const family = await storage.getFamily(wife.familyId);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
       
       if (isHeadOrDualRole(req.user!, family) && family.userId !== req.user!.id) {
-        return res.status(403).json({ message: "Forbidden" });
+        return res.status(403).json({ message: "غير مصرح لك" });
       }
       
       const updatedWife = await storage.updateWife(id, wifeData);
-      if (!updatedWife) return res.status(404).json({ message: "Wife not found" });
+      if (!updatedWife) return res.status(404).json({ message: "الزوجة غير موجودة" });
       
       res.json(updatedWife);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -420,22 +420,22 @@ export function registerRoutes(app: Express): Server {
     try {
       const id = parseInt(req.params.id);
       const wife = await storage.getWife(id);
-      if (!wife) return res.status(404).json({ message: "Wife not found" });
+      if (!wife) return res.status(404).json({ message: "الزوجة غير موجودة" });
       
       const family = await storage.getFamily(wife.familyId);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
       
       if (isHeadOrDualRole(req.user!, family) && family.userId !== req.user!.id) {
-        return res.status(403).json({ message: "Forbidden" });
+        return res.status(403).json({ message: "غير مصرح لك" });
       }
       
       const success = await storage.deleteWife(id);
-      if (!success) return res.status(404).json({ message: "Wife not found" });
+      if (!success) return res.status(404).json({ message: "الزوجة غير موجودة" });
       
       res.sendStatus(204);
     } catch (error) {
       console.error('Server: Error deleting wife:', error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -461,7 +461,7 @@ export function registerRoutes(app: Express): Server {
         res.json(requestsWithFamily);
       }
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -477,7 +477,7 @@ export function registerRoutes(app: Express): Server {
         const requestDataSchema = insertRequestSchema.omit({ familyId: true });
         requestData = requestDataSchema.parse(req.body);
         
-        if (!family) return res.status(404).json({ message: "Family not found" });
+        if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
         
         // Add familyId from user's family
         requestData = { ...requestData, familyId: family.id };
@@ -490,9 +490,9 @@ export function registerRoutes(app: Express): Server {
       res.status(201).json(request);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -505,10 +505,10 @@ export function registerRoutes(app: Express): Server {
       
       // Get the original request to check for changes
       const originalRequest = await storage.getRequest(id);
-      if (!originalRequest) return res.status(404).json({ message: "Request not found" });
+      if (!originalRequest) return res.status(404).json({ message: "الطلب غير موجود" });
       
       const request = await storage.updateRequest(id, requestData);
-      if (!request) return res.status(404).json({ message: "Request not found" });
+      if (!request) return res.status(404).json({ message: "الطلب غير موجود" });
 
       // Move variable declarations before usage
       const statusChanged = originalRequest.status !== request.status;
@@ -517,7 +517,7 @@ export function registerRoutes(app: Express): Server {
       
       // Get family information for notification
       const family = await getFamilyByIdOrDualRole(request.familyId);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
 
       console.log('[Notification Debug]', {
         requestId: request.id,
@@ -552,9 +552,9 @@ export function registerRoutes(app: Express): Server {
       res.json(request);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -574,7 +574,7 @@ export function registerRoutes(app: Express): Server {
       }
       res.json(notifications);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -598,9 +598,9 @@ export function registerRoutes(app: Express): Server {
       res.status(201).json(notification);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -612,7 +612,7 @@ export function registerRoutes(app: Express): Server {
       const families = await storage.getAllFamiliesWithMembers();
       res.json(families);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -621,13 +621,13 @@ export function registerRoutes(app: Express): Server {
     try {
       const id = parseInt(req.params.id);
       const family = await getFamilyByIdOrDualRole(id);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
       const wives = await storage.getWivesByFamilyId(family.id);
       const members = await storage.getMembersByFamilyId(family.id);
       const requests = await storage.getRequestsByFamilyId(family.id);
       res.json({ ...family, wives, members, requests });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -638,15 +638,15 @@ export function registerRoutes(app: Express): Server {
       const familyData = insertFamilySchema.partial().parse(req.body);
       // Use getFamilyByIdOrDualRole to check existence before update
       const family = await getFamilyByIdOrDualRole(id);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
       const updatedFamily = await storage.updateFamily(id, familyData);
-      if (!updatedFamily) return res.status(404).json({ message: "Family not found" });
+      if (!updatedFamily) return res.status(404).json({ message: "العائلة غير موجودة" });
       res.json(updatedFamily);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -655,10 +655,10 @@ export function registerRoutes(app: Express): Server {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.deleteFamily(id);
-      if (!success) return res.status(404).json({ message: "Family not found" });
+      if (!success) return res.status(404).json({ message: "العائلة غير موجودة" });
       res.sendStatus(204);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -667,15 +667,15 @@ export function registerRoutes(app: Express): Server {
   try {
     const familyId = parseInt(req.params.id);
       const family = await getFamilyByIdOrDualRole(familyId);
-      if (!family) return res.status(404).json({ message: "Family not found" });
+      if (!family) return res.status(404).json({ message: "العائلة غير موجودة" });
     const memberData = { ...insertMemberSchema.omit({ familyId: true }).parse(req.body), familyId };
     const member = await storage.createMember(memberData);
     res.status(201).json(member);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
     }
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "خطأ في الخادم" });
   }
 });
 
@@ -718,7 +718,7 @@ export function registerRoutes(app: Express): Server {
       // If no password provided, this is admin creating a head, so don't auto-login
       if (userData.password) {
         req.login(user, (err) => {
-          if (err) return res.status(500).json({ message: "Registration successful but login failed" });
+          if (err) return res.status(500).json({ message: "تم التسجيل بنجاح لكن فشل تسجيل الدخول" });
           res.status(201).json({ user, family });
         });
       } else {
@@ -730,7 +730,7 @@ export function registerRoutes(app: Express): Server {
       return res.status(400).json({ message: "رقم الهوية مسجل مسبقاً" });
     }
     console.error("Registration error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -739,12 +739,12 @@ export function registerRoutes(app: Express): Server {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
       const user = await storage.getUser(req.user!.id);
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
       // Exclude password from response
       const { password, ...userData } = user;
       res.json(userData);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -757,7 +757,7 @@ export function registerRoutes(app: Express): Server {
   }
   try {
     const user = await storage.getUser(req.user!.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
 
     const valid = await comparePasswords(currentPassword, user.password);
     if (!valid) {
@@ -780,7 +780,7 @@ export function registerRoutes(app: Express): Server {
       const users = await storage.getAllUsers({ includeDeleted: true });
       res.json(users);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -826,7 +826,7 @@ export function registerRoutes(app: Express): Server {
       const user = await storage.createUser(userData);
       res.status(201).json(user);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -838,7 +838,7 @@ export function registerRoutes(app: Express): Server {
       let userData = req.body;
       // Fetch the target user
       const targetUser = await storage.getUser(id);
-      if (!targetUser) return res.status(404).json({ message: "User not found" });
+      if (!targetUser) return res.status(404).json({ message: "المستخدم غير موجود" });
 
       // Root can edit anyone, including isProtected
       if (req.user!.role === 'root') {
@@ -846,7 +846,7 @@ export function registerRoutes(app: Express): Server {
           userData.username = targetUser.username;
       }
       const updatedUser = await storage.updateUser(id, userData);
-      if (!updatedUser) return res.status(404).json({ message: "User not found" });
+      if (!updatedUser) return res.status(404).json({ message: "المستخدم غير موجود" });
         return res.json(updatedUser);
       }
       // Admin logic (protected or not)
@@ -883,12 +883,12 @@ export function registerRoutes(app: Express): Server {
           userData.username = targetUser.username;
         }
         const updatedUser = await storage.updateUser(id, userData);
-        if (!updatedUser) return res.status(404).json({ message: "User not found" });
+        if (!updatedUser) return res.status(404).json({ message: "المستخدم غير موجود" });
         return res.json(updatedUser);
       }
       return res.sendStatus(403);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -898,7 +898,7 @@ export function registerRoutes(app: Express): Server {
     try {
       const id = parseInt(req.params.id);
       const targetUser = await storage.getUser(id);
-      if (!targetUser) return res.status(404).json({ message: "User not found" });
+      if (!targetUser) return res.status(404).json({ message: "المستخدم غير موجود" });
 
       // Check for family references
       const families = await storage.getFamiliesByUserId(id);
@@ -926,7 +926,7 @@ export function registerRoutes(app: Express): Server {
           }
         }
         const success = await storage.softDeleteUser(id);
-        if (!success) return res.status(404).json({ message: "User not found" });
+        if (!success) return res.status(404).json({ message: "المستخدم غير موجود" });
         return res.sendStatus(204);
       }
       // Admin logic (protected or not)
@@ -961,12 +961,12 @@ export function registerRoutes(app: Express): Server {
           }
         }
         const success = await storage.softDeleteUser(id);
-        if (!success) return res.status(404).json({ message: "User not found" });
+        if (!success) return res.status(404).json({ message: "المستخدم غير موجود" });
         return res.sendStatus(204);
       }
       return res.sendStatus(403);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -976,7 +976,7 @@ export function registerRoutes(app: Express): Server {
     try {
       const id = parseInt(req.params.id);
       const targetUser = await storage.getUser(id);
-      if (!targetUser) return res.status(404).json({ message: "User not found" });
+      if (!targetUser) return res.status(404).json({ message: "المستخدم غير موجود" });
 
       // Root can reset anyone
       if (req.user!.role === 'root') {
@@ -1011,7 +1011,7 @@ export function registerRoutes(app: Express): Server {
       // Fallback forbidden
       return res.sendStatus(403);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1022,12 +1022,12 @@ export function registerRoutes(app: Express): Server {
       const id = parseInt(req.params.id);
       // Only allow restoring if user is soft-deleted
       const user = await storage.getUser(id, { includeDeleted: true });
-      if (!user || !user.deletedAt) return res.status(404).json({ message: "User not found or not deleted" });
+      if (!user || !user.deletedAt) return res.status(404).json({ message: "المستخدم غير موجود أو غير محذوف" });
       const success = await storage.restoreUser(id);
-      if (!success) return res.status(500).json({ message: "Restore failed" });
-      res.json({ message: "User restored" });
+      if (!success) return res.status(500).json({ message: "فشل في الاستعادة" });
+      res.json({ message: "تم استعادة المستخدم" });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1051,7 +1051,7 @@ export function registerRoutes(app: Express): Server {
       res.json(logsWithUser);
     } catch (error) {
       console.error('Error in GET /api/admin/logs:', error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1064,7 +1064,7 @@ export function registerRoutes(app: Express): Server {
       const log = await storage.createLog(logData);
       res.status(201).json(log);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
   }
   });
 
@@ -1076,7 +1076,7 @@ export function registerRoutes(app: Express): Server {
       const settingsMap = Object.fromEntries(allSettings.map(s => [s.key, s.value]));
       res.json(settingsMap);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1087,7 +1087,7 @@ export function registerRoutes(app: Express): Server {
       const settingsMap = Object.fromEntries(allSettings.map(s => [s.key, s.value]));
       res.json(settingsMap);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1096,12 +1096,12 @@ export function registerRoutes(app: Express): Server {
     try {
       const { key, value, description } = req.body;
       if (!key || value === undefined) {
-        return res.status(400).json({ message: "Key and value are required" });
+        return res.status(400).json({ message: "المفتاح والقيمة مطلوبان" });
       }
       await storage.setSetting(key, value, description);
-      res.json({ message: "Setting updated successfully" });
+      res.json({ message: "تم تحديث الإعداد بنجاح" });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1110,11 +1110,11 @@ export function registerRoutes(app: Express): Server {
     try {
       const value = await storage.getSetting(req.params.key);
       if (value === undefined) {
-        return res.status(404).json({ message: "Setting not found" });
+        return res.status(404).json({ message: "الإعداد غير موجود" });
       }
       res.json({ value });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1124,7 +1124,7 @@ export function registerRoutes(app: Express): Server {
       const value = await storage.getSetting("maintenance");
       res.json({ enabled: value === "true" });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1135,7 +1135,7 @@ export function registerRoutes(app: Express): Server {
       await storage.setSetting("maintenance", enabled ? "true" : "false", "وضع الصيانة");
       res.json({ message: "تم تحديث وضع الصيانة" });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1145,7 +1145,7 @@ export function registerRoutes(app: Express): Server {
       const pkg = await import('../package.json', { assert: { type: 'json' } });
       res.json({ version: pkg.default.version });
     } catch (error) {
-      res.status(500).json({ message: "Failed to load version" });
+      res.status(500).json({ message: "فشل في تحميل الإصدار" });
     }
   });
 
@@ -1386,7 +1386,7 @@ export function registerRoutes(app: Express): Server {
       const users = await storage.getAllUsers();
       res.json(users);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1397,7 +1397,7 @@ export function registerRoutes(app: Express): Server {
       const vouchers = await storage.getAllSupportVouchers();
       res.json(vouchers);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1408,7 +1408,7 @@ export function registerRoutes(app: Express): Server {
       const voucher = await storage.getSupportVoucher(voucherId);
       
       if (!voucher) {
-        return res.status(404).json({ message: "Voucher not found" });
+        return res.status(404).json({ message: "الكوبون غير موجود" });
       }
       
       // Get creator and recipients
@@ -1423,7 +1423,7 @@ export function registerRoutes(app: Express): Server {
       
       res.json(voucherWithDetails);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1449,9 +1449,9 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error('Error creating voucher:', error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res.status(400).json({ message: "بيانات غير صحيحة", errors: error.errors });
       }
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1463,13 +1463,13 @@ export function registerRoutes(app: Express): Server {
       
       const voucher = await storage.getSupportVoucher(voucherId);
       if (!voucher) {
-        return res.status(404).json({ message: "Voucher not found" });
+        return res.status(404).json({ message: "الكوبون غير موجود" });
       }
       
       const updatedVoucher = await storage.updateSupportVoucher(voucherId, { isActive });
       res.json(updatedVoucher);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1480,7 +1480,7 @@ export function registerRoutes(app: Express): Server {
       const { familyIds } = req.body;
       
       if (!Array.isArray(familyIds)) {
-        return res.status(400).json({ message: "familyIds must be an array" });
+        return res.status(400).json({ message: "يجب أن تكون معرفات العوائل مصفوفة" });
       }
 
       const recipients = [];
@@ -1496,7 +1496,7 @@ export function registerRoutes(app: Express): Server {
       
       res.status(201).json(recipients);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1508,7 +1508,7 @@ export function registerRoutes(app: Express): Server {
       
       const voucher = await storage.getSupportVoucher(voucherId);
       if (!voucher) {
-        return res.status(404).json({ message: "Voucher not found" });
+        return res.status(404).json({ message: "الكوبون غير موجود" });
       }
 
       const recipients = await storage.getVoucherRecipients(voucherId);
@@ -1542,7 +1542,7 @@ export function registerRoutes(app: Express): Server {
       
       res.json({ message: `تم إرسال ${targetRecipients.length} إشعار` });
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
 
@@ -1558,11 +1558,11 @@ export function registerRoutes(app: Express): Server {
       if (notes !== undefined) updateData.notes = notes;
       
       const recipient = await storage.updateVoucherRecipient(recipientId, updateData);
-      if (!recipient) return res.status(404).json({ message: "Recipient not found" });
+      if (!recipient) return res.status(404).json({ message: "المستلم غير موجود" });
       
       res.json(recipient);
     } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "خطأ في الخادم" });
   }
   });
 
