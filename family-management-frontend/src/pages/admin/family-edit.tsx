@@ -93,17 +93,56 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     }
   }, [family]);
 
+  // Wives mutations
+  const createWifeMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await fetchApi("/api/wives", { method: "POST", body: JSON.stringify({ ...data, familyId: family.id }) });
+      if (!res.ok) throw new Error("فشل في إضافة الزوجة");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "تم إضافة الزوجة", description: "تم إضافة الزوجة بنجاح" });
+      refetch();
+    },
+  });
+
+  const updateWifeMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      const res = await fetchApi(`/api/wives/${id}`, { method: "PUT", body: JSON.stringify(data) });
+      if (!res.ok) throw new Error("فشل في تحديث بيانات الزوجة");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "تم التحديث", description: "تم تحديث بيانات الزوجة" });
+      refetch();
+    },
+  });
+
+  const deleteWifeMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetchApi(`/api/wives/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("فشل في حذف الزوجة");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "تم الحذف", description: "تم حذف الزوجة بنجاح" });
+      refetch();
+    },
+  });
+
   // Update family mutation
   const updateFamilyMutation = useMutation({
     mutationFn: async (data: any) => {
+      // Remove wives from data since they are handled separately
+      const { wives, ...familyData } = data;
       // Replace custom fields if needed
-      if (data.branch === "custom") data.branch = customBranch;
-      if (data.socialStatus === "custom") data.socialStatus = customSocialStatus;
-      if (data.warDamageDescription === "custom") data.warDamageDescription = customDamageDescription;
+      if (familyData.branch === "custom") familyData.branch = customBranch;
+      if (familyData.socialStatus === "custom") familyData.socialStatus = customSocialStatus;
+      if (familyData.warDamageDescription === "custom") familyData.warDamageDescription = customDamageDescription;
       const res = await fetchApi(`/api/admin/families/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(familyData),
       });
       const contentType = res.headers.get("content-type");
       if (!res.ok) {
@@ -346,22 +385,19 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            const newWife = {
-                              id: Date.now(), // temporary ID for new wife
-                              wifeName: "",
+                            const newWifeData = {
+                              wifeName: "اسم جديد", // temporary name
                               wifeID: "",
                               wifeBirthDate: "",
                               wifeJob: "",
                               wifePregnant: false
                             };
-                            setFamilyForm((prev: any) => ({
-                              ...prev,
-                              wives: [...(prev.wives || []), newWife]
-                            }));
+                            createWifeMutation.mutate(newWifeData);
                           }}
+                          disabled={createWifeMutation.isPending}
                         >
                           <Plus className="h-4 w-4 ml-1" />
-                          إضافة زوجة
+                          {createWifeMutation.isPending ? "جاري الإضافة..." : "إضافة زوجة"}
                         </Button>
                       </div>
                       
@@ -373,17 +409,17 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                                 <h4 className="text-lg font-medium text-foreground">
                                   {familyForm.wives.length > 1 ? `الزوجة ${index + 1}` : "الزوجة"}
                                 </h4>
-                                {familyForm.wives.length > 1 && (
+                                {familyForm.wives.length > 1 && wife.id && (
                                   <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-                                      setFamilyForm((prev: any) => ({
-                                        ...prev,
-                                        wives: prev.wives.filter((_: any, i: number) => i !== index)
-                                      }));
+                                      if (window.confirm("هل أنت متأكد من حذف هذه الزوجة؟")) {
+                                        deleteWifeMutation.mutate(wife.id);
+                                      }
                                     }}
+                                    disabled={deleteWifeMutation.isPending}
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
@@ -400,6 +436,14 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                                       updatedWives[index] = { ...updatedWives[index], wifeName: e.target.value };
                                       setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
                                     }}
+                                    onBlur={(e) => {
+                                      if (wife.id && e.target.value !== wife.wifeName) {
+                                        updateWifeMutation.mutate({
+                                          id: wife.id,
+                                          data: { wifeName: e.target.value }
+                                        });
+                                      }
+                                    }}
                                     className="text-right mt-1" 
                                   />
                                 </div>
@@ -411,6 +455,14 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                                       const updatedWives = [...familyForm.wives];
                                       updatedWives[index] = { ...updatedWives[index], wifeID: e.target.value };
                                       setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
+                                    }}
+                                    onBlur={(e) => {
+                                      if (wife.id && e.target.value !== wife.wifeID) {
+                                        updateWifeMutation.mutate({
+                                          id: wife.id,
+                                          data: { wifeID: e.target.value }
+                                        });
+                                      }
                                     }}
                                     className="text-right mt-1" 
                                   />
@@ -425,6 +477,14 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                                       updatedWives[index] = { ...updatedWives[index], wifeBirthDate: e.target.value };
                                       setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
                                     }}
+                                    onBlur={(e) => {
+                                      if (wife.id && e.target.value !== wife.wifeBirthDate) {
+                                        updateWifeMutation.mutate({
+                                          id: wife.id,
+                                          data: { wifeBirthDate: e.target.value }
+                                        });
+                                      }
+                                    }}
                                     className="text-right mt-1" 
                                   />
                                 </div>
@@ -436,6 +496,14 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                                       const updatedWives = [...familyForm.wives];
                                       updatedWives[index] = { ...updatedWives[index], wifeJob: e.target.value };
                                       setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
+                                    }}
+                                    onBlur={(e) => {
+                                      if (wife.id && e.target.value !== wife.wifeJob) {
+                                        updateWifeMutation.mutate({
+                                          id: wife.id,
+                                          data: { wifeJob: e.target.value }
+                                        });
+                                      }
                                     }}
                                     className="text-right mt-1" 
                                   />
@@ -449,6 +517,13 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                                         const updatedWives = [...familyForm.wives];
                                         updatedWives[index] = { ...updatedWives[index], wifePregnant: checked };
                                         setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
+                                        
+                                        if (wife.id) {
+                                          updateWifeMutation.mutate({
+                                            id: wife.id,
+                                            data: { wifePregnant: checked }
+                                          });
+                                        }
                                       }}
                                     />
                                   </div>
@@ -466,22 +541,19 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                             size="sm"
                             className="mt-2"
                             onClick={() => {
-                              const newWife = {
-                                id: Date.now(),
-                                wifeName: "",
+                              const newWifeData = {
+                                wifeName: "اسم جديد", // temporary name
                                 wifeID: "",
                                 wifeBirthDate: "",
                                 wifeJob: "",
                                 wifePregnant: false
                               };
-                              setFamilyForm((prev: any) => ({
-                                ...prev,
-                                wives: [newWife]
-                              }));
+                              createWifeMutation.mutate(newWifeData);
                             }}
+                            disabled={createWifeMutation.isPending}
                           >
                             <Plus className="h-4 w-4 ml-1" />
-                            إضافة زوجة
+                            {createWifeMutation.isPending ? "جاري الإضافة..." : "إضافة زوجة"}
                           </Button>
                         </div>
                       )}
