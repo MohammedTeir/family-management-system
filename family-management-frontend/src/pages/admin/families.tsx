@@ -686,36 +686,46 @@ export default function AdminFamilies() {
                     </tbody>
                   </table>
                   {/* Pagination Controls */}
-                  <div className="flex justify-center items-center gap-2 mt-4 flex-wrap">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                    >
-                      السابق
-                    </Button>
-                    <div className="flex gap-1 flex-wrap justify-center">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <Button
-                          key={page}
-                          variant={page === currentPage ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentPage(page)}
-                          className="min-w-8"
-                        >
-                          {page}
-                        </Button>
-                      ))}
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(1)}
+                      >
+                        الأول
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                      >
+                        السابق
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                    >
-                      التالي
-                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      صفحة {currentPage} من {totalPages}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                      >
+                        التالي
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(totalPages)}
+                      >
+                        الأخير
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ) : (
