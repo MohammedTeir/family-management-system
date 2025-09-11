@@ -437,7 +437,7 @@ export default function AdminFamilies() {
 
   return (
     <PageWrapper>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-full min-w-0">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-foreground mb-2">إدارة الأسر</h1>
             <p className="text-muted-foreground">عرض وإدارة بيانات جميع الأسر المسجلة</p>
@@ -589,14 +589,13 @@ export default function AdminFamilies() {
             </CardHeader>
             <CardContent>
               {filteredFamilies.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
+                <div className="overflow-x-auto max-w-full">
+                  <table className="w-full min-w-full">
                     <thead className="bg-background">
                       <tr>
                         <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">رب الأسرة</th>
                         <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">رقم الهوية</th>
                         <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">أفراد الأسرة</th>
-                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider hidden md:table-cell">الموقع</th>
                         <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">الحالة</th>
                         <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider hidden lg:table-cell">تاريخ التسجيل</th>
                         <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">الإجراءات</th>
@@ -624,9 +623,6 @@ export default function AdminFamilies() {
                             <div className="text-xs text-muted-foreground">
                               {family.numMales || 0} ذكور، {family.numFemales || 0} إناث
                             </div>
-                          </td>
-                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-foreground hidden md:table-cell">
-                            {family.currentHousing || 'غير محدد'}
                           </td>
                           <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                             <div className="flex flex-wrap gap-1">
@@ -923,7 +919,7 @@ export default function AdminFamilies() {
           
           {/* Export Controls Above Table */}
           {/* Replace the export controls area with a Card-based, modern, visually appealing selection UI */}
-          <Card className="mb-6">
+          <Card className="mb-6 max-w-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-700">
                 <FileSpreadsheet className="h-5 w-5" />
@@ -931,8 +927,8 @@ export default function AdminFamilies() {
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-2">حدد الأعمدة التي ترغب في تصديرها، ثم اضغط على زر التصدير.</p>
             </CardHeader>
-            <CardContent>
-              <div className="flex gap-2 mb-2 justify-end">
+            <CardContent className="max-w-full overflow-hidden">
+              <div className="flex gap-2 mb-2 justify-end flex-wrap">
                 <Button type="button" variant="outline" onClick={handleSelectAll}>
                   تحديد الكل
                 </Button>
