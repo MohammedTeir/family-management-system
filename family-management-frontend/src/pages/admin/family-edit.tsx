@@ -107,8 +107,11 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
   // Wives mutations
   const createWifeMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetchApi("/api/wives", { method: "POST", body: JSON.stringify({ ...data, familyId: family.id }) });
-      if (!res.ok) throw new Error("فشل في إضافة الزوجة");
+      const res = await fetchApi("/api/wives", { method: "POST", body: JSON.stringify({ ...data, familyId: family?.id || id }) });
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "فشل في إضافة الزوجة");
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -123,12 +126,18 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
       });
       refetch();
     },
+    onError: (error: any) => {
+      toast({ title: "خطأ في الإضافة", description: error.message, variant: "destructive" });
+    },
   });
 
   const updateWifeMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
       const res = await fetchApi(`/api/wives/${id}`, { method: "PUT", body: JSON.stringify(data) });
-      if (!res.ok) throw new Error("فشل في تحديث بيانات الزوجة");
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "فشل في تحديث بيانات الزوجة");
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -144,17 +153,26 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
       });
       refetch();
     },
+    onError: (error: any) => {
+      toast({ title: "خطأ في التحديث", description: error.message, variant: "destructive" });
+    },
   });
 
   const deleteWifeMutation = useMutation({
     mutationFn: async (id: number) => {
       const res = await fetchApi(`/api/wives/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("فشل في حذف الزوجة");
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "فشل في حذف الزوجة");
+      }
       return res.json();
     },
     onSuccess: () => {
       toast({ title: "تم الحذف", description: "تم حذف الزوجة بنجاح" });
       refetch();
+    },
+    onError: (error: any) => {
+      toast({ title: "خطأ في الحذف", description: error.message, variant: "destructive" });
     },
   });
 
@@ -172,7 +190,7 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     if (editingWifeId) {
       updateWifeMutation.mutate({ id: editingWifeId, data: wifeForm });
     } else {
-      createWifeMutation.mutate({ ...wifeForm, familyId: family.id });
+      createWifeMutation.mutate({ ...wifeForm, familyId: family?.id || id });
     }
   };
 
@@ -327,7 +345,7 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
 
   // When family data loads or changes, update the form state
   useEffect(() => {
-    if (family) setFamilyForm({ ...family });
+    if (family) setFamilyForm({ ...family, wives: family.wives || [] });
   }, [family]);
 
   // Handle family form changes
