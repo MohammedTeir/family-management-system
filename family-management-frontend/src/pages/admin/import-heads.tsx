@@ -199,14 +199,12 @@ export default function ImportHeads() {
 
   return (
     <PageWrapper>
-      <Header title="استيراد رؤساء العائلات" />
-      
       <div className="max-w-4xl mx-auto space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              استيراد البيانات من Excel
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <Upload className="h-5 w-5 sm:h-6 sm:w-6" />
+              استيراد رؤساء العائلات من Excel
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -227,16 +225,16 @@ export default function ImportHeads() {
             </Alert>
 
             {/* Template Download */}
-            <div className="flex justify-between items-center p-4 border rounded-lg">
-              <div>
-                <h3 className="font-semibold">تحميل نموذج Excel</h3>
-                <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 p-4 border rounded-lg">
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm sm:text-base">تحميل نموذج Excel</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   نموذج يحتوي على جميع الأعمدة المطلوبة والاختيارية
                 </p>
               </div>
-              <Button variant="outline" onClick={downloadTemplate}>
+              <Button variant="outline" onClick={downloadTemplate} className="w-full sm:w-auto">
                 <FileSpreadsheet className="h-4 w-4 mr-2" />
-                تحميل النموذج
+                <span className="text-sm">تحميل النموذج</span>
               </Button>
             </div>
 
@@ -321,19 +319,19 @@ export default function ImportHeads() {
                 نتائج الاستيراد
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">
+            <CardContent className="space-y-4 p-4 sm:p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="text-center p-4 sm:p-6 bg-green-50 rounded-lg">
+                  <div className="text-xl sm:text-2xl font-bold text-green-600">
                     {importResults.successCount}
                   </div>
-                  <div className="text-sm text-green-800">تم الاستيراد بنجاح</div>
+                  <div className="text-xs sm:text-sm text-green-800">تم الاستيراد بنجاح</div>
                 </div>
-                <div className="text-center p-4 bg-red-50 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">
+                <div className="text-center p-4 sm:p-6 bg-red-50 rounded-lg">
+                  <div className="text-xl sm:text-2xl font-bold text-red-600">
                     {importResults.errorCount}
                   </div>
-                  <div className="text-sm text-red-800">فشل في الاستيراد</div>
+                  <div className="text-xs sm:text-sm text-red-800">فشل في الاستيراد</div>
                 </div>
               </div>
 
@@ -343,56 +341,61 @@ export default function ImportHeads() {
                 
                 return (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-red-600 flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <h4 className="font-semibold text-red-600 flex items-center gap-2 text-sm sm:text-base">
                         <AlertTriangle className="h-4 w-4" />
                         تفاصيل الأخطاء ({totalErrors})
                       </h4>
                       {importResults.errorCount > 20 && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs self-start sm:self-auto">
                           عرض أول 20 خطأ
                         </Badge>
                       )}
                     </div>
                     
                     <Tabs value={activeErrorTab} onValueChange={setActiveErrorTab}>
-                      <TabsList className="grid w-full grid-cols-5 mb-4">
-                        <TabsTrigger value="all" className="text-xs">
-                          جميع الأخطاء
+                      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 mb-4">
+                        <TabsTrigger value="all" className="text-xs sm:text-sm p-2 sm:p-3">
+                          <span className="hidden sm:inline">جميع الأخطاء</span>
+                          <span className="sm:hidden">الكل</span>
                           <Badge variant="secondary" className="ml-1 text-xs">
                             {totalErrors}
                           </Badge>
                         </TabsTrigger>
-                        <TabsTrigger value="missing" className="text-xs" disabled={errorCategories.missingRequired.length === 0}>
+                        <TabsTrigger value="missing" className="text-xs sm:text-sm p-2 sm:p-3" disabled={errorCategories.missingRequired.length === 0}>
                           <FileText className="h-3 w-3 mr-1" />
-                          حقول ناقصة
+                          <span className="hidden sm:inline">حقول ناقصة</span>
+                          <span className="sm:hidden">ناقص</span>
                           {errorCategories.missingRequired.length > 0 && (
                             <Badge variant="destructive" className="ml-1 text-xs">
                               {errorCategories.missingRequired.length}
                             </Badge>
                           )}
                         </TabsTrigger>
-                        <TabsTrigger value="duplicate" className="text-xs" disabled={errorCategories.duplicateIds.length === 0}>
+                        <TabsTrigger value="duplicate" className="text-xs sm:text-sm p-2 sm:p-3 col-span-2 sm:col-span-1" disabled={errorCategories.duplicateIds.length === 0}>
                           <Users className="h-3 w-3 mr-1" />
-                          هويات مكررة
+                          <span className="hidden sm:inline">هويات مكررة</span>
+                          <span className="sm:hidden">مكرر</span>
                           {errorCategories.duplicateIds.length > 0 && (
                             <Badge variant="destructive" className="ml-1 text-xs">
                               {errorCategories.duplicateIds.length}
                             </Badge>
                           )}
                         </TabsTrigger>
-                        <TabsTrigger value="format" className="text-xs" disabled={errorCategories.invalidFormat.length === 0}>
+                        <TabsTrigger value="format" className="text-xs sm:text-sm p-2 sm:p-3" disabled={errorCategories.invalidFormat.length === 0}>
                           <Hash className="h-3 w-3 mr-1" />
-                          تنسيق خاطئ
+                          <span className="hidden lg:inline">تنسيق خاطئ</span>
+                          <span className="lg:hidden">تنسيق</span>
                           {errorCategories.invalidFormat.length > 0 && (
                             <Badge variant="destructive" className="ml-1 text-xs">
                               {errorCategories.invalidFormat.length}
                             </Badge>
                           )}
                         </TabsTrigger>
-                        <TabsTrigger value="processing" className="text-xs" disabled={errorCategories.processingErrors.length === 0}>
+                        <TabsTrigger value="processing" className="text-xs sm:text-sm p-2 sm:p-3" disabled={errorCategories.processingErrors.length === 0}>
                           <AlertTriangle className="h-3 w-3 mr-1" />
-                          أخطاء أخرى
+                          <span className="hidden lg:inline">أخطاء أخرى</span>
+                          <span className="lg:hidden">أخرى</span>
                           {errorCategories.processingErrors.length > 0 && (
                             <Badge variant="destructive" className="ml-1 text-xs">
                               {errorCategories.processingErrors.length}
