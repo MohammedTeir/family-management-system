@@ -236,9 +236,9 @@ export default function Users() {
   const deleteAllHeadsMutation = useMutation({
     mutationFn: async () => {
       const headsToDeleteIds = headUsers.map(user => user.id);
-      // Delete all heads with cascade
+      // Delete all heads with cascade and hard delete
       const deletePromises = headsToDeleteIds.map(id => 
-        apiRequest("DELETE", `/api/admin/users/${id}?cascade=true`)
+        apiRequest("DELETE", `/api/admin/users/${id}?cascade=true&hard=true`)
       );
       await Promise.all(deletePromises);
       return headsToDeleteIds.length;
@@ -1008,9 +1008,9 @@ export default function Users() {
               <AlertDialogHeader>
                 <AlertDialogTitle>تأكيد حذف جميع رؤساء الأسر</AlertDialogTitle>
                 <AlertDialogDescription>
-                  هذا الإجراء سيحذف جميع رؤساء الأسر ({headUsers.length} مستخدم) وجميع العائلات والأفراد المرتبطين بهم بشكل نهائي.
+                  هذا الإجراء سيحذف جميع رؤساء الأسر ({headUsers.length} مستخدم) وجميع العائلات والأفراد المرتبطين بهم بشكل نهائي ودائم من قاعدة البيانات.
                   <br/><br/>
-                  <strong className="text-destructive">هذا الإجراء لا يمكن التراجع عنه. هل أنت متأكد من المتابعة؟</strong>
+                  <strong className="text-destructive">⚠️ حذف دائم - لا يمكن التراجع عنه أو استعادة البيانات. هل أنت متأكد من المتابعة؟</strong>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="flex-row-reverse">

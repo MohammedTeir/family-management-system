@@ -1056,6 +1056,7 @@ export function registerRoutes(app: Express): Server {
       const families = await storage.getFamiliesByUserId(id);
       const hasFamilies = families && families.length > 0;
       const cascade = req.query.cascade === 'true';
+      const hard = req.query.hard === 'true';
 
       if (hasFamilies && !cascade) {
         // Prevent deletion, return clear error
@@ -1077,7 +1078,9 @@ export function registerRoutes(app: Express): Server {
             await storage.deleteFamily(family.id);
           }
         }
-        const success = await storage.softDeleteUser(id);
+        const success = hard 
+          ? await storage.deleteUser(id)
+          : await storage.softDeleteUser(id);
         if (!success) return res.status(404).json({ message: "المستخدم غير موجود" });
         return res.sendStatus(204);
       }
@@ -1112,7 +1115,9 @@ export function registerRoutes(app: Express): Server {
             await storage.deleteFamily(family.id);
           }
         }
-        const success = await storage.softDeleteUser(id);
+        const success = hard 
+          ? await storage.deleteUser(id)
+          : await storage.softDeleteUser(id);
         if (!success) return res.status(404).json({ message: "المستخدم غير موجود" });
         return res.sendStatus(204);
       }
