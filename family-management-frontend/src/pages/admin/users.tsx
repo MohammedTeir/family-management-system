@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Users as UsersIcon, UserPlus, Shield, ShieldCheck, Trash2, Edit2, AlertTriangle, Search, Undo2, Lock, Unlock } from "lucide-react";
+import { Users as UsersIcon, UserPlus, Shield, ShieldCheck, Trash2, Edit2, AlertTriangle, Search, Undo2, Lock, Unlock, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -664,7 +664,9 @@ export default function Users() {
                           <tr key={user.id} className={isDeleted ? "bg-muted text-muted-foreground" : "hover:bg-muted"}>
                             <td className="px-2 sm:px-4 py-3 text-sm">{user.username}</td>
                             <td className="px-2 sm:px-4 py-3 text-sm">
-                              {user.family?.husbandName || user.username}
+                              {(user.role === 'head' || (user.role === 'admin' && isNumeric(user.username))) 
+                                ? (user.family?.husbandName || user.username)
+                                : user.username}
                             </td>
                             <td className="px-2 sm:px-4 py-3">
                               <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">{getRoleLabel(user.role)}</Badge>
@@ -1008,20 +1010,45 @@ export default function Users() {
               <AlertDialogHeader>
                 <AlertDialogTitle>تأكيد حذف جميع رؤساء الأسر</AlertDialogTitle>
                 <AlertDialogDescription>
-                  هذا الإجراء سيحذف جميع رؤساء الأسر ({headUsers.length} مستخدم) وجميع العائلات والأفراد المرتبطين بهم بشكل نهائي ودائم من قاعدة البيانات.
-                  <br/><br/>
-                  <strong className="text-destructive">⚠️ حذف دائم - لا يمكن التراجع عنه أو استعادة البيانات. هل أنت متأكد من المتابعة؟</strong>
+                  {deleteAllHeadsMutation.isPending ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-center gap-3 p-4 bg-muted rounded-lg">
+                        <Loader2 className="h-6 w-6 animate-spin text-destructive" />
+                        <div className="text-center">
+                          <p className="font-medium text-destructive">جاري حذف جميع رؤساء الأسر...</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            يتم حذف {headUsers.length} رب أسرة وجميع البيانات المرتبطة بهم
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            ⚠️ هذه العملية قد تستغرق عدة دقائق، يرجى عدم إغلاق النافذة
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      هذا الإجراء سيحذف جميع رؤساء الأسر ({headUsers.length} مستخدم) وجميع العائلات والأفراد المرتبطين بهم بشكل نهائي ودائم من قاعدة البيانات.
+                      <br/><br/>
+                      <strong className="text-destructive">⚠️ حذف دائم - لا يمكن التراجع عنه أو استعادة البيانات. هل أنت متأكد من المتابعة؟</strong>
+                    </>
+                  )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="flex-row-reverse">
-                <AlertDialogCancel onClick={() => setDeleteAllHeadsDialogOpen(false)}>إلغاء</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => deleteAllHeadsMutation.mutate()}
+                <AlertDialogCancel 
+                  onClick={() => setDeleteAllHeadsDialogOpen(false)}
                   disabled={deleteAllHeadsMutation.isPending}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
-                  {deleteAllHeadsMutation.isPending ? "جاري الحذف..." : "حذف جميع رؤساء الأسر"}
-                </AlertDialogAction>
+                  {deleteAllHeadsMutation.isPending ? "إغلاق" : "إلغاء"}
+                </AlertDialogCancel>
+                {!deleteAllHeadsMutation.isPending && (
+                  <AlertDialogAction
+                    onClick={() => deleteAllHeadsMutation.mutate()}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    حذف جميع رؤساء الأسر
+                  </AlertDialogAction>
+                )}
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
