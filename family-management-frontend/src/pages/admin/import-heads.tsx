@@ -354,15 +354,15 @@ export default function ImportHeads() {
                     </div>
                     
                     <Tabs value={activeErrorTab} onValueChange={setActiveErrorTab}>
-                      <TabsList className="flex flex-wrap w-full gap-1 mb-4 h-auto p-1">
-                        <TabsTrigger value="all" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0">
+                      <TabsList className="flex w-full gap-1 mb-4 h-auto p-1 overflow-x-auto overflow-y-hidden">
+                        <TabsTrigger value="all" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap">
                           <span className="hidden sm:inline">جميع الأخطاء</span>
                           <span className="sm:hidden">الكل</span>
                           <Badge variant="secondary" className="ml-1 text-xs">
                             {totalErrors}
                           </Badge>
                         </TabsTrigger>
-                        <TabsTrigger value="missing" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0" disabled={errorCategories.missingRequired.length === 0}>
+                        <TabsTrigger value="missing" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap" disabled={errorCategories.missingRequired.length === 0}>
                           <FileText className="h-3 w-3 mr-1" />
                           <span className="hidden sm:inline">حقول ناقصة</span>
                           <span className="sm:hidden">ناقص</span>
@@ -372,7 +372,7 @@ export default function ImportHeads() {
                             </Badge>
                           )}
                         </TabsTrigger>
-                        <TabsTrigger value="duplicate" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0" disabled={errorCategories.duplicateIds.length === 0}>
+                        <TabsTrigger value="duplicate" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap" disabled={errorCategories.duplicateIds.length === 0}>
                           <Users className="h-3 w-3 mr-1" />
                           <span className="hidden sm:inline">هويات مكررة</span>
                           <span className="sm:hidden">مكرر</span>
@@ -382,7 +382,7 @@ export default function ImportHeads() {
                             </Badge>
                           )}
                         </TabsTrigger>
-                        <TabsTrigger value="format" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0" disabled={errorCategories.invalidFormat.length === 0}>
+                        <TabsTrigger value="format" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap" disabled={errorCategories.invalidFormat.length === 0}>
                           <Hash className="h-3 w-3 mr-1" />
                           <span className="hidden lg:inline">تنسيق خاطئ</span>
                           <span className="lg:hidden">تنسيق</span>
@@ -392,7 +392,7 @@ export default function ImportHeads() {
                             </Badge>
                           )}
                         </TabsTrigger>
-                        <TabsTrigger value="processing" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0" disabled={errorCategories.processingErrors.length === 0}>
+                        <TabsTrigger value="processing" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap" disabled={errorCategories.processingErrors.length === 0}>
                           <AlertTriangle className="h-3 w-3 mr-1" />
                           <span className="hidden lg:inline">أخطاء أخرى</span>
                           <span className="lg:hidden">أخرى</span>
