@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileSpreadsheet, CheckCircle, XCircle, AlertTriangle, Users, FileText, Hash } from "lucide-react";
+import { Upload, FileSpreadsheet, CheckCircle, XCircle, AlertTriangle, Users, FileText, Hash, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { PageWrapper } from "@/components/layout/page-wrapper";
@@ -265,16 +265,43 @@ export default function ImportHeads() {
               disabled={!selectedFile || importMutation.isPending}
               className="w-full"
             >
-              {importMutation.isPending ? "جاري الاستيراد... (قد يستغرق عدة دقائق للملفات الكبيرة)" : "استيراد البيانات"}
+              {importMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  جاري الاستيراد...
+                </div>
+              ) : (
+                "استيراد البيانات"
+              )}
             </Button>
 
-            {/* Loading message for large imports */}
+            {/* Enhanced Loading message for large imports */}
             {importMutation.isPending && (
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-sm text-blue-800">
-                  <strong>يتم معالجة الملف...</strong>
-                  <br />
-                  الملفات الكبيرة قد تستغرق عدة دقائق. يرجى الانتظار وعدم إغلاق الصفحة.
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-3 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <div className="text-center">
+                    <p className="font-medium text-blue-800 text-lg">جاري معالجة الملف...</p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      يتم استيراد البيانات من ملف: <span className="font-medium">{selectedFile?.name}</span>
+                    </p>
+                    <p className="text-xs text-blue-600 mt-3 bg-blue-100 p-2 rounded">
+                      ⏱️ العمليات الكبيرة قد تستغرق من 5-15 دقيقة حسب حجم الملف
+                      <br />
+                      🚫 يرجى عدم إغلاق الصفحة أو إعادة تحديثها أثناء المعالجة
+                      <br />
+                      ⚡ يتم إنشاء حسابات وعائلات جديدة في النظام
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Progress hint */}
+                <div className="text-center">
+                  <div className="inline-flex items-center gap-2 text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                    <span>المعالجة جارية... يرجى الانتظار</span>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse delay-150"></div>
+                  </div>
                 </div>
               </div>
             )}
