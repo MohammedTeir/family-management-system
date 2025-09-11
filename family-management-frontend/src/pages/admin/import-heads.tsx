@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, FileSpreadsheet, CheckCircle, XCircle } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Upload, FileSpreadsheet, CheckCircle, XCircle, AlertTriangle, Users, FileText, Hash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { PageWrapper } from "@/components/layout/page-wrapper";
@@ -15,6 +17,7 @@ export default function ImportHeads() {
   const { toast } = useToast();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importResults, setImportResults] = useState<any>(null);
+  const [activeErrorTab, setActiveErrorTab] = useState("all");
 
   const importMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -170,6 +173,30 @@ export default function ImportHeads() {
     document.body.removeChild(link);
   };
 
+  // Categorize errors based on their content
+  const categorizeErrors = (errors: string[]) => {
+    const categories = {
+      missingRequired: [] as string[],
+      duplicateIds: [] as string[],
+      invalidFormat: [] as string[],
+      processingErrors: [] as string[]
+    };
+
+    errors.forEach(error => {
+      if (error.includes('اسم رب الأسرة ورقم الهوية مطلوبان')) {
+        categories.missingRequired.push(error);
+      } else if (error.includes('مسجل مسبقاً')) {
+        categories.duplicateIds.push(error);
+      } else if (error.includes('يجب أن يكون 9 أرقام')) {
+        categories.invalidFormat.push(error);
+      } else {
+        categories.processingErrors.push(error);
+      }
+    });
+
+    return categories;
+  };
+
   return (
     <PageWrapper>
       <Header title="استيراد رؤساء العائلات" />
@@ -283,23 +310,143 @@ export default function ImportHeads() {
                 </div>
               </div>
 
-              {importResults.errors && importResults.errors.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-red-600">الأخطاء:</h4>
-                  <div className="max-h-60 overflow-y-auto space-y-1">
-                    {importResults.errors.map((error: string, index: number) => (
-                      <div key={index} className="text-sm text-red-600 bg-red-50 p-2 rounded">
-                        {error}
-                      </div>
-                    ))}
+              {importResults.errors && importResults.errors.length > 0 && (() => {
+                const errorCategories = categorizeErrors(importResults.errors);
+                const totalErrors = importResults.errors.length;
+                
+                return (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-red-600 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        تفاصيل الأخطاء ({totalErrors})
+                      </h4>
+                      {importResults.errorCount > 20 && (
+                        <Badge variant="outline" className="text-xs">
+                          عرض أول 20 خطأ
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <Tabs value={activeErrorTab} onValueChange={setActiveErrorTab}>
+                      <TabsList className="grid w-full grid-cols-5 mb-4">
+                        <TabsTrigger value="all" className="text-xs">
+                          جميع الأخطاء
+                          <Badge variant="secondary" className="ml-1 text-xs">
+                            {totalErrors}
+                          </Badge>
+                        </TabsTrigger>
+                        <TabsTrigger value="missing" className="text-xs" disabled={errorCategories.missingRequired.length === 0}>
+                          <FileText className="h-3 w-3 mr-1" />
+                          حقول ناقصة
+                          {errorCategories.missingRequired.length > 0 && (
+                            <Badge variant="destructive" className="ml-1 text-xs">
+                              {errorCategories.missingRequired.length}
+                            </Badge>
+                          )}
+                        </TabsTrigger>
+                        <TabsTrigger value="duplicate" className="text-xs" disabled={errorCategories.duplicateIds.length === 0}>
+                          <Users className="h-3 w-3 mr-1" />
+                          هويات مكررة
+                          {errorCategories.duplicateIds.length > 0 && (
+                            <Badge variant="destructive" className="ml-1 text-xs">
+                              {errorCategories.duplicateIds.length}
+                            </Badge>
+                          )}
+                        </TabsTrigger>
+                        <TabsTrigger value="format" className="text-xs" disabled={errorCategories.invalidFormat.length === 0}>
+                          <Hash className="h-3 w-3 mr-1" />
+                          تنسيق خاطئ
+                          {errorCategories.invalidFormat.length > 0 && (
+                            <Badge variant="destructive" className="ml-1 text-xs">
+                              {errorCategories.invalidFormat.length}
+                            </Badge>
+                          )}
+                        </TabsTrigger>
+                        <TabsTrigger value="processing" className="text-xs" disabled={errorCategories.processingErrors.length === 0}>
+                          <AlertTriangle className="h-3 w-3 mr-1" />
+                          أخطاء أخرى
+                          {errorCategories.processingErrors.length > 0 && (
+                            <Badge variant="destructive" className="ml-1 text-xs">
+                              {errorCategories.processingErrors.length}
+                            </Badge>
+                          )}
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="all">
+                        <div className="max-h-60 overflow-y-auto space-y-1">
+                          {importResults.errors.map((error: string, index: number) => (
+                            <div key={index} className="text-sm text-red-600 bg-red-50 p-2 rounded border-l-4 border-red-500">
+                              {error}
+                            </div>
+                          ))}
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="missing">
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground mb-2">
+                            📋 الصفوف التي تفتقر للحقول المطلوبة (اسم رب الأسرة أو رقم الهوية)
+                          </div>
+                          <div className="max-h-60 overflow-y-auto space-y-1">
+                            {errorCategories.missingRequired.map((error: string, index: number) => (
+                              <div key={index} className="text-sm text-orange-600 bg-orange-50 p-2 rounded border-l-4 border-orange-500">
+                                {error}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="duplicate">
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground mb-2">
+                            👥 أرقام هوية موجودة مسبقاً في النظام
+                          </div>
+                          <div className="max-h-60 overflow-y-auto space-y-1">
+                            {errorCategories.duplicateIds.map((error: string, index: number) => (
+                              <div key={index} className="text-sm text-blue-600 bg-blue-50 p-2 rounded border-l-4 border-blue-500">
+                                {error}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="format">
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground mb-2">
+                            #️⃣ أرقام هوية بتنسيق خاطئ (يجب أن تكون 9 أرقام فقط)
+                          </div>
+                          <div className="max-h-60 overflow-y-auto space-y-1">
+                            {errorCategories.invalidFormat.map((error: string, index: number) => (
+                              <div key={index} className="text-sm text-purple-600 bg-purple-50 p-2 rounded border-l-4 border-purple-500">
+                                {error}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="processing">
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground mb-2">
+                            ⚠️ أخطاء في معالجة البيانات أو أخطاء عامة
+                          </div>
+                          <div className="max-h-60 overflow-y-auto space-y-1">
+                            {errorCategories.processingErrors.map((error: string, index: number) => (
+                              <div key={index} className="text-sm text-red-600 bg-red-50 p-2 rounded border-l-4 border-red-500">
+                                {error}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
                   </div>
-                  {importResults.errorCount > 20 && (
-                    <p className="text-sm text-muted-foreground">
-                      تم عرض أول 20 خطأ فقط...
-                    </p>
-                  )}
-                </div>
-              )}
+                );
+              })()}
             </CardContent>
           </Card>
         )}

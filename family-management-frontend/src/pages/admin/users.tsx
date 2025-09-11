@@ -55,6 +55,8 @@ export default function Users() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteAllHeadsDialogOpen, setDeleteAllHeadsDialogOpen] = useState(false);
+  const [headsToDelete, setHeadsToDelete] = useState<any[]>([]);
   const { settings } = useSettings();
 
   useEffect(() => {
@@ -230,6 +232,39 @@ export default function Users() {
     },
   });
 
+  // Delete all heads mutation
+  const deleteAllHeadsMutation = useMutation({
+    mutationFn: async () => {
+      const headsToDeleteIds = headUsers.map(user => user.id);
+      // Delete all heads with cascade
+      const deletePromises = headsToDeleteIds.map(id => 
+        apiRequest("DELETE", `/api/admin/users/${id}?cascade=true`)
+      );
+      await Promise.all(deletePromises);
+      return headsToDeleteIds.length;
+    },
+    onSuccess: (deletedCount) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      setDeleteAllHeadsDialogOpen(false);
+      setHeadsToDelete([]);
+      toast({
+        title: "تم حذف جميع رؤساء الأسر",
+        description: `تم حذف ${deletedCount} رب أسرة وجميع العائلات والأفراد المرتبطين بهم بنجاح.`,
+      });
+    },
+    onError: (error: any) => {
+      let message = error.message;
+      if (message.includes('<!DOCTYPE') || message === 'Internal server error') {
+        message = "حدث خطأ غير متوقع أثناء حذف رؤساء الأسر. يرجى المحاولة لاحقاً أو التواصل مع الدعم.";
+      }
+      toast({
+        title: "خطأ في حذف رؤساء الأسر",
+        description: message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Cascade delete mutation
   const cascadeDeleteUserMutation = useMutation({
     mutationFn: async (id: number) => {
@@ -325,10 +360,14 @@ export default function Users() {
   );
   const protectedUsers = usersArray.filter((user: any) => user.isProtected);
 
-  const filteredUsers = usersArray.filter((user: any) =>
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = usersArray.filter((user: any) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      user.username.toLowerCase().includes(searchLower) ||
+      user.phone?.toLowerCase().includes(searchLower) ||
+      user.family?.husbandName?.toLowerCase().includes(searchLower)
+    );
+  });
   const totalPages = Math.ceil(filteredUsers.length / pageSize);
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -397,6 +436,11 @@ export default function Users() {
       secondaryPhone: "",
     });
     setIsHeadDialogOpen(true);
+  };
+
+  const handleDeleteAllHeads = () => {
+    setHeadsToDelete(headUsers);
+    setDeleteAllHeadsDialogOpen(true);
   };
 
   const handleDelete = (user: any) => {
@@ -493,6 +537,16 @@ export default function Users() {
                 <UserPlus className="h-4 w-4" />
                 <span className="sm:inline">إضافة رب أسرة</span>
               </Button>
+              {headUsers.length > 0 && (
+                <Button 
+                  onClick={handleDeleteAllHeads}
+                  variant="destructive" 
+                  className="flex items-center gap-2 w-full sm:w-auto"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sm:inline">حذف جميع رؤساء الأسر</span>
+                </Button>
+              )}
             </div>
           </div>
 
@@ -500,7 +554,7 @@ export default function Users() {
             <div className="relative w-full sm:w-80">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="البحث باسم المستخدم أو رقم الجوال..."
+                placeholder="البحث باسم المستخدم أو الاسم أو رقم الجوال..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pr-10"
@@ -595,6 +649,7 @@ export default function Users() {
                     <thead className="bg-muted">
                       <tr>
                         <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">اسم المستخدم</th>
+                        <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الاسم</th>
                         <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الدور</th>
                         <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">رقم الجوال</th>
                         <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الحالة</th>
@@ -608,6 +663,9 @@ export default function Users() {
                         return (
                           <tr key={user.id} className={isDeleted ? "bg-muted text-muted-foreground" : "hover:bg-muted"}>
                             <td className="px-2 sm:px-4 py-3 text-sm">{user.username}</td>
+                            <td className="px-2 sm:px-4 py-3 text-sm">
+                              {user.family?.husbandName || user.username}
+                            </td>
                             <td className="px-2 sm:px-4 py-3">
                               <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">{getRoleLabel(user.role)}</Badge>
                           </td>
@@ -943,6 +1001,30 @@ export default function Users() {
               </form>
             </DialogContent>
           </Dialog>
+
+          {/* Delete All Heads Confirmation Dialog */}
+          <AlertDialog open={deleteAllHeadsDialogOpen} onOpenChange={setDeleteAllHeadsDialogOpen}>
+            <AlertDialogContent className="max-w-lg">
+              <AlertDialogHeader>
+                <AlertDialogTitle>تأكيد حذف جميع رؤساء الأسر</AlertDialogTitle>
+                <AlertDialogDescription>
+                  هذا الإجراء سيحذف جميع رؤساء الأسر ({headUsers.length} مستخدم) وجميع العائلات والأفراد المرتبطين بهم بشكل نهائي.
+                  <br/><br/>
+                  <strong className="text-destructive">هذا الإجراء لا يمكن التراجع عنه. هل أنت متأكد من المتابعة؟</strong>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex-row-reverse">
+                <AlertDialogCancel onClick={() => setDeleteAllHeadsDialogOpen(false)}>إلغاء</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => deleteAllHeadsMutation.mutate()}
+                  disabled={deleteAllHeadsMutation.isPending}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {deleteAllHeadsMutation.isPending ? "جاري الحذف..." : "حذف جميع رؤساء الأسر"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
               </div>
     </PageWrapper>
   );

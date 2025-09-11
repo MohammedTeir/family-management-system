@@ -629,38 +629,6 @@ export default function FamilyData() {
             </CardContent>
           </Card>
 
-        {/* Current Status Information */}
-        {!isEditing && family && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">الحالة الحالية</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 sm:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                {family.branch && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">الفرع الحالي</Label>
-                    <div className="mt-1 p-2 bg-muted rounded-md">
-                      {family.branch === "abouda_abunasr" && "عائلة ابوعودة + ابو نصر"}
-                      {family.branch === "married_daughters_displaced" && "بنات العائلة متزوجات خارج العائلة, نازحين عند عائلة ابو طير"}
-                      {family.branch === "alnogra" && "النقرة"}
-                      {family.branch === "abushalbia_abumatar" && "ابو شلبية + ابو مطر"}
-                      {!["abouda_abunasr", "married_daughters_displaced", "alnogra", "abushalbia_abumatar"].includes(family.branch) && family.branch}
-                    </div>
-                  </div>
-                )}
-                {family.socialStatus && (
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">الحالة الاجتماعية الحالية</Label>
-                    <div className="mt-1 p-2 bg-muted rounded-md">
-                      {getSocialStatusInArabic(family.socialStatus)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
           {/* Family Members */}

@@ -66,6 +66,17 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
   const [showCustomRelationship, setShowCustomRelationship] = useState(false);
   const [showDisabilityType, setShowDisabilityType] = useState(false);
   const [customDisabilityType, setCustomDisabilityType] = useState("");
+  // Wife form states
+  const [isAddingWife, setIsAddingWife] = useState(false);
+  const [editingWifeId, setEditingWifeId] = useState<number | null>(null);
+  const [deleteWifeId, setDeleteWifeId] = useState<number | null>(null);
+  const [wifeForm, setWifeForm] = useState({
+    wifeName: "",
+    wifeID: "",
+    wifeBirthDate: "",
+    wifeJob: "",
+    wifePregnant: false,
+  });
 
   // Fetch family details by ID
   const { data: family, isLoading, refetch } = useQuery({
@@ -102,6 +113,14 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     },
     onSuccess: () => {
       toast({ title: "تم إضافة الزوجة", description: "تم إضافة الزوجة بنجاح" });
+      setIsAddingWife(false);
+      setWifeForm({
+        wifeName: "",
+        wifeID: "",
+        wifeBirthDate: "",
+        wifeJob: "",
+        wifePregnant: false,
+      });
       refetch();
     },
   });
@@ -114,6 +133,15 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     },
     onSuccess: () => {
       toast({ title: "تم التحديث", description: "تم تحديث بيانات الزوجة" });
+      setIsAddingWife(false);
+      setEditingWifeId(null);
+      setWifeForm({
+        wifeName: "",
+        wifeID: "",
+        wifeBirthDate: "",
+        wifeJob: "",
+        wifePregnant: false,
+      });
       refetch();
     },
   });
@@ -129,6 +157,48 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
       refetch();
     },
   });
+
+  // Wife form handlers
+  const handleWifeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setWifeForm(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleWifeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (editingWifeId) {
+      updateWifeMutation.mutate({ id: editingWifeId, data: wifeForm });
+    } else {
+      createWifeMutation.mutate({ ...wifeForm, familyId: family.id });
+    }
+  };
+
+  const handleEditWife = (wife: any) => {
+    setEditingWifeId(wife.id);
+    setIsAddingWife(true);
+    setWifeForm({
+      wifeName: wife.wifeName || "",
+      wifeID: wife.wifeID || "",
+      wifeBirthDate: wife.wifeBirthDate || "",
+      wifeJob: wife.wifeJob || "",
+      wifePregnant: wife.wifePregnant || false,
+    });
+  };
+
+  const handleCancelWife = () => {
+    setIsAddingWife(false);
+    setEditingWifeId(null);
+    setWifeForm({
+      wifeName: "",
+      wifeID: "",
+      wifeBirthDate: "",
+      wifeJob: "",
+      wifePregnant: false,
+    });
+  };
 
   // Update family mutation
   const updateFamilyMutation = useMutation({
@@ -378,20 +448,10 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => {
-                            const newWifeData = {
-                              wifeName: "اسم جديد", // temporary name
-                              wifeID: "",
-                              wifeBirthDate: "",
-                              wifeJob: "",
-                              wifePregnant: false
-                            };
-                            createWifeMutation.mutate(newWifeData);
-                          }}
-                          disabled={createWifeMutation.isPending}
+                          onClick={() => setIsAddingWife(true)}
                         >
                           <Plus className="h-4 w-4 ml-1" />
-                          {createWifeMutation.isPending ? "جاري الإضافة..." : "إضافة زوجة"}
+                          إضافة زوجة
                         </Button>
                       </div>
                       
@@ -403,125 +463,61 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                                 <h4 className="text-lg font-medium text-foreground">
                                   {familyForm.wives.length > 1 ? `الزوجة ${index + 1}` : "الزوجة"}
                                 </h4>
-                                {familyForm.wives.length > 1 && wife.id && (
+                                <div className="flex gap-2">
                                   <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => {
-                                      if (window.confirm("هل أنت متأكد من حذف هذه الزوجة؟")) {
-                                        deleteWifeMutation.mutate(wife.id);
-                                      }
-                                    }}
-                                    disabled={deleteWifeMutation.isPending}
+                                    onClick={() => handleEditWife(wife)}
                                   >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Edit2 className="h-4 w-4" />
                                   </Button>
-                                )}
-                              </div>
-                              
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                <div className="flex flex-col items-end">
-                                  <Label className="text-right w-full mb-1">اسم الزوجة</Label>
-                                  <Input 
-                                    value={wife.wifeName || ""} 
-                                    onChange={(e) => {
-                                      const updatedWives = [...familyForm.wives];
-                                      updatedWives[index] = { ...updatedWives[index], wifeName: e.target.value };
-                                      setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
-                                    }}
-                                    onBlur={(e) => {
-                                      if (wife.id && e.target.value !== wife.wifeName) {
-                                        updateWifeMutation.mutate({
-                                          id: wife.id,
-                                          data: { wifeName: e.target.value }
-                                        });
-                                      }
-                                    }}
-                                    className="text-right mt-1" 
-                                  />
-                                </div>
-                                <div className="flex flex-col items-end">
-                                  <Label className="text-right w-full mb-1">رقم هوية الزوجة</Label>
-                                  <Input 
-                                    value={wife.wifeID || ""} 
-                                    onChange={(e) => {
-                                      const updatedWives = [...familyForm.wives];
-                                      updatedWives[index] = { ...updatedWives[index], wifeID: e.target.value };
-                                      setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
-                                    }}
-                                    onBlur={(e) => {
-                                      if (wife.id && e.target.value !== wife.wifeID) {
-                                        updateWifeMutation.mutate({
-                                          id: wife.id,
-                                          data: { wifeID: e.target.value }
-                                        });
-                                      }
-                                    }}
-                                    className="text-right mt-1" 
-                                  />
-                                </div>
-                                <div className="flex flex-col items-end">
-                                  <Label className="text-right w-full mb-1">تاريخ ميلاد الزوجة</Label>
-                                  <Input 
-                                    type="date"
-                                    value={wife.wifeBirthDate || ""} 
-                                    onChange={(e) => {
-                                      const updatedWives = [...familyForm.wives];
-                                      updatedWives[index] = { ...updatedWives[index], wifeBirthDate: e.target.value };
-                                      setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
-                                    }}
-                                    onBlur={(e) => {
-                                      if (wife.id && e.target.value !== wife.wifeBirthDate) {
-                                        updateWifeMutation.mutate({
-                                          id: wife.id,
-                                          data: { wifeBirthDate: e.target.value }
-                                        });
-                                      }
-                                    }}
-                                    className="text-right mt-1" 
-                                  />
-                                </div>
-                                <div className="flex flex-col items-end">
-                                  <Label className="text-right w-full mb-1">مهنة الزوجة</Label>
-                                  <Input 
-                                    value={wife.wifeJob || ""} 
-                                    onChange={(e) => {
-                                      const updatedWives = [...familyForm.wives];
-                                      updatedWives[index] = { ...updatedWives[index], wifeJob: e.target.value };
-                                      setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
-                                    }}
-                                    onBlur={(e) => {
-                                      if (wife.id && e.target.value !== wife.wifeJob) {
-                                        updateWifeMutation.mutate({
-                                          id: wife.id,
-                                          data: { wifeJob: e.target.value }
-                                        });
-                                      }
-                                    }}
-                                    className="text-right mt-1" 
-                                  />
-                                </div>
-                                <div className="flex flex-col items-end">
-                                  <Label className="text-right w-full mb-1">حامل؟</Label>
-                                  <div className="mt-1">
-                                    <Switch 
-                                      checked={!!wife.wifePregnant} 
-                                      onCheckedChange={(checked: boolean) => {
-                                        const updatedWives = [...familyForm.wives];
-                                        updatedWives[index] = { ...updatedWives[index], wifePregnant: checked };
-                                        setFamilyForm((prev: any) => ({ ...prev, wives: updatedWives }));
-                                        
-                                        if (wife.id) {
-                                          updateWifeMutation.mutate({
-                                            id: wife.id,
-                                            data: { wifePregnant: checked }
-                                          });
+                                  {wife.id && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        if (window.confirm("هل أنت متأكد من حذف هذه الزوجة؟")) {
+                                          deleteWifeMutation.mutate(wife.id);
                                         }
                                       }}
-                                    />
-                                  </div>
+                                      disabled={deleteWifeMutation.isPending}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
                                 </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">الاسم: </span>
+                                  <span>{wife.wifeName || "غير محدد"}</span>
+                                </div>
+                                {wife.wifeID && (
+                                  <div>
+                                    <span className="text-muted-foreground">رقم الهوية: </span>
+                                    <span>{wife.wifeID}</span>
+                                  </div>
+                                )}
+                                {wife.wifeBirthDate && (
+                                  <div>
+                                    <span className="text-muted-foreground">تاريخ الميلاد: </span>
+                                    <span>{wife.wifeBirthDate}</span>
+                                  </div>
+                                )}
+                                {wife.wifeJob && (
+                                  <div>
+                                    <span className="text-muted-foreground">المهنة: </span>
+                                    <span>{wife.wifeJob}</span>
+                                  </div>
+                                )}
+                                {wife.wifePregnant && (
+                                  <div className="col-span-full">
+                                    <Badge variant="secondary">حامل</Badge>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -534,21 +530,94 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
                             variant="outline"
                             size="sm"
                             className="mt-2"
-                            onClick={() => {
-                              const newWifeData = {
-                                wifeName: "اسم جديد", // temporary name
-                                wifeID: "",
-                                wifeBirthDate: "",
-                                wifeJob: "",
-                                wifePregnant: false
-                              };
-                              createWifeMutation.mutate(newWifeData);
-                            }}
-                            disabled={createWifeMutation.isPending}
+                            onClick={() => setIsAddingWife(true)}
                           >
                             <Plus className="h-4 w-4 ml-1" />
-                            {createWifeMutation.isPending ? "جاري الإضافة..." : "إضافة زوجة"}
+                            إضافة زوجة
                           </Button>
+                        </div>
+                      )}
+                      
+                      {/* Add/Edit Wife Form */}
+                      {isAddingWife && (
+                        <div className="border-t pt-6 mt-6">
+                          <h4 className="text-lg font-semibold mb-4">
+                            {editingWifeId ? "تعديل بيانات الزوجة" : "إضافة زوجة جديدة"}
+                          </h4>
+                          <form onSubmit={handleWifeSubmit} className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div className="flex flex-col items-end">
+                                <Label htmlFor="wifeName">الاسم الرباعي *</Label>
+                                <Input
+                                  id="wifeName"
+                                  name="wifeName"
+                                  value={wifeForm.wifeName}
+                                  onChange={handleWifeChange}
+                                  required
+                                  className="text-right mt-1"
+                                />
+                              </div>
+
+                              <div className="flex flex-col items-end">
+                                <Label htmlFor="wifeID">رقم الهوية</Label>
+                                <Input
+                                  id="wifeID"
+                                  name="wifeID"
+                                  value={wifeForm.wifeID}
+                                  onChange={handleWifeChange}
+                                  className="text-right mt-1"
+                                />
+                              </div>
+
+                              <div className="flex flex-col items-end">
+                                <Label htmlFor="wifeBirthDate">تاريخ الميلاد</Label>
+                                <Input
+                                  id="wifeBirthDate"
+                                  name="wifeBirthDate"
+                                  type="date"
+                                  value={wifeForm.wifeBirthDate}
+                                  onChange={handleWifeChange}
+                                  className="text-right mt-1"
+                                />
+                              </div>
+
+                              <div className="flex flex-col items-end">
+                                <Label htmlFor="wifeJob">المهنة</Label>
+                                <Input
+                                  id="wifeJob"
+                                  name="wifeJob"
+                                  value={wifeForm.wifeJob}
+                                  onChange={handleWifeChange}
+                                  className="text-right mt-1"
+                                />
+                              </div>
+
+                              <div className="flex items-center space-x-2 space-x-reverse">
+                                <Switch
+                                  id="wifePregnant"
+                                  checked={wifeForm.wifePregnant}
+                                  onCheckedChange={(checked) => setWifeForm(prev => ({ ...prev, wifePregnant: checked }))}
+                                />
+                                <Label htmlFor="wifePregnant">حامل</Label>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleCancelWife}
+                              >
+                                إلغاء
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={createWifeMutation.isPending || updateWifeMutation.isPending}
+                              >
+                                {createWifeMutation.isPending || updateWifeMutation.isPending ? "جاري الحفظ..." : "حفظ"}
+                              </Button>
+                            </div>
+                          </form>
                         </div>
                       )}
                     </div>
