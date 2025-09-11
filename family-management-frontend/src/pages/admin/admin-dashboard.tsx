@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/hooks/use-settings";
 import { useEffect } from "react";
 import { Separator } from "@radix-ui/react-select";
+import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -135,9 +136,7 @@ export default function AdminDashboard() {
   if (familiesLoading || requestsLoading || notificationsLoading) {
     return (
       <PageWrapper>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-muted-foreground">جاري تحميل البيانات...</div>
-        </div>
+        <DashboardSkeleton />
       </PageWrapper>
     );
   }

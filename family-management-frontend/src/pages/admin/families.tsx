@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Users, Search, Eye, Printer, Phone, MapPin, FileSpreadsheet, Edit2, Trash2, FileText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FamiliesSkeleton } from "@/components/ui/families-skeleton";
 import { Link, useLocation } from "wouter";
 import { formatDate } from "@/lib/utils";
 import { getRelationshipInArabic, getGenderInArabic, calculateDetailedAge, getRequestTypeInArabic, getRequestStatusInArabic, getSocialStatusInArabic, isChild, getBranchInArabic, getDamageDescriptionInArabic } from "@/lib/utils";
@@ -422,12 +424,10 @@ export default function AdminFamilies() {
 
   if (isLoading) {
     return (
-    <PageWrapper>
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg text-muted-foreground">جاري تحميل البيانات...</div>
-      </div>
-    </PageWrapper>
-  );
+      <PageWrapper>
+        <FamiliesSkeleton />
+      </PageWrapper>
+    );
   }
 
   const totalFamilies = families?.length || 0;
