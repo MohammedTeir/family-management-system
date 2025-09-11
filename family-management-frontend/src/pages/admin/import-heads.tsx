@@ -176,21 +176,15 @@ export default function ImportHeads() {
   // Categorize errors based on their content
   const categorizeErrors = (errors: string[]) => {
     const categories = {
-      missingRequired: [] as string[],
       duplicateIds: [] as string[],
-      invalidFormat: [] as string[],
-      processingErrors: [] as string[]
+      otherErrors: [] as string[]
     };
 
     errors.forEach(error => {
-      if (error.includes('اسم رب الأسرة ورقم الهوية مطلوبان')) {
-        categories.missingRequired.push(error);
-      } else if (error.includes('مسجل مسبقاً')) {
+      if (error.includes('مسجل مسبقاً')) {
         categories.duplicateIds.push(error);
-      } else if (error.includes('يجب أن يكون 9 أرقام')) {
-        categories.invalidFormat.push(error);
       } else {
-        categories.processingErrors.push(error);
+        categories.otherErrors.push(error);
       }
     });
 
@@ -362,16 +356,6 @@ export default function ImportHeads() {
                             {totalErrors}
                           </Badge>
                         </TabsTrigger>
-                        <TabsTrigger value="missing" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap" disabled={errorCategories.missingRequired.length === 0}>
-                          <FileText className="h-3 w-3 mr-1" />
-                          <span className="hidden sm:inline">حقول ناقصة</span>
-                          <span className="sm:hidden">ناقص</span>
-                          {errorCategories.missingRequired.length > 0 && (
-                            <Badge variant="destructive" className="ml-1 text-xs">
-                              {errorCategories.missingRequired.length}
-                            </Badge>
-                          )}
-                        </TabsTrigger>
                         <TabsTrigger value="duplicate" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap" disabled={errorCategories.duplicateIds.length === 0}>
                           <Users className="h-3 w-3 mr-1" />
                           <span className="hidden sm:inline">هويات مكررة</span>
@@ -379,26 +363,6 @@ export default function ImportHeads() {
                           {errorCategories.duplicateIds.length > 0 && (
                             <Badge variant="destructive" className="ml-1 text-xs">
                               {errorCategories.duplicateIds.length}
-                            </Badge>
-                          )}
-                        </TabsTrigger>
-                        <TabsTrigger value="format" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap" disabled={errorCategories.invalidFormat.length === 0}>
-                          <Hash className="h-3 w-3 mr-1" />
-                          <span className="hidden lg:inline">تنسيق خاطئ</span>
-                          <span className="lg:hidden">تنسيق</span>
-                          {errorCategories.invalidFormat.length > 0 && (
-                            <Badge variant="destructive" className="ml-1 text-xs">
-                              {errorCategories.invalidFormat.length}
-                            </Badge>
-                          )}
-                        </TabsTrigger>
-                        <TabsTrigger value="processing" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2 flex-shrink-0 whitespace-nowrap" disabled={errorCategories.processingErrors.length === 0}>
-                          <AlertTriangle className="h-3 w-3 mr-1" />
-                          <span className="hidden lg:inline">أخطاء أخرى</span>
-                          <span className="lg:hidden">أخرى</span>
-                          {errorCategories.processingErrors.length > 0 && (
-                            <Badge variant="destructive" className="ml-1 text-xs">
-                              {errorCategories.processingErrors.length}
                             </Badge>
                           )}
                         </TabsTrigger>
@@ -414,21 +378,6 @@ export default function ImportHeads() {
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="missing">
-                        <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground mb-2">
-                            📋 الصفوف التي تفتقر للحقول المطلوبة (اسم رب الأسرة أو رقم الهوية)
-                          </div>
-                          <div className="max-h-60 overflow-y-auto space-y-1">
-                            {errorCategories.missingRequired.map((error: string, index: number) => (
-                              <div key={index} className="text-sm text-orange-600 bg-orange-50 p-2 rounded border-l-4 border-orange-500">
-                                {error}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </TabsContent>
-                      
                       <TabsContent value="duplicate">
                         <div className="space-y-2">
                           <div className="text-sm text-muted-foreground mb-2">
@@ -437,36 +386,6 @@ export default function ImportHeads() {
                           <div className="max-h-60 overflow-y-auto space-y-1">
                             {errorCategories.duplicateIds.map((error: string, index: number) => (
                               <div key={index} className="text-sm text-blue-600 bg-blue-50 p-2 rounded border-l-4 border-blue-500">
-                                {error}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="format">
-                        <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground mb-2">
-                            #️⃣ أرقام هوية بتنسيق خاطئ (يجب أن تكون 9 أرقام فقط)
-                          </div>
-                          <div className="max-h-60 overflow-y-auto space-y-1">
-                            {errorCategories.invalidFormat.map((error: string, index: number) => (
-                              <div key={index} className="text-sm text-purple-600 bg-purple-50 p-2 rounded border-l-4 border-purple-500">
-                                {error}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </TabsContent>
-                      
-                      <TabsContent value="processing">
-                        <div className="space-y-2">
-                          <div className="text-sm text-muted-foreground mb-2">
-                            ⚠️ أخطاء في معالجة البيانات أو أخطاء عامة
-                          </div>
-                          <div className="max-h-60 overflow-y-auto space-y-1">
-                            {errorCategories.processingErrors.map((error: string, index: number) => (
-                              <div key={index} className="text-sm text-red-600 bg-red-50 p-2 rounded border-l-4 border-red-500">
                                 {error}
                               </div>
                             ))}
