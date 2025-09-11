@@ -1574,7 +1574,7 @@ export default function Summary() {
                         {family?.warDamage2024 ? (
                           <Badge variant="destructive" className="text-xs w-fit">
                             <AlertTriangle className="h-3 w-3 ml-1" />
-                            متضرر ({family?.warDamageDescription})
+                            متضرر ({getDamageDescriptionInArabic(family?.warDamageDescription)})
                           </Badge>
                         ) : (
                           <Badge variant="secondary" className="text-xs w-fit">
