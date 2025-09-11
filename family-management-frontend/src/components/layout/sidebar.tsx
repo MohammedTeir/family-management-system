@@ -109,7 +109,7 @@ export function AppSidebar() {
   const shouldShowItemTitles = state === "expanded" || isMobile;
 
   return (
-    <Sidebar side="right" collapsible="icon" className="flex flex-col h-full">
+    <Sidebar side="right" collapsible="icon" className="flex flex-col h-full border-l border-sidebar-border">
       <SidebarHeader className={`flex-shrink-0 ${shouldShowHeaderFooter ? "" : "hidden"}`}>
         <div className="flex items-center gap-2 px-2 sm:px-3 md:px-4 py-2">
           <div className="grid flex-1 text-right text-sm leading-tight">
