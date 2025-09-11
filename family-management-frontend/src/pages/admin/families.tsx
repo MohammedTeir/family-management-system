@@ -448,7 +448,7 @@ export default function AdminFamilies() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-blue-100 rounded-lg">
+                  <div className="p-3 bg-primary/10 rounded-lg">
                     <Users className="h-6 w-6 text-primary" />
                   </div>
                   <div className="mr-4">
@@ -462,8 +462,8 @@ export default function AdminFamilies() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-red-100 rounded-lg">
-                    <MapPin className="h-6 w-6 text-accent" />
+                  <div className="p-3 bg-destructive/10 rounded-lg">
+                    <MapPin className="h-6 w-6 text-destructive" />
                   </div>
                   <div className="mr-4">
                     <p className="text-sm text-muted-foreground">أسر نازحة</p>
@@ -476,7 +476,7 @@ export default function AdminFamilies() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-yellow-100 rounded-lg">
+                  <div className="p-3 bg-warning/10 rounded-lg">
                     <Users className="h-6 w-6 text-warning" />
                   </div>
                   <div className="mr-4">
@@ -490,7 +490,7 @@ export default function AdminFamilies() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center">
-                  <div className="p-3 bg-green-100 rounded-lg">
+                  <div className="p-3 bg-secondary/10 rounded-lg">
                     <Users className="h-6 w-6 text-secondary" />
                   </div>
                   <div className="mr-4">
@@ -533,7 +533,7 @@ export default function AdminFamilies() {
                       <SelectContent dir="rtl">
                         <SelectItem value="all">كل الفروع</SelectItem>
                         {branchOptions.map((branch) => (
-                          <SelectItem key={branch} value={branch}>{branch}</SelectItem>
+                          <SelectItem key={branch} value={getBranchInArabic(branch)}>{getBranchInArabic(branch)}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -798,36 +798,36 @@ export default function AdminFamilies() {
                     </div>
                     {/* Wives Information */}
                     {((familyDetails.wives && familyDetails.wives.length > 0) || familyDetails.wifeName) && (
-                      <div className="bg-white rounded-lg p-3 md:p-4 border">
-                        <h4 className="font-semibold text-pink-900 mb-3">
+                      <div className="bg-card rounded-lg p-3 md:p-4 border">
+                        <h4 className="font-semibold text-card-foreground mb-3">
                           {familyDetails.socialStatus === "polygamous" || (familyDetails.wives && familyDetails.wives.length > 1) ? "الزوجات" : "الزوجة"}
                         </h4>
                         <div className="space-y-4">
                           {familyDetails.wives && familyDetails.wives.length > 0 ? (
                             familyDetails.wives.map((wife: any, index: number) => (
-                              <div key={wife.id || index} className="border-l-4 border-pink-400 pl-3">
+                              <div key={wife.id || index} className="border-l-4 border-secondary pl-3">
                                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                                  {familyDetails.wives.length > 1 && <Badge className="bg-pink-200 text-pink-900">الزوجة {index + 1}</Badge>}
-                                  <Badge className="bg-pink-200 text-pink-900">{wife.wifeName}</Badge>
+                                  {familyDetails.wives.length > 1 && <Badge variant="secondary">الزوجة {index + 1}</Badge>}
+                                  <Badge variant="secondary">{wife.wifeName}</Badge>
                                 </div>
                                 <div className="space-y-1 text-sm">
                                   <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="sm:mr-2">{wife.wifeID || 'غير محدد'}</span></div>
-                                  <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{wife.wifeBirthDate || 'غير محدد'}{wife.wifeBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(wife.wifeBirthDate)}</span>)</>}</span></div>
+                                  <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{wife.wifeBirthDate || 'غير محدد'}{wife.wifeBirthDate && <> (<span className="text-primary">{calculateDetailedAge(wife.wifeBirthDate)}</span>)</>}</span></div>
                                   <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">المهنة:</span> <span className="sm:mr-2">{wife.wifeJob || 'غير محدد'}</span></div>
-                                  <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">حامل:</span> <span className="sm:mr-2">{wife.wifePregnant ? <Badge className="bg-yellow-200 text-yellow-900">نعم</Badge> : 'لا'}</span></div>
+                                  <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">حامل:</span> <span className="sm:mr-2">{wife.wifePregnant ? <Badge variant="outline" className="border-warning text-warning">نعم</Badge> : 'لا'}</span></div>
                                 </div>
                               </div>
                             ))
                           ) : familyDetails.wifeName ? (
                             <div>
                               <div className="flex flex-wrap items-center gap-2 mb-2">
-                                <Badge className="bg-pink-200 text-pink-900">{familyDetails.wifeName}</Badge>
+                                <Badge variant="secondary">{familyDetails.wifeName}</Badge>
                               </div>
                               <div className="space-y-1 text-sm">
                                 <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">رقم الهوية:</span> <span className="sm:mr-2">{familyDetails.wifeID || 'غير محدد'}</span></div>
-                                <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{familyDetails.wifeBirthDate || 'غير محدد'}{familyDetails.wifeBirthDate && <> (<span className="text-green-700">{calculateDetailedAge(familyDetails.wifeBirthDate)}</span>)</>}</span></div>
+                                <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">تاريخ الميلاد:</span> <span className="sm:mr-2">{familyDetails.wifeBirthDate || 'غير محدد'}{familyDetails.wifeBirthDate && <> (<span className="text-primary">{calculateDetailedAge(familyDetails.wifeBirthDate)}</span>)</>}</span></div>
                                 <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">المهنة:</span> <span className="sm:mr-2">{familyDetails.wifeJob || 'غير محدد'}</span></div>
-                                <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">حامل:</span> <span className="sm:mr-2">{familyDetails.wifePregnant ? <Badge className="bg-yellow-200 text-yellow-900">نعم</Badge> : 'لا'}</span></div>
+                                <div className="flex flex-col sm:flex-row"><span className="font-medium text-muted-foreground">حامل:</span> <span className="sm:mr-2">{familyDetails.wifePregnant ? <Badge variant="outline" className="border-warning text-warning">نعم</Badge> : 'لا'}</span></div>
                               </div>
                             </div>
                           ) : null}
@@ -847,7 +847,7 @@ export default function AdminFamilies() {
                               <div className="text-muted-foreground space-y-1">
                                 <div>الجنس: {getGenderInArabic(member.gender)}</div>
                                 <div>القرابة: {getRelationshipInArabic(member.relationship)}</div>
-                                <div>تاريخ الميلاد: {member.birthDate || 'غير محدد'}{member.birthDate && <> (<span className="text-green-700">{calculateDetailedAge(member.birthDate)}</span>)</>}</div>
+                                <div>تاريخ الميلاد: {member.birthDate || 'غير محدد'}{member.birthDate && <> (<span className="text-primary">{calculateDetailedAge(member.birthDate)}</span>)</>}</div>
                               </div>
                             </div>
                           ))}
@@ -867,7 +867,7 @@ export default function AdminFamilies() {
                                 <td className="px-3 py-2">{member.fullName}</td>
                                 <td className="px-3 py-2">{getGenderInArabic(member.gender)}</td>
                                 <td className="px-3 py-2">{getRelationshipInArabic(member.relationship)}</td>
-                                <td className="px-3 py-2">{member.birthDate || 'غير محدد'}{member.birthDate && <> (<span className="text-green-700">{calculateDetailedAge(member.birthDate)}</span>)</>}</td>
+                                <td className="px-3 py-2">{member.birthDate || 'غير محدد'}{member.birthDate && <> (<span className="text-primary">{calculateDetailedAge(member.birthDate)}</span>)</>}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -888,10 +888,14 @@ export default function AdminFamilies() {
                               <span className="font-medium">{getRequestTypeInArabic(request.type)}</span>
                               <span className="text-muted-foreground text-xs">{formatDate(request.createdAt)}</span>
                             </div>
-                            <Badge className={
-                              request.status === 'approved' ? 'bg-green-600 text-white' :
-                              request.status === 'rejected' ? 'bg-red-600 text-white' :
-                              'bg-yellow-400 text-black'
+                            <Badge variant={
+                              request.status === 'approved' ? 'default' :
+                              request.status === 'rejected' ? 'destructive' :
+                              'secondary'
+                            } className={
+                              request.status === 'approved' ? 'bg-primary text-primary-foreground' :
+                              request.status === 'rejected' ? '' :
+                              'bg-warning text-warning-foreground'
                             }>
                               {getRequestStatusInArabic(request.status)}
                             </Badge>

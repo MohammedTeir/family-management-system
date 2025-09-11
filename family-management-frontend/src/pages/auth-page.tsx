@@ -181,7 +181,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-3 sm:p-4 lg:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-muted/50 to-muted flex items-center justify-center p-3 sm:p-4 lg:p-6">
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Hero Section */}
         <div className="flex lg:hidden flex-col justify-center items-center text-center p-4 sm:p-6 mb-4">
@@ -225,26 +225,26 @@ export default function AuthPage() {
           </div>
           
           <div className="grid grid-cols-1 gap-6 max-w-md">
-            <div className="flex items-center p-4 bg-white rounded-lg shadow-sm">
+            <div className="flex items-center p-4 bg-card border rounded-lg shadow-sm">
               <UserCheck className="h-8 w-8 text-primary ml-4 flex-shrink-0" />
               <div className="text-right">
-                <h3 className="font-semibold text-foreground">إدارة بيانات الأسرة</h3>
+                <h3 className="font-semibold text-card-foreground">إدارة بيانات الأسرة</h3>
                 <p className="text-sm text-muted-foreground">تسجيل وتحديث بيانات أفراد الأسرة</p>
               </div>
             </div>
             
-            <div className="flex items-center p-4 bg-white rounded-lg shadow-sm">
+            <div className="flex items-center p-4 bg-card border rounded-lg shadow-sm">
               <Shield className="h-8 w-8 text-secondary ml-4 flex-shrink-0" />
               <div className="text-right">
-                <h3 className="font-semibold text-foreground">تقديم الطلبات</h3>
+                <h3 className="font-semibold text-card-foreground">تقديم الطلبات</h3>
                 <p className="text-sm text-muted-foreground">طلبات المساعدة والخدمات المختلفة</p>
               </div>
             </div>
             
-            <div className="flex items-center p-4 bg-white rounded-lg shadow-sm">
+            <div className="flex items-center p-4 bg-card border rounded-lg shadow-sm">
               <Users className="h-8 w-8 text-accent ml-4 flex-shrink-0" />
               <div className="text-right">
-                <h3 className="font-semibold text-foreground">المتابعة الإدارية</h3>
+                <h3 className="font-semibold text-card-foreground">المتابعة الإدارية</h3>
                 <p className="text-sm text-muted-foreground">متابعة الطلبات والتنبيهات</p>
               </div>
             </div>
