@@ -665,7 +665,7 @@ export default function Users() {
                             <td className="px-2 sm:px-4 py-3 text-sm">{user.username}</td>
                             <td className="px-2 sm:px-4 py-3 text-sm">
                               {(user.role === 'head' || (user.role === 'admin' && isNumeric(user.username))) 
-                                ? (user.family?.husbandName || user.username)
+                                ? (user.family?.husbandName || user.husbandName || user.fullName || user.username)
                                 : user.username}
                             </td>
                             <td className="px-2 sm:px-4 py-3">
