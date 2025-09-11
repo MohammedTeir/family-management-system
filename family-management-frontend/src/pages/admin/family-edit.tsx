@@ -107,7 +107,11 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
   // Wives mutations
   const createWifeMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetchApi("/api/wives", { method: "POST", body: JSON.stringify({ ...data, familyId: family?.id || id }) });
+      const res = await fetchApi("/api/wives", { 
+        method: "POST", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, familyId: family?.id || id }) 
+      });
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText || "فشل في إضافة الزوجة");
@@ -133,7 +137,11 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
 
   const updateWifeMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const res = await fetchApi(`/api/wives/${id}`, { method: "PUT", body: JSON.stringify(data) });
+      const res = await fetchApi(`/api/wives/${id}`, { 
+        method: "PUT", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data) 
+      });
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText || "فشل في تحديث بيانات الزوجة");
@@ -190,7 +198,7 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     if (editingWifeId) {
       updateWifeMutation.mutate({ id: editingWifeId, data: wifeForm });
     } else {
-      createWifeMutation.mutate({ ...wifeForm, familyId: family?.id || id });
+      createWifeMutation.mutate(wifeForm);
     }
   };
 
