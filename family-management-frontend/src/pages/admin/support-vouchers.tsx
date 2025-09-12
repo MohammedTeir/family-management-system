@@ -125,7 +125,7 @@ export default function SupportVouchers() {
 
   // Fetch families for recipient selection
   const { data: families } = useQuery({
-    queryKey: ['admin-families'],
+    queryKey: ['/api/admin/families'],
     queryFn: async () => {
       const response = await fetchApi('/api/admin/families');
       if (!response.ok) throw new Error('Failed to fetch families');
@@ -135,9 +135,9 @@ export default function SupportVouchers() {
 
   // Fetch all users to get role information
   const { data: users } = useQuery({
-    queryKey: ['users'],
+    queryKey: ['/api/admin/users'],
     queryFn: async () => {
-      const response = await fetchApi('/api/users');
+      const response = await fetchApi('/api/admin/users');
       if (!response.ok) throw new Error('Failed to fetch users');
       return response.json();
     }
