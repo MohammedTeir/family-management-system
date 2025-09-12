@@ -9,30 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Save, Upload, Database, RefreshCw, UploadCloud, DownloadCloud, ArrowLeft } from "lucide-react";
 import { Switch } from "../../components/ui/switch";
-import { useSettings } from "@/hooks/use-settings";
+import { useAdminSettings } from "@/hooks/use-admin-settings";
 import { useLocation } from "wouter";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 
-interface Settings {
-  siteName?: string;
-  siteTitle?: string;
-  siteLogo?: string;
-  authPageTitle?: string;
-  authPageSubtitle?: string;
-  authPageIcon?: string;
-  primaryColor?: string;
-  secondaryColor?: string;
-  themeMode?: "light" | "dark" | "auto";
-  fontFamily?: "Amiri" | "Cairo" | "Tajawal" | "Noto Sans Arabic";
-  minPasswordLength?: number;
-  requireUppercase?: boolean;
-  requireLowercase?: boolean;
-  requireNumbers?: boolean;
-  requireSpecialChars?: boolean;
-  maxLoginAttempts?: number;
-  lockoutDuration?: number;
-  sessionTimeout?: number; // مدة انتهاء الجلسة بالدقائق
-}
+import type { AdminSettings as Settings } from "@/hooks/use-admin-settings";
 
 // Function to convert hex to HSL
 function hexToHsl(hex: string): string {
@@ -113,18 +94,19 @@ function applyThemeSettings(settings: Settings) {
 
 const SettingsPage = () => {
   const { toast } = useToast();
-  const { settings, setSettings } = useSettings();
-  const [loading, setLoading] = useState(true);
+  const { settings, setSettings, loading } = useAdminSettings();
   const [saving, setSaving] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [mergeUrl, setMergeUrl] = useState("");
   const [, setLocation] = useLocation();
 
-  // Load settings on component mount
+  // Set logo preview when settings are loaded
   useEffect(() => {
-    loadSettings();
-  }, []);
+    if (settings.siteLogo && !logoPreview) {
+      setLogoPreview(settings.siteLogo);
+    }
+  }, [settings.siteLogo, logoPreview]);
 
   // Apply theme settings in real-time when they change
   useEffect(() => {
@@ -144,51 +126,6 @@ const SettingsPage = () => {
     }
   }, [settings.siteTitle, settings.language]);
 
-  const loadSettings = async () => {
-    try {
-      const response = await fetchApi("/api/settings");
-      if (response.ok) {
-        const data = await response.json();
-        setSettings({
-          siteName: data.siteName || "",
-          siteTitle: data.siteTitle || "",
-          siteLogo: data.siteLogo || "",
-          authPageTitle: data.authPageTitle || "",
-          authPageSubtitle: data.authPageSubtitle || "",
-          authPageIcon: data.authPageIcon || "",
-          primaryColor: data.primaryColor || "#3b82f6",
-          secondaryColor: data.secondaryColor || "#64748b",
-          themeMode: data.themeMode || "auto",
-          fontFamily: data.fontFamily || "Amiri",
-          minPasswordLength: data.minPasswordLength ? parseInt(data.minPasswordLength) : 8,
-          requireUppercase: data.requireUppercase === "true" || data.requireUppercase === true,
-          requireLowercase: data.requireLowercase === "true" || data.requireLowercase === true,
-          requireNumbers: data.requireNumbers === "true" || data.requireNumbers === true,
-          requireSpecialChars: data.requireSpecialChars === "true" || data.requireSpecialChars === true,
-          maxLoginAttempts: data.maxLoginAttempts ? parseInt(data.maxLoginAttempts) : 5,
-          lockoutDuration: data.lockoutDuration ? parseInt(data.lockoutDuration) : 15,
-          sessionTimeout: data.sessionTimeout ? parseInt(data.sessionTimeout) : 60,
-        });
-        if (data.siteLogo) {
-          setLogoPreview(data.siteLogo);
-        }
-        applyThemeSettings({
-          primaryColor: data.primaryColor,
-          secondaryColor: data.secondaryColor,
-          themeMode: data.themeMode as "light" | "dark" | "auto",
-          fontFamily: data.fontFamily as "Amiri" | "Cairo" | "Tajawal" | "Noto Sans Arabic",
-        }); // Apply theme settings when loading
-      }
-    } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل الإعدادات",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

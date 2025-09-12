@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { fetchApi } from "../lib/api";
 
 // Define the shape of your settings here
-export interface Settings {
+export interface AdminSettings {
   siteName?: string;
   siteTitle?: string;
   siteLogo?: string;
@@ -25,10 +25,8 @@ export interface Settings {
   language?: string;
 }
 
-const SETTINGS_KEY = "app_settings";
-
 // Default settings
-const defaultSettings: Settings = {
+const defaultSettings: AdminSettings = {
   siteName: "",
   siteTitle: "",
   siteLogo: "",
@@ -51,45 +49,44 @@ const defaultSettings: Settings = {
   language: "ar",
 };
 
-function loadSettingsSync(): Settings {
-  try {
-    const stored = localStorage.getItem(SETTINGS_KEY);
-    if (stored) {
-      return { ...defaultSettings, ...JSON.parse(stored) };
-    }
-  } catch (e) {}
-  return defaultSettings;
-}
+/**
+ * Hook for admin settings management - requires authentication
+ * This hook fetches from /api/settings (authenticated endpoint) and is used in the admin panel
+ */
+export function useAdminSettings() {
+  const [settings, setSettings] = useState<AdminSettings>(defaultSettings);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export function useSettings() {
-  const [settings, setSettings] = useState<Settings>(loadSettingsSync);
-  // On mount, always try to load from backend and update state/localStorage
-  useEffect(() => {
-    async function fetchSettings() {
-      try {
-        // Use public settings endpoint that doesn't require authentication
-        const res = await fetchApi("/api/public/settings");
-        if (res.ok) {
-          const data = await res.json();
-          const merged = { ...defaultSettings, ...data };
-          setSettings(merged);
-          localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
-          return;
-        }
-      } catch (e) {}
-      // If backend fails, try localStorage (already loaded by default)
+  // Load settings from authenticated endpoint
+  const loadSettings = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetchApi("/api/settings");
+      if (res.ok) {
+        const data = await res.json();
+        const merged = { ...defaultSettings, ...data };
+        setSettings(merged);
+      } else {
+        throw new Error("Failed to fetch settings");
+      }
+    } catch (e) {
+      setError("فشل في تحميل الإعدادات");
+      console.error("Failed to load admin settings:", e);
+    } finally {
+      setLoading(false);
     }
-    fetchSettings();
   }, []);
 
-  // Persist settings to localStorage whenever they change
+  // Load settings on mount
   useEffect(() => {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  }, [settings]);
+    loadSettings();
+  }, [loadSettings]);
 
   // Update a specific setting
   const updateSetting = useCallback(
-    <K extends keyof Settings>(key: K, value: Settings[K]) => {
+    <K extends keyof AdminSettings>(key: K, value: AdminSettings[K]) => {
       setSettings((prev) => ({ ...prev, [key]: value }));
     },
     []
@@ -102,10 +99,13 @@ export function useSettings() {
 
   return {
     settings,
+    loading,
+    error,
     setSettings,      // Replace all settings
     updateSetting,    // Update a single setting
     resetSettings,    // Reset to defaults
+    reloadSettings: loadSettings, // Reload from server
   };
 }
 
-export default useSettings;
+export default useAdminSettings;
