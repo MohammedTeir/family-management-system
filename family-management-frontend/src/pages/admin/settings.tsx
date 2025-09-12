@@ -204,22 +204,22 @@ const SettingsPage = () => {
       });
       settingsToSave.push({
         key: "requireUppercase",
-        value: (settings.requireUppercase ?? true).toString(),
+        value: Boolean(settings.requireUppercase).toString(),
         description: "تطلب أحرف كبيرة"
       });
       settingsToSave.push({
         key: "requireLowercase",
-        value: (settings.requireLowercase ?? true).toString(),
+        value: Boolean(settings.requireLowercase).toString(),
         description: "تطلب أحرف صغيرة"
       });
       settingsToSave.push({
         key: "requireNumbers",
-        value: (settings.requireNumbers ?? true).toString(),
+        value: Boolean(settings.requireNumbers).toString(),
         description: "تطلب أرقام"
       });
       settingsToSave.push({
         key: "requireSpecialChars",
-        value: (settings.requireSpecialChars ?? false).toString(),
+        value: Boolean(settings.requireSpecialChars).toString(),
         description: "تطلب رموز خاصة"
       });
       settingsToSave.push({
@@ -281,7 +281,7 @@ const SettingsPage = () => {
       requireUppercase: true,
       requireLowercase: true,
       requireNumbers: true,
-      requireSpecialChars: true,
+      requireSpecialChars: false,
       maxLoginAttempts: 5,
       lockoutDuration: 300,
       sessionTimeout: 60,
@@ -724,7 +724,7 @@ const SettingsPage = () => {
                   <input
                     type="checkbox"
                     id="requireUppercase"
-                    checked={settings.requireUppercase ?? true}
+                    checked={Boolean(settings.requireUppercase)}
                     onChange={(e) => setSettings({ ...settings, requireUppercase: e.target.checked })}
                     className="rounded"
                   />
@@ -734,7 +734,7 @@ const SettingsPage = () => {
                   <input
                     type="checkbox"
                     id="requireLowercase"
-                    checked={settings.requireLowercase ?? true}
+                    checked={Boolean(settings.requireLowercase)}
                     onChange={(e) => setSettings({ ...settings, requireLowercase: e.target.checked })}
                     className="rounded"
                   />
@@ -744,7 +744,7 @@ const SettingsPage = () => {
                   <input
                     type="checkbox"
                     id="requireNumbers"
-                    checked={settings.requireNumbers ?? true}
+                    checked={Boolean(settings.requireNumbers)}
                     onChange={(e) => setSettings({ ...settings, requireNumbers: e.target.checked })}
                     className="rounded"
                   />
@@ -754,7 +754,7 @@ const SettingsPage = () => {
                   <input
                     type="checkbox"
                     id="requireSpecialChars"
-                    checked={settings.requireSpecialChars ?? false}
+                    checked={Boolean(settings.requireSpecialChars)}
                     onChange={(e) => setSettings({ ...settings, requireSpecialChars: e.target.checked })}
                     className="rounded"
                   />
@@ -814,11 +814,11 @@ const SettingsPage = () => {
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• الحد الأدنى لطول كلمة المرور: {settings.minPasswordLength ?? 8} أحرف</li>
                 <li>• متطلبات الأحرف: {[
-                  settings.requireUppercase ?? true ? "أحرف كبيرة" : null,
-                  settings.requireLowercase ?? true ? "أحرف صغيرة" : null,
-                  settings.requireNumbers ?? true ? "أرقام" : null,
-                  settings.requireSpecialChars ?? false ? "رموز خاصة" : null
-                ].filter(Boolean).join("، ")}</li>
+                  settings.requireUppercase ? "أحرف كبيرة" : null,
+                  settings.requireLowercase ? "أحرف صغيرة" : null,
+                  settings.requireNumbers ? "أرقام" : null,
+                  settings.requireSpecialChars ? "رموز خاصة" : null
+                ].filter(Boolean).join("، ") || "لا توجد متطلبات"}</li>
                 <li>• الحد الأقصى للمحاولات: {settings.maxLoginAttempts ?? 5} محاولات</li>
                 <li>• مدة الحظر: {settings.lockoutDuration ?? 15} دقيقة</li>
                 <li>• مدة انتهاء الجلسة: {settings.sessionTimeout ?? 60} دقيقة</li>

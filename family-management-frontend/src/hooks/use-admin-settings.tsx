@@ -41,7 +41,7 @@ const defaultSettings: AdminSettings = {
   requireUppercase: true,
   requireLowercase: true,
   requireNumbers: true,
-  requireSpecialChars: true,
+  requireSpecialChars: false,
   maxLoginAttempts: 5,
   lockoutDuration: 15,
   sessionTimeout: 60,
