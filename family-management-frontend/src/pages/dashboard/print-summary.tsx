@@ -13,7 +13,7 @@ import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Link, useRoute } from "wouter";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Header } from "@/components/layout/header";
@@ -24,7 +24,7 @@ export default function PrintSummary() {
   const [showMembers, setShowMembers] = useState(true);
   const [showHousingInfo, setShowHousingInfo] = useState(true);
   const [showChildrenModal, setShowChildrenModal] = useState(false);
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   // Fetch the current user's family (for head users)
   const { data: family, isLoading: familyLoading, error } = useQuery({

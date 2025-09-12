@@ -16,7 +16,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { formatDate } from "@/lib/utils";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 import { validatePasswordWithPolicy } from "@/lib/utils";
 import { PageWrapper } from "@/components/layout/page-wrapper";
@@ -57,7 +57,7 @@ export default function Users() {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteAllHeadsDialogOpen, setDeleteAllHeadsDialogOpen] = useState(false);
   const [headsToDelete, setHeadsToDelete] = useState<any[]>([]);
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   useEffect(() => {
     if (settings.siteTitle) {

@@ -17,7 +17,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { calculateAge, getGenderInArabic, getRelationshipInArabic, calculateDetailedAge } from "@/lib/utils";
 import MemberForm from "@/components/forms/member-form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 import { fetchApi } from "@/lib/api";
 import { PageWrapper } from "@/components/layout/page-wrapper";
@@ -322,7 +322,7 @@ export default function FamilyMembers() {
   const totalPages = Math.ceil(members.length / pageSize);
   const paginatedMembers = members.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   useEffect(() => {
     if (settings.siteTitle) {

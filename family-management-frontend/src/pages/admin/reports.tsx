@@ -21,7 +21,7 @@ import {
   getSocialStatusInArabic,
   formatDate,
 } from "@/lib/utils";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF6384", "#36A2EB", "#FFCE56"];
@@ -194,7 +194,7 @@ const headUsers = filteredUsersData.filter(u => u.role === "head" || (u.role ===
   useEffect(() => { setRequestsPage(1); }, [filteredRequestsData]);
   useEffect(() => { setUsersPage(1); }, [filteredUsersData]);
 
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   useEffect(() => {
     if (settings.siteTitle) {

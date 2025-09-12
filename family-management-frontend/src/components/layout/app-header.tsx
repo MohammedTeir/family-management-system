@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Bell, LogOut, User, Users, Settings } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 
 const breadcrumbMap: Record<string, string> = {
@@ -26,7 +26,7 @@ const breadcrumbMap: Record<string, string> = {
 export function AppHeader() {
   const [location, setLocation] = useLocation();
   const { user, family, logoutMutation, dualRole, currentDashboard, chooseDashboard } = useAuth();
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
   
   const currentPageTitle = breadcrumbMap[location] || "الصفحة الرئيسية";
 

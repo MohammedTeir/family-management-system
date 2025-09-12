@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { validatePasswordWithPolicy } from "@/lib/utils";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 
 const loginSchema = z.object({
   loginType: z.enum(["head", "admin", "root"]),
@@ -53,7 +53,7 @@ export default function AuthPage() {
   const { user, loginMutation } = useAuth();
   const { toast } = useToast();
   const [loginType, setLoginType] = useState<"head" | "admin" | "root">("head");
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
   const [pendingWelcome, setPendingWelcome] = useState<null | { username: string; role: string }>(null);
 
   const loginForm = useForm<LoginFormData>({

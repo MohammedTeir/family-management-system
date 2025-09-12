@@ -13,7 +13,7 @@ import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Link, useRoute } from "wouter";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 import { fetchApi } from "@/lib/api";
 import { PageWrapper } from "@/components/layout/page-wrapper";
@@ -1183,7 +1183,7 @@ export default function Summary() {
     }
   };
   
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   useEffect(() => {
     if (settings.siteTitle) {

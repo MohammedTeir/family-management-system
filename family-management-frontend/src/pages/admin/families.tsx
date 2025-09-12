@@ -16,7 +16,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ExcelJS from 'exceljs';
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 
 export default function AdminFamilies() {
@@ -31,7 +31,7 @@ export default function AdminFamilies() {
   const [displacedFilter, setDisplacedFilter] = useState('all');
   const [damagedFilter, setDamagedFilter] = useState('all');
   const [abroadFilter, setAbroadFilter] = useState('all');
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   useEffect(() => {
     if (settings.siteTitle) {

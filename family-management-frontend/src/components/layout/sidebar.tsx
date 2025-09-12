@@ -12,7 +12,7 @@ import {
   Upload
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Sidebar,
@@ -90,7 +90,7 @@ const adminNavItems = [
 export function AppSidebar() {
   const { user } = useAuth();
   const [location] = useLocation();
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
   const { state } = useSidebar();
   const isMobile = useIsMobile();
 

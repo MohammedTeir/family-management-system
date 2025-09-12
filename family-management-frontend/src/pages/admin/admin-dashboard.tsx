@@ -15,7 +15,7 @@ import { Users, FileText, Clock, AlertTriangle, Bell, Eye, Check, X, Edit } from
 import { Link, useLocation } from "wouter";
 import { getRequestStatusInArabic, getRequestTypeInArabic, formatDate } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 import { Separator } from "@radix-ui/react-select";
 import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
@@ -34,7 +34,7 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   useEffect(() => {
     if (settings.siteTitle) {

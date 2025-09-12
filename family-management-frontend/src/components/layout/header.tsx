@@ -4,14 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Bell, LogOut, User, Users, Settings } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 
 
 export function Header() {
   const { user, family, logoutMutation, dualRole, currentDashboard, chooseDashboard } = useAuth();
   const [, setLocation] = useLocation();
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   useEffect(() => {
     if (settings.siteTitle) {

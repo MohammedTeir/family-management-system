@@ -8,7 +8,7 @@ import { Link, useLocation } from "wouter";
 import { getRequestStatusInArabic, getRequestTypeInArabic, getDamageDescriptionInArabic, getBranchInArabic, getSocialStatusInArabic, isChild, calculateDetailedAge } from "@/lib/utils";
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Header } from "@/components/layout/header";
@@ -16,7 +16,7 @@ import { Header } from "@/components/layout/header";
 export default function FamilyDashboard() {
   const { user, isLoading: authLoading } = useAuth();
   const [, navigate] = useLocation();
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
 
   useEffect(() => {

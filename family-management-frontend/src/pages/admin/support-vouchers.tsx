@@ -18,7 +18,7 @@ import { fetchApi } from '@/lib/api';
 import { CalendarIcon, PlusIcon, UsersIcon, BellIcon, CheckCircleIcon, XCircleIcon, ClockIcon, DollarSignIcon, MapPinIcon, CalendarDaysIcon, UserIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 
 interface SupportVoucher {
@@ -73,7 +73,7 @@ export default function SupportVouchers() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
   
   useEffect(() => {
     if (settings.siteTitle) {

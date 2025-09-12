@@ -24,7 +24,7 @@ import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { isChild, calculateDetailedAge } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { useSettings } from "@/hooks/use-settings";
+import { useSettingsContext } from "@/App";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Header } from "@/components/layout/header";
 
@@ -74,7 +74,7 @@ export default function FamilyData() {
     queryKey: ["/api/family"],
   });
   const [, navigate] = useLocation();
-  const { settings } = useSettings();
+  const { settings } = useSettingsContext();
 
   const form = useForm<FamilyFormData>({
     resolver: zodResolver(familySchema),
