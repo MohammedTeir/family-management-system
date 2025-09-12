@@ -186,11 +186,13 @@ export default function AuthPage() {
         {/* Hero Section */}
         <div className="flex lg:hidden flex-col justify-center items-center text-center p-4 sm:p-6 mb-4">
           <div className="mb-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary rounded-full flex items-center justify-center mb-4 mx-auto">
+            <div className="mb-4 mx-auto flex items-center justify-center">
               {settings.authPageIcon ? (
-                    <img src={settings.authPageIcon} alt="Logo" className="h-6 w-6 sm:h-8 sm:w-8 rounded" />
+                    <img src={settings.authPageIcon} alt="Logo" className="h-12 w-12 sm:h-16 sm:w-16 object-contain" />
                   ) : (
-                    <Users className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary rounded-full flex items-center justify-center">
+                      <Users className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+                    </div>
                   )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 sm:mb-4">
@@ -207,11 +209,13 @@ export default function AuthPage() {
         {/* Desktop Hero Section */}
         <div className="hidden lg:flex flex-col justify-center items-center text-center p-8">
           <div className="mb-8">
-            <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mb-6 mx-auto">
+            <div className="mb-6 mx-auto flex items-center justify-center">
               {settings.authPageIcon ? (
-                    <img src={settings.authPageIcon} alt="Logo" className="h-8 w-8 rounded" />
+                    <img src={settings.authPageIcon} alt="Logo" className="h-20 w-20 lg:h-24 lg:w-24 object-contain" />
                   ) : (
-                    <Users className="h-12 w-12 text-white" />
+                    <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center">
+                      <Users className="h-12 w-12 text-white" />
+                    </div>
                   )}
             </div>
             <h1 className="text-4xl font-bold text-foreground mb-4">
