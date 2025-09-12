@@ -437,7 +437,7 @@ export default function AdminFamilies() {
 
   return (
     <PageWrapper>
-      <div className="space-y-6 max-w-full min-w-0">
+      <div className="space-y-6 w-full min-w-0 overflow-hidden">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-foreground mb-2">إدارة الأسر</h1>
             <p className="text-muted-foreground">عرض وإدارة بيانات جميع الأسر المسجلة</p>
@@ -589,8 +589,8 @@ export default function AdminFamilies() {
             </CardHeader>
             <CardContent>
               {filteredFamilies.length > 0 ? (
-                <div className="overflow-x-auto max-w-full">
-                  <table className="w-full min-w-full">
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full min-w-[800px]">
                     <thead className="bg-background">
                       <tr>
                         <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">رب الأسرة</th>
@@ -604,13 +604,13 @@ export default function AdminFamilies() {
                     <tbody className="bg-card divide-y divide-border">
                       {paginatedFamilies.map((family: any) => (
                         <tr key={family.id} className="hover:bg-muted">
-                          <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="text-sm font-medium text-foreground">{family.husbandName}</div>
+                          <td className="px-3 md:px-6 py-4">
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium text-foreground truncate">{family.husbandName}</div>
                               {family.primaryPhone && (
-                                <div className="text-sm text-muted-foreground flex items-center">
-                                  <Phone className="h-3 w-3 ml-1" />
-                                  {family.primaryPhone}
+                                <div className="text-sm text-muted-foreground flex items-center truncate">
+                                  <Phone className="h-3 w-3 ml-1 flex-shrink-0" />
+                                  <span className="truncate">{family.primaryPhone}</span>
                                 </div>
                               )}
                             </div>
@@ -624,8 +624,8 @@ export default function AdminFamilies() {
                               {family.numMales || 0} ذكور، {family.numFemales || 0} إناث
                             </div>
                           </td>
-                          <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                            <div className="flex flex-wrap gap-1">
+                          <td className="px-3 md:px-6 py-4">
+                            <div className="flex flex-wrap gap-1 max-w-[120px]">
                               {family.isDisplaced && (
                                 <Badge variant="destructive" className="text-xs">نازح</Badge>
                               )}
@@ -640,8 +640,8 @@ export default function AdminFamilies() {
                           <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-muted-foreground hidden lg:table-cell">
                             {formatDate(family.createdAt)}
                           </td>
-                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm">
-                            <div className="flex flex-wrap gap-1 md:flex-nowrap md:space-x-2 md:space-x-reverse">
+                          <td className="px-3 md:px-6 py-4 text-sm">
+                            <div className="flex flex-wrap gap-1 md:flex-nowrap md:space-x-2 md:space-x-reverse min-w-[140px]">
                               <Button
                                 variant="outline"
                                 size="sm"
