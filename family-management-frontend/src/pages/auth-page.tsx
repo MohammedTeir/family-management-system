@@ -181,139 +181,97 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 relative overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-4 -right-4 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-4 -left-4 w-72 h-72 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
-        
-        {/* Floating particles */}
-        <div className="absolute top-20 left-20 w-2 h-2 bg-blue-400/40 rounded-full animate-bounce" style={{animationDelay: '0.5s', animationDuration: '3s'}}></div>
-        <div className="absolute top-40 right-32 w-1.5 h-1.5 bg-purple-400/40 rounded-full animate-bounce" style={{animationDelay: '1.5s', animationDuration: '2.5s'}}></div>
-        <div className="absolute bottom-32 left-16 w-1 h-1 bg-indigo-400/40 rounded-full animate-bounce" style={{animationDelay: '2.5s', animationDuration: '4s'}}></div>
-        <div className="absolute bottom-20 right-24 w-2.5 h-2.5 bg-pink-400/40 rounded-full animate-bounce" style={{animationDelay: '0.8s', animationDuration: '3.5s'}}></div>
-      </div>
-      
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-        {/* Mobile Hero Section */}
-        <div className="flex lg:hidden flex-col justify-center items-center text-center mb-8">
-          <div className="backdrop-blur-sm bg-white/10 dark:bg-gray-800/10 rounded-3xl p-8 border border-white/20">
-            <div className="mb-6 relative">
-              <div className="mb-6 mx-auto flex items-center justify-center relative">
-                {settings.authPageIcon ? (
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-75"></div>
-                    <div className="relative bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl">
-                      <img src={settings.authPageIcon} alt="Logo" className="h-16 w-16 sm:h-20 sm:w-20 object-contain" />
+    <div className="min-h-screen bg-gradient-to-br from-muted/50 to-muted flex items-center justify-center p-3 sm:p-4 lg:p-6">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        {/* Hero Section */}
+        <div className="flex lg:hidden flex-col justify-center items-center text-center p-4 sm:p-6 mb-4">
+          <div className="mb-6">
+            <div className="mb-4 mx-auto flex items-center justify-center">
+              {settings.authPageIcon ? (
+                    <img src={settings.authPageIcon} alt="Logo" className="h-12 w-12 sm:h-16 sm:w-16 object-contain" />
+                  ) : (
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary rounded-full flex items-center justify-center">
+                      <Users className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
                     </div>
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur opacity-75"></div>
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
-                      <Users className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
-                    </div>
-                  </div>
-                )}
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3">
-                {settings.authPageTitle || "نظام إدارة البيانات العائلية"}
-              </h1>
-              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                {settings.authPageSubtitle || "نظام شامل لإدارة بيانات الأسر"}
-              </p>
+                  )}
             </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 sm:mb-4">
+                    {settings.authPageTitle || "نظام إدارة البيانات العائلية"}
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
+            {settings.authPageSubtitle || "نظام شامل لإدارة بيانات الأسر"}
+
+              
+            </p>
           </div>
         </div>
         
         {/* Desktop Hero Section */}
-        <div className="hidden lg:flex flex-col justify-center items-center text-center order-1 lg:order-none">
-          <div className="max-w-xl">
-            <div className="mb-8 relative">
-              <div className="mb-8 mx-auto flex items-center justify-center">
-                {settings.authPageIcon ? (
-                  <div className="relative group">
-                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl blur-lg opacity-75 group-hover:opacity-100 transition duration-1000"></div>
-                    <div className="relative bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-2xl">
-                      <img src={settings.authPageIcon} alt="Logo" className="h-24 w-24 lg:h-28 lg:w-28 object-contain" />
+        <div className="hidden lg:flex flex-col justify-center items-center text-center p-8">
+          <div className="mb-8">
+            <div className="mb-6 mx-auto flex items-center justify-center">
+              {settings.authPageIcon ? (
+                    <img src={settings.authPageIcon} alt="Logo" className="h-20 w-20 lg:h-24 lg:w-24 object-contain" />
+                  ) : (
+                    <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center">
+                      <Users className="h-12 w-12 text-white" />
                     </div>
-                  </div>
-                ) : (
-                  <div className="relative group">
-                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-1000"></div>
-                    <div className="relative w-28 h-28 lg:w-32 lg:h-32 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl">
-                      <Users className="h-14 w-14 lg:h-16 lg:w-16 text-white" />
-                    </div>
-                  </div>
-                )}
-              </div>
-              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-6 leading-tight">
-                {settings.authPageTitle || "نظام إدارة البيانات العائلية"}
-              </h1>
-              <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed max-w-2xl">
-                {settings.authPageSubtitle || "نظام شامل لإدارة بيانات الأسر وتقديم الطلبات والخدمات"}
-              </p>
+                  )}
             </div>
+            <h1 className="text-4xl font-bold text-foreground mb-4">
+                    {settings.authPageTitle || "نظام إدارة البيانات العائلية"}
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8">
+            {settings.authPageSubtitle || "نظام شامل لإدارة بيانات الأسر وتقديم الطلبات والخدمات"}
+
+              
+            </p>
+          </div>
           
-            <div className="grid grid-cols-1 gap-4 max-w-lg">
-              <div className="group p-6 backdrop-blur-sm bg-white/20 dark:bg-gray-800/20 border border-white/30 rounded-2xl hover:bg-white/30 dark:hover:bg-gray-800/30 transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                <div className="flex items-center text-right">
-                  <UserCheck className="h-10 w-10 text-blue-600 dark:text-blue-400 ml-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
-                  <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">إدارة بيانات الأسرة</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">تسجيل وتحديث بيانات أفراد الأسرة</p>
-                  </div>
-                </div>
+          <div className="grid grid-cols-1 gap-6 max-w-md">
+            <div className="flex items-center p-4 bg-card border rounded-lg shadow-sm">
+              <UserCheck className="h-8 w-8 text-primary ml-4 flex-shrink-0" />
+              <div className="text-right">
+                <h3 className="font-semibold text-card-foreground">إدارة بيانات الأسرة</h3>
+                <p className="text-sm text-muted-foreground">تسجيل وتحديث بيانات أفراد الأسرة</p>
               </div>
-              
-              <div className="group p-6 backdrop-blur-sm bg-white/20 dark:bg-gray-800/20 border border-white/30 rounded-2xl hover:bg-white/30 dark:hover:bg-gray-800/30 transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                <div className="flex items-center text-right">
-                  <Shield className="h-10 w-10 text-purple-600 dark:text-purple-400 ml-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
-                  <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">تقديم الطلبات</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">طلبات المساعدة والخدمات المختلفة</p>
-                  </div>
-                </div>
+            </div>
+            
+            <div className="flex items-center p-4 bg-card border rounded-lg shadow-sm">
+              <Shield className="h-8 w-8 text-secondary ml-4 flex-shrink-0" />
+              <div className="text-right">
+                <h3 className="font-semibold text-card-foreground">تقديم الطلبات</h3>
+                <p className="text-sm text-muted-foreground">طلبات المساعدة والخدمات المختلفة</p>
               </div>
-              
-              <div className="group p-6 backdrop-blur-sm bg-white/20 dark:bg-gray-800/20 border border-white/30 rounded-2xl hover:bg-white/30 dark:hover:bg-gray-800/30 transition-all duration-300 hover:scale-105 hover:shadow-xl">
-                <div className="flex items-center text-right">
-                  <Users className="h-10 w-10 text-indigo-600 dark:text-indigo-400 ml-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
-                  <div>
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-1">المتابعة الإدارية</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">متابعة الطلبات والتنبيهات</p>
-                  </div>
-                </div>
+            </div>
+            
+            <div className="flex items-center p-4 bg-card border rounded-lg shadow-sm">
+              <Users className="h-8 w-8 text-accent ml-4 flex-shrink-0" />
+              <div className="text-right">
+                <h3 className="font-semibold text-card-foreground">المتابعة الإدارية</h3>
+                <p className="text-sm text-muted-foreground">متابعة الطلبات والتنبيهات</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Auth Forms */}
-        <div className="flex items-center justify-center lg:order-2">
-          <div className="w-full max-w-md">
-            <div className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden animate-in fade-in-50 slide-in-from-bottom-8 duration-700">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10"></div>
-                <div className="relative p-8 sm:p-10">
-                  <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
-                      <Shield className="h-8 w-8 text-white" />
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-2">مرحباً بك</h2>
-                    <p className="text-gray-600 dark:text-gray-400">يرجى تسجيل الدخول للمتابعة</p>
-                  </div>
-                  <Tabs defaultValue="login" className="w-full">
-                    <TabsList className="grid w-full grid-cols-1 mb-8 bg-gradient-to-r from-gray-100/60 via-blue-50/60 to-purple-50/60 dark:from-gray-800/60 dark:via-blue-900/60 dark:to-purple-900/60 rounded-2xl p-1 shadow-inner">
-                      <TabsTrigger value="login" className="text-base font-medium rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-white data-[state=active]:to-blue-50/50 data-[state=active]:dark:from-gray-700 data-[state=active]:dark:to-blue-900/50 data-[state=active]:shadow-xl data-[state=active]:scale-105 transition-all duration-300">تسجيل الدخول</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="login">
-                      <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="loginType" className="text-sm sm:text-base font-semibold bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">نوع المستخدم</Label>
+        <div className="flex items-center justify-center">
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="text-center p-4 sm:p-6">
+              <CardTitle className="text-xl sm:text-2xl font-bold">مرحباً بك</CardTitle>
+              <CardDescription className="text-sm sm:text-base">يرجى تسجيل الدخول</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
+              <Tabs defaultValue="login" className="w-full">
+                <TabsList className="grid w-full grid-cols-1 mb-6">
+                  <TabsTrigger value="login" className="text-sm sm:text-base">تسجيل الدخول</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="login">
+                  <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4 sm:space-y-5">
+                    <div>
+                      <Label htmlFor="loginType" className="text-sm sm:text-base font-medium">نوع المستخدم</Label>
                       <Select
                         value={loginType}
                         onValueChange={(value: "head" | "admin" | "root") => {
@@ -321,46 +279,46 @@ export default function AuthPage() {
                           loginForm.setValue("loginType", value);
                         }}
                       >
-                        <SelectTrigger className="h-12 text-sm sm:text-base border-2 border-gray-200/50 dark:border-gray-700/50 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:border-blue-300 dark:hover:border-blue-600 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-300 shadow-sm hover:shadow-md">
+                        <SelectTrigger className="h-10 sm:h-11 text-sm sm:text-base mt-1">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-2 border-gray-200/50 dark:border-gray-700/50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md shadow-xl">
-                          <SelectItem value="head" className="text-sm sm:text-base rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer">رب الأسرة</SelectItem>
-                          <SelectItem value="admin" className="text-sm sm:text-base rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer">مشرف</SelectItem>
-                          <SelectItem value="root" className="text-sm sm:text-base rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer">مشرف رئيسي</SelectItem>
+                        <SelectContent>
+                          <SelectItem value="head" className="text-sm sm:text-base">رب الأسرة</SelectItem>
+                          <SelectItem value="admin" className="text-sm sm:text-base">مشرف</SelectItem>
+                          <SelectItem value="root" className="text-sm sm:text-base">مشرف رئيسي</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="identifier" className="text-sm sm:text-base font-semibold bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+                    <div>
+                      <Label htmlFor="identifier" className="text-sm sm:text-base font-medium">
                         {loginType === "head" ? "رقم الهوية" : "اسم المستخدم"}
                       </Label>
                       <Input
                         id="identifier"
                         placeholder={loginType === "head" ? "405857004" : "username"}
                         {...loginForm.register("identifier")}
-                        className="h-12 text-sm sm:text-base border-2 border-gray-200/50 dark:border-gray-700/50 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:border-blue-300 dark:hover:border-blue-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {loginForm.formState.errors.identifier && (
-                        <p className="text-xs sm:text-sm text-red-500 dark:text-red-400 mt-1 font-medium animate-in slide-in-from-top-1 duration-200">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {loginForm.formState.errors.identifier.message}
                         </p>
                       )}
                     </div>
 
 {loginType !== "head" && !(loginType === "admin" && /^\d{9}$/.test(loginForm.watch("identifier") || "")) && (
-                    <div className="space-y-2">
-                      <Label htmlFor="password" className="text-sm sm:text-base font-semibold bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">كلمة المرور</Label>
+                    <div>
+                      <Label htmlFor="password" className="text-sm sm:text-base font-medium">كلمة المرور</Label>
                       <Input
                         id="password"
                         type="password"
                         placeholder="••••••••"
                         {...loginForm.register("password")}
-                        className="h-12 text-sm sm:text-base border-2 border-gray-200/50 dark:border-gray-700/50 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:border-blue-300 dark:hover:border-blue-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {loginForm.formState.errors.password && (
-                        <p className="text-xs sm:text-sm text-red-500 dark:text-red-400 mt-1 font-medium animate-in slide-in-from-top-1 duration-200">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {loginForm.formState.errors.password.message}
                         </p>
                       )}
@@ -369,35 +327,26 @@ export default function AuthPage() {
 
                     <Button 
                       type="submit" 
-                      className="w-full h-12 text-sm sm:text-base mt-6 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 hover:from-blue-600 hover:via-purple-600 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                      className="w-full h-10 sm:h-11 text-sm sm:text-base mt-2"
                       disabled={loginMutation.isPending}
                     >
-                      <div className="flex items-center justify-center gap-2">
-                        {loginMutation.isPending ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-top-transparent"></div>
-                            <span>جاري تسجيل الدخول...</span>
-                          </>
-                        ) : (
-                          <span>تسجيل الدخول</span>
-                        )}
-                      </div>
+                      {loginMutation.isPending ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
                     </Button>
                   </form>
                 </TabsContent>
 
                 <TabsContent value="register">
-                  <form onSubmit={registrationForm.handleSubmit(onRegister)} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="husbandName" className="text-sm sm:text-base font-semibold bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">الاسم الرباعي</Label>
+                  <form onSubmit={registrationForm.handleSubmit(onRegister)} className="space-y-3 sm:space-y-4">
+                    <div>
+                      <Label htmlFor="husbandName" className="text-sm sm:text-base font-medium">الاسم الرباعي</Label>
                       <Input
                         id="husbandName"
                         placeholder="محمد فتح محمود أبو طير"
                         {...registrationForm.register("husbandName")}
-                        className="h-12 text-sm sm:text-base border-2 border-gray-200/50 dark:border-gray-700/50 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:border-blue-300 dark:hover:border-blue-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                        className="h-10 sm:h-11 text-sm sm:text-base mt-1"
                       />
                       {registrationForm.formState.errors.husbandName && (
-                        <p className="text-xs sm:text-sm text-red-500 dark:text-red-400 mt-1 font-medium animate-in slide-in-from-top-1 duration-200">
+                        <p className="text-xs sm:text-sm text-destructive mt-1">
                           {registrationForm.formState.errors.husbandName.message}
                         </p>
                       )}
@@ -497,28 +446,16 @@ export default function AuthPage() {
 
                     <Button 
                       type="submit" 
-                      className="w-full h-12 text-sm sm:text-base mt-6 bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                      className="w-full h-10 sm:h-11 text-sm sm:text-base mt-2"
                       disabled={registrationMutation.isPending}
                     >
-                      <div className="flex items-center justify-center gap-2">
-                        {registrationMutation.isPending ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-top-transparent"></div>
-                            <span>جاري إنشاء الحساب...</span>
-                          </>
-                        ) : (
-                          <span>إنشاء حساب</span>
-                        )}
-                      </div>
+                      {registrationMutation.isPending ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
                     </Button>
                   </form>
                 </TabsContent>
-                  </Tabs>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </Tabs>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
