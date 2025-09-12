@@ -101,12 +101,12 @@ const SettingsPage = () => {
   const [mergeUrl, setMergeUrl] = useState("");
   const [, setLocation] = useLocation();
 
-  // Set logo preview when settings are loaded
+  // Set logo preview when settings are loaded (only once)
   useEffect(() => {
     if (settings.siteLogo && !logoPreview) {
       setLogoPreview(settings.siteLogo);
     }
-  }, [settings.siteLogo, logoPreview]);
+  }, [settings.siteLogo]); // Remove logoPreview from deps to avoid loop
 
   // Apply theme settings in real-time when they change
   useEffect(() => {
@@ -290,23 +290,20 @@ const SettingsPage = () => {
     applyThemeSettings(defaultSettings);
   };
 
-  // Maintenance mode state
-  const [maintenance, setMaintenance] = useState(false);
-
-  // Fetch maintenance mode status on mount
-  useEffect(() => {
-    fetchApi("/api/public/settings")
-      .then(res => res.json())
-      .then(data => setMaintenance(data.maintenance === "true"));
-  }, []);
+  // Use maintenance mode from admin settings (no separate API call needed)
+  const maintenance = settings.maintenance === true;
 
   // Toggle maintenance mode
   const handleMaintenanceToggle = () => {
+    const newMaintenanceValue = !maintenance;
     fetchApi("/api/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key: "maintenance", value: (!maintenance).toString(), description: "وضع الصيانة" }),
-    }).then(() => setMaintenance(!maintenance));
+      body: JSON.stringify({ key: "maintenance", value: newMaintenanceValue.toString(), description: "وضع الصيانة" }),
+    }).then(() => {
+      // Update the settings state directly instead of separate state
+      setSettings(prev => ({ ...prev, maintenance: newMaintenanceValue }));
+    });
   };
 
   if (loading) {

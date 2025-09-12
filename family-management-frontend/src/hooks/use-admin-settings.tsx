@@ -58,8 +58,43 @@ export function useAdminSettings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Load settings from authenticated endpoint
-  const loadSettings = useCallback(async () => {
+  // Load settings on mount only (no dependencies to avoid re-fetching)
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadSettings = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetchApi("/api/settings");
+        if (res.ok && isMounted) {
+          const data = await res.json();
+          const merged = { ...defaultSettings, ...data };
+          setSettings(merged);
+        } else if (isMounted) {
+          throw new Error("Failed to fetch settings");
+        }
+      } catch (e) {
+        if (isMounted) {
+          setError("فشل في تحميل الإعدادات");
+          console.error("Failed to load admin settings:", e);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadSettings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array - only run once on mount
+
+  // Create a memoized reload function
+  const reloadSettings = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -78,11 +113,6 @@ export function useAdminSettings() {
       setLoading(false);
     }
   }, []);
-
-  // Load settings on mount
-  useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
 
   // Update a specific setting
   const updateSetting = useCallback(
@@ -104,7 +134,7 @@ export function useAdminSettings() {
     setSettings,      // Replace all settings
     updateSetting,    // Update a single setting
     resetSettings,    // Reset to defaults
-    reloadSettings: loadSettings, // Reload from server
+    reloadSettings, // Reload from server
   };
 }
 
