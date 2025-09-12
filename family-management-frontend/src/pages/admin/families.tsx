@@ -262,8 +262,15 @@ export default function AdminFamilies() {
       titleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
       // Header row
       const headerRow = sheet.addRow(selectedCols.map(c => c.label));
-      headerRow.height = 25;
-      headerRow.eachCell(cell => { cell.style = headerStyle; });
+      headerRow.height = 30; // Increased height for better header readability
+      headerRow.eachCell(cell => { 
+        cell.style = headerStyle;
+        // Ensure text wrapping is enabled for headers
+        cell.alignment = { 
+          ...headerStyle.alignment,
+          wrapText: true
+        };
+      });
       // Data rows
       (Array.isArray(filteredFamilies) ? filteredFamilies : []).forEach(family => {
         const members: any[] = Array.isArray(family?.members) ? family.members : [];
@@ -392,11 +399,64 @@ export default function AdminFamilies() {
           children,
         });
         const row = sheet.addRow(rowData);
-        row.height = 20;
-        row.eachCell(cell => { cell.style = dataStyle; });
+        row.height = 25; // Increased row height for better readability
+        row.eachCell(cell => { 
+          cell.style = dataStyle;
+          // Enable text wrapping for long content
+          cell.alignment = { 
+            ...dataStyle.alignment,
+            wrapText: true
+          };
+        });
       });
-      // Set column widths
-      sheet.columns.forEach((col, i) => { col.width = 20; });
+      // Set intelligent column widths based on content type
+      const getColumnWidth = (columnKey: string): number => {
+        // Extra wide columns for names and long text fields
+        if (columnKey.includes('Name') || columnKey.includes('name') || 
+            columnKey.includes('اسم') || columnKey.includes('Notes') ||
+            columnKey.includes('ملاحظات') || columnKey.includes('originalResidence') ||
+            columnKey.includes('displacedLocation') || columnKey.includes('warDamageDescription') ||
+            columnKey.includes('disabilityTypes') || columnKey.includes('abroadLocation')) {
+          return 40; // Extra wide for names and long Arabic text
+        }
+        // Medium-wide columns for jobs and locations
+        else if (columnKey.includes('Job') || columnKey.includes('عمل') ||
+                 columnKey.includes('branch') || columnKey.includes('فرع') ||
+                 columnKey.includes('currentHousing') || columnKey.includes('socialStatus')) {
+          return 28; // Medium-wide for jobs and status in Arabic
+        }
+        // Medium columns for phone numbers  
+        else if (columnKey.includes('Phone') || columnKey.includes('جوال')) {
+          return 24; // Medium for phone numbers with Arabic labels
+        }
+        // Medium-narrow columns for IDs and dates
+        else if (columnKey.includes('ID') || columnKey.includes('هوية') ||
+                 columnKey.includes('BirthDate') || columnKey.includes('ميلاد') ||
+                 columnKey.includes('Age') || columnKey.includes('عمر')) {
+          return 20; // Medium-narrow for IDs and dates with Arabic labels
+        }
+        // Narrow columns for numbers and booleans
+        else if (columnKey.includes('num') || columnKey.includes('عدد') ||
+                 columnKey.includes('total') || columnKey.includes('has') ||
+                 columnKey.includes('Pregnant') || columnKey.includes('حامل')) {
+          return 18; // Narrow for counts and yes/no with Arabic labels
+        }
+        // Default width (increased for Arabic content)
+        else {
+          return 22;
+        }
+      };
+
+      // Apply intelligent column widths based on the selected columns
+      const selectedColumns = excelColumns.filter(col => checkedColumns[col.key]);
+      sheet.columns.forEach((col, i) => { 
+        const columnInfo = selectedColumns[i];
+        if (columnInfo) {
+          col.width = getColumnWidth(columnInfo.key);
+        } else {
+          col.width = 20; // Default fallback
+        }
+      });
       // Download
       const fileName = `families_export_${new Date().toISOString().split('T')[0]}.xlsx`;
       const buffer = await workbook.xlsx.writeBuffer();
