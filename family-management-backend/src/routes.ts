@@ -1262,6 +1262,67 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Bulk settings save endpoint
+  app.post("/api/settings/bulk", async (req, res) => {
+    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+    try {
+      const { settings } = req.body;
+      if (!settings || typeof settings !== 'object') {
+        return res.status(400).json({ message: "بيانات الإعدادات مطلوبة" });
+      }
+
+      // Array to track any failed settings
+      const failures = [];
+      let successCount = 0;
+
+      // Process each setting
+      for (const [key, value] of Object.entries(settings)) {
+        try {
+          // Generate description based on key
+          let description = "";
+          switch (key) {
+            case "siteName": description = "اسم الموقع/التطبيق"; break;
+            case "siteTitle": description = "عنوان الموقع"; break;
+            case "authPageTitle": description = "عنوان صفحة تسجيل الدخول"; break;
+            case "authPageSubtitle": description = "وصف صفحة تسجيل الدخول"; break;
+            case "siteLogo": description = "شعار الموقع"; break;
+            case "authPageIcon": description = "أيقونة صفحة تسجيل الدخول"; break;
+            case "primaryColor": description = "اللون الأساسي"; break;
+            case "secondaryColor": description = "اللون الثانوي"; break;
+            case "themeMode": description = "نمط المظهر"; break;
+            case "fontFamily": description = "نوع الخط"; break;
+            case "minPasswordLength": description = "الحد الأدنى لطول كلمة المرور"; break;
+            case "requireUppercase": description = "تطلب أحرف كبيرة"; break;
+            case "requireLowercase": description = "تطلب أحرف صغيرة"; break;
+            case "requireNumbers": description = "تطلب أرقام"; break;
+            case "requireSpecialChars": description = "تطلب رموز خاصة"; break;
+            case "maxLoginAttempts": description = "الحد الأقصى لمحاولات تسجيل الدخول"; break;
+            case "lockoutDuration": description = "مدة الحظر بالدقائق"; break;
+            case "sessionTimeout": description = "مدة انتهاء الجلسة بالدقائق"; break;
+            default: description = key;
+          }
+
+          await storage.setSetting(key, value as string, description);
+          successCount++;
+        } catch (settingError) {
+          failures.push({ key, error: (settingError as Error).message });
+        }
+      }
+
+      if (failures.length === 0) {
+        res.json({ message: `تم حفظ جميع الإعدادات بنجاح (${successCount} إعداد)` });
+      } else {
+        res.status(207).json({ 
+          message: `تم حفظ ${successCount} إعداد بنجاح، فشل في حفظ ${failures.length} إعداد`,
+          failures 
+        });
+      }
+    } catch (error) {
+      console.error("Bulk settings save error:", error);
+      res.status(500).json({ message: "خطأ في الخادم" });
+    }
+  });
+
   app.get("/api/settings/:key", async (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     try {
