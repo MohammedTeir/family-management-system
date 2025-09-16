@@ -12,6 +12,7 @@ import { useLocation } from "wouter";
 // Extend AuthContextType
 interface AuthContextType {
   user: SelectUser | null;
+  family: any | null;
   isLoading: boolean;
   error: Error | null;
   loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
@@ -40,6 +41,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
+  // Fetch family data for head users
+  const {
+    data: family,
+    isLoading: familyLoading,
+  } = useQuery({
+    queryKey: ["/api/family"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+    enabled: !!user && (user.role === "head" || (user.role === "admin" && /^\d+$/.test(user.username))),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
   const [currentDashboard, setCurrentDashboard] = useState<"admin" | "head">("admin");
 
   // Dual-role: admin with numeric username
@@ -60,15 +72,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutationFn: async (credentials: LoginData) => {
       // Clear any existing user data before login attempt
       queryClient.setQueryData(["/api/user"], null);
+      queryClient.setQueryData(["/api/family"], null);
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
+      // Invalidate family data to trigger refetch for head users
+      queryClient.invalidateQueries({ queryKey: ["/api/family"] });
     },
     onError: (error: Error) => {
       // Ensure user data is cleared on login failure
       queryClient.setQueryData(["/api/user"], null);
+      queryClient.setQueryData(["/api/family"], null);
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       
       // Use the exact error message from the backend
@@ -102,7 +118,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
+      // Clear all user and family data from cache
       queryClient.setQueryData(["/api/user"], null);
+      queryClient.setQueryData(["/api/family"], null);
+      queryClient.clear(); // Clear all cached data
       setLocation("/auth");
     },
     onError: (error: Error) => {
@@ -118,7 +137,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user: user ?? null,
-        isLoading,
+        family: family ?? null,
+        isLoading: isLoading || familyLoading,
         error,
         loginMutation,
         logoutMutation,
