@@ -8,11 +8,6 @@ import {
 } from "./schema.js";
 import { db } from "./db";
 import { eq, desc, and, sql, isNull } from "drizzle-orm";
-import session from "express-session";
-import connectPg from "connect-pg-simple";
-import { pool } from "./db";
-
-const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // Users
@@ -84,8 +79,6 @@ export interface IStorage {
   createVoucherRecipient(recipient: InsertVoucherRecipient): Promise<VoucherRecipient>;
   updateVoucherRecipient(id: number, recipient: Partial<InsertVoucherRecipient>): Promise<VoucherRecipient | undefined>;
   
-  // Session store
-  sessionStore: session.Store;
   clearLogs(): Promise<void>;
   clearNotifications(): Promise<void>;
   clearRequests(): Promise<void>;
@@ -96,13 +89,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.Store;
-
   constructor() {
-    this.sessionStore = new PostgresSessionStore({ 
-      pool, 
-      createTableIfMissing: true 
-    });
   }
 
   // Users

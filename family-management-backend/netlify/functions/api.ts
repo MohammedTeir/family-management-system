@@ -1,13 +1,15 @@
+import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes.js";
+import { registerRoutes } from "../../src/routes.js";
 import cors from "cors";
+import serverless from "serverless-http";
 
 const app = express();
 
 // CORS configuration for cross-origin deployment
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
-  credentials: false, // No longer need credentials for JWT
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
@@ -45,20 +47,30 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  const server = await registerRoutes(app);
+// Initialize routes
+let serverInitialized = false;
+let serverPromise: Promise<any>;
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+const initializeServer = async () => {
+  if (!serverInitialized) {
+    serverPromise = registerRoutes(app);
+    serverInitialized = true;
+  }
+  return serverPromise;
+};
 
-    res.status(status).json({ message });
-    throw err;
-  });
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
 
-  // Backend-only server - no frontend serving
-  const port = process.env.PORT || 3001;
-  server.listen(port, () => {
-    console.log(`Backend API server listening on port ${port}`);
-  });
-})();
+  res.status(status).json({ message });
+  throw err;
+});
+
+const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
+  await initializeServer();
+  const serverlessHandler = serverless(app);
+  return serverlessHandler(event, context);
+};
+
+export { handler };

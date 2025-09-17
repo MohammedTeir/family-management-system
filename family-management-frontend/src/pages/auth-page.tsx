@@ -16,6 +16,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { validatePasswordWithPolicy } from "@/lib/utils";
 import { useSettingsContext } from "@/App";
+import { AuthSkeleton } from "@/components/ui/auth-skeleton";
 
 const loginSchema = z.object({
   loginType: z.enum(["head", "admin", "root"]),
@@ -55,6 +56,7 @@ export default function AuthPage() {
   const [loginType, setLoginType] = useState<"head" | "admin" | "root">("head");
   const { settings } = useSettingsContext();
   const [pendingWelcome, setPendingWelcome] = useState<null | { username: string; role: string }>(null);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -171,6 +173,17 @@ export default function AuthPage() {
     }
   }, [pendingWelcome, family, toast]);
 
+  // Check if settings are loaded
+  useEffect(() => {
+    if (settings && (settings.authPageTitle || settings.authPageIcon || settings.authPageSubtitle)) {
+      setSettingsLoaded(true);
+    } else {
+      // Give it a moment for settings to load, then show content anyway
+      const timer = setTimeout(() => setSettingsLoaded(true), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [settings]);
+
   // Redirect if already logged in
   if (user) {
     if (user.role === "head") {
@@ -178,6 +191,11 @@ export default function AuthPage() {
     } else {
       return <Redirect to="/admin" />;
     }
+  }
+
+  // Show skeleton while settings are loading
+  if (!settingsLoaded) {
+    return <AuthSkeleton />;
   }
 
   return (

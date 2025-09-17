@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { insertUserSchema, User as SelectUser, InsertUser } from "../types/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
+import { getToken, setToken, removeToken } from "../lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 
@@ -73,8 +74,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear any existing user data before login attempt
       queryClient.setQueryData(["/api/user"], null);
       queryClient.setQueryData(["/api/family"], null);
-      const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      removeToken(); // Clear any existing token
+      
+      const response = await apiRequest("POST", "/api/login", credentials);
+      const { token, user } = response.data;
+      
+      // Store the JWT token
+      setToken(token);
+      
+      return user;
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
@@ -86,6 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.setQueryData(["/api/user"], null);
       queryClient.setQueryData(["/api/family"], null);
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      removeToken(); // Clear token on login failure
       
       // Use the exact error message from the backend
       toast({
@@ -98,8 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
+      const response = await apiRequest("POST", "/api/register", credentials);
+      return response.data;
     },
     onSuccess: (user: SelectUser) => {
       queryClient.setQueryData(["/api/user"], user);
@@ -118,6 +127,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
+      // Clear JWT token
+      removeToken();
       // Clear all user and family data from cache
       queryClient.setQueryData(["/api/user"], null);
       queryClient.setQueryData(["/api/family"], null);
@@ -125,6 +136,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLocation("/auth");
     },
     onError: (error: Error) => {
+      // Clear token even if logout request fails
+      removeToken();
+      queryClient.setQueryData(["/api/user"], null);
+      queryClient.setQueryData(["/api/family"], null);
+      queryClient.clear();
+      setLocation("/auth");
+      
       toast({
         title: "Logout failed",
         description: error.message,

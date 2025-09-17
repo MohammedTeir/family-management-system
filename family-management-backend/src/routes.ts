@@ -1,10 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { setupAuth, comparePasswords, hashPassword } from "./auth";
+import { authMiddleware, loginHandler, getCurrentUser, logoutHandler } from "./jwt-auth";
+import { comparePasswords, hashPassword } from "./auth";
 import { storage } from "./storage";
 import { insertFamilySchema, insertWifeSchema, insertMemberSchema, insertRequestSchema, insertNotificationSchema, insertSupportVoucherSchema, insertVoucherRecipientSchema } from "./schema.js";
 import { z } from "zod";
-import passport from "passport";
 import multer from "multer";
 import cors from "cors";
 import pg from "pg";
@@ -43,16 +43,19 @@ export function registerRoutes(app: Express): Server {
   // Add CORS configuration for cross-origin requests
   app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
+    credentials: false, // No longer need credentials for JWT
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+    allowedHeaders: ['Content-Type', 'Authorization']
   }));
 
-  setupAuth(app);
+  // JWT Authentication routes
+  app.post("/api/login", loginHandler);
+  app.post("/api/logout", logoutHandler);
+  app.get("/api/user", authMiddleware, getCurrentUser);
 
   // Excel import route for bulk importing head users
-  app.post("/api/admin/import-heads", upload.single("excel"), async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) {
+  app.post("/api/admin/import-heads", authMiddleware, upload.single("excel"), async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) {
       console.log(`❌ Unauthorized import attempt by user: ${req.user?.username || 'anonymous'}`);
       return res.sendStatus(403);
     }
@@ -201,120 +204,9 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Patch: Return Arabic error for login failures as plain text
-  app.post("/api/login", async (req, res, next) => {
-    try {
-      const { username, password } = req.body;
-      
-      // Special case: If password is empty/null/undefined, look for user with head role by identity number
-      if (!password || password === "" || password === null || password === undefined) {
-        const user = await storage.getUserByUsername(username);
-        if (!user) {
-          return res.status(401).send("معلومات الدخول خاطئة - راجع لجنة العائلة");
-        }
-        
-        // Allow heads OR admins with 9-digit usernames (promoted heads) to login without password
-        const isPromotedHead = user.role === 'admin' && /^\d{9}$/.test(user.username);
-        if (user.role !== 'head' && !isPromotedHead) {
-          return res.status(401).send("فشل تسجيل الدخول: كلمة المرور مطلوبة");
-        }
-        
-        // For head users, verify they have a family record
-        if (user.role === 'head') {
-          const family = await storage.getFamilyByUserId(user.id);
-          if (!family) {
-            return res.status(401).send("معلومات الدخول خاطئة - راجع لجنة العائلة");
-          }
-        }
-        
-        // Check if account is locked out
-        if (user.lockoutUntil && new Date() < user.lockoutUntil) {
-          const remainingMinutes = Math.ceil((user.lockoutUntil.getTime() - new Date().getTime()) / (1000 * 60));
-          return res.status(423).send(`الحساب محظور مؤقتاً. يرجى المحاولة بعد ${remainingMinutes} دقيقة`);
-        }
-        
-        // Login successful for head - reset failed attempts
-        await storage.updateUser(user.id, {
-          failedLoginAttempts: 0,
-          lockoutUntil: null
-        });
-        
-        // Complete the login process
-        req.login(user, (err: any) => {
-          if (err) return next(err);
-          res.status(200).json(user);
-        });
-        return;
-      }
-      
-      // Get user by username first to check lockout status
-      const user = await storage.getUserByUsername(username);
-      if (!user) {
-        return res.status(401).send("معلومات الدخول خاطئة - راجع لجنة العائلة");
-      }
-      
-      // Check if account is locked out
-      if (user.lockoutUntil && new Date() < user.lockoutUntil) {
-        const remainingMinutes = Math.ceil((user.lockoutUntil.getTime() - new Date().getTime()) / (1000 * 60));
-        return res.status(423).send(`الحساب محظور مؤقتاً. يرجى المحاولة بعد ${remainingMinutes} دقيقة`);
-      }
-      
-      // Get lockout settings
-      const settings = await storage.getAllSettings();
-      const settingsMap = Object.fromEntries(settings.map(s => [s.key, s.value]));
-      const maxLoginAttempts = parseInt(settingsMap.maxLoginAttempts || "5");
-      const lockoutDuration = parseInt(settingsMap.lockoutDuration || "15");
-      
-      // Attempt authentication
-      passport.authenticate("local", async (err: any, authenticatedUser: any, info: any) => {
-        if (err) return next(err);
-        
-        if (!authenticatedUser) {
-          // Login failed - increment failed attempts
-          const newFailedAttempts = (user.failedLoginAttempts || 0) + 1;
-          let lockoutUntil = null;
-          
-          // Check if we should lock the account
-          if (newFailedAttempts >= maxLoginAttempts) {
-            lockoutUntil = new Date(Date.now() + (lockoutDuration * 60 * 1000)); // Convert minutes to milliseconds
-          }
-          
-          // Update user with new failed attempts and lockout time
-          await storage.updateUser(user.id, {
-            failedLoginAttempts: newFailedAttempts,
-            lockoutUntil: lockoutUntil
-          });
-          
-          // Return appropriate error message
-          if (lockoutUntil) {
-            return res.status(423).send(`تم حظر الحساب لمدة ${lockoutDuration} دقيقة بسبب محاولات تسجيل الدخول الفاشلة المتكررة`);
-          } else {
-            const remainingAttempts = maxLoginAttempts - newFailedAttempts;
-            return res.status(401).send(`فشل تسجيل الدخول: اسم المستخدم أو كلمة المرور غير صحيحة. المحاولات المتبقية: ${remainingAttempts}`);
-          }
-        }
-        
-        // Login successful - reset failed attempts and lockout
-        await storage.updateUser(user.id, {
-          failedLoginAttempts: 0,
-          lockoutUntil: null
-        });
-        
-        // Complete the login process
-        req.login(authenticatedUser, (err: any) => {
-          if (err) return next(err);
-          res.status(200).json(authenticatedUser);
-      });
-    })(req, res, next);
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).send("خطأ في الخادم");
-    }
-  });
 
   // Family routes
-  app.get("/api/family", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.get("/api/family", authMiddleware, async (req, res) => {
     try {
       // Allow dual-role admin to access their family
       const family = await storage.getFamilyByUserId(req.user!.id);
@@ -327,8 +219,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/family", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.post("/api/family", authMiddleware, async (req, res) => {
     
     try {
       const familyData = insertFamilySchema.parse(req.body);
@@ -344,8 +235,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.put("/api/family/:id", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.put("/api/family/:id", authMiddleware, async (req, res) => {
     
     try {
       const id = parseInt(req.params.id);
@@ -372,8 +262,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Member routes
-  app.get("/api/family/:familyId/members", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.get("/api/family/:familyId/members", authMiddleware, async (req, res) => {
     try {
       const familyId = parseInt(req.params.familyId);
       // Allow dual-role admin to access their family
@@ -389,8 +278,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/members", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.post("/api/members", authMiddleware, async (req, res) => {
     try {
       // Allow dual-role admin to add members to their family
         const family = await storage.getFamilyByUserId(req.user!.id);
@@ -414,8 +302,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.put("/api/members/:id", async (req, res) => {
-  if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.put("/api/members/:id", authMiddleware, async (req, res) => {
 
   try {
     const id = parseInt(req.params.id);
@@ -443,8 +330,7 @@ export function registerRoutes(app: Express): Server {
 });
 
 
-  app.delete("/api/members/:id", async (req, res) => {
-  if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.delete("/api/members/:id", authMiddleware, async (req, res) => {
 
   try {
     const id = parseInt(req.params.id);
@@ -497,8 +383,7 @@ export function registerRoutes(app: Express): Server {
  });
 
   // Wife routes
-  app.get("/api/family/:familyId/wives", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.get("/api/family/:familyId/wives", authMiddleware, async (req, res) => {
     try {
       const familyId = parseInt(req.params.familyId);
       const family = await storage.getFamily(familyId);
@@ -515,8 +400,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/wives", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.post("/api/wives", authMiddleware, async (req, res) => {
     try {
       const family = await storage.getFamilyByUserId(req.user!.id);
       if (!family) {
@@ -540,8 +424,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.put("/api/wives/:id", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.put("/api/wives/:id", authMiddleware, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const wifeData = insertWifeSchema.partial().parse(req.body);
@@ -567,8 +450,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.delete("/api/wives/:id", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.delete("/api/wives/:id", authMiddleware, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const wife = await storage.getWife(id);
@@ -592,8 +474,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Request routes
-  app.get("/api/requests", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.get("/api/requests", authMiddleware, async (req, res) => {
     try {
       // Allow dual-role admin to fetch their family's requests
         const family = await storage.getFamilyByUserId(req.user!.id);
@@ -617,8 +498,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/requests", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.post("/api/requests", authMiddleware, async (req, res) => {
     
     try {
       let requestData;
@@ -648,8 +528,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.put("/api/requests/:id", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role === 'head') return res.sendStatus(403);
+  app.put("/api/requests/:id", authMiddleware, async (req, res) => {
+    if (req.user!.role === 'head') return res.sendStatus(403);
     
     try {
       const id = parseInt(req.params.id);
@@ -711,8 +591,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Notification routes
-  app.get("/api/notifications", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.get("/api/notifications", authMiddleware, async (req, res) => {
     try {
       let notifications = await storage.getAllNotifications();
       if (req.user!.role === 'head') {
@@ -730,8 +609,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/notifications", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role === 'head') return res.sendStatus(403);
+  app.post("/api/notifications", authMiddleware, async (req, res) => {
+    if (req.user!.role === 'head') return res.sendStatus(403);
     
     try {
       let notificationData = insertNotificationSchema.parse(req.body);
@@ -757,8 +636,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin routes
-  app.get("/api/admin/families", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role === 'head') return res.sendStatus(403);
+  app.get("/api/admin/families", authMiddleware, async (req, res) => {
+    if (req.user!.role === 'head') return res.sendStatus(403);
     
     try {
       const families = await storage.getAllFamiliesWithMembers();
@@ -768,8 +647,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/admin/families/:id", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role === 'head') return res.sendStatus(403);
+  app.get("/api/admin/families/:id", authMiddleware, async (req, res) => {
+    if (req.user!.role === 'head') return res.sendStatus(403);
     try {
       const id = parseInt(req.params.id);
       const family = await getFamilyByIdOrDualRole(id);
@@ -783,8 +662,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.put("/api/admin/families/:id", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role === 'head') return res.sendStatus(403);
+  app.put("/api/admin/families/:id", authMiddleware, async (req, res) => {
+    if (req.user!.role === 'head') return res.sendStatus(403);
     try {
       const id = parseInt(req.params.id);
       const familyData = insertFamilySchema.partial().parse(req.body);
@@ -802,8 +681,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.delete("/api/admin/families/:id", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role === 'head') return res.sendStatus(403);
+  app.delete("/api/admin/families/:id", authMiddleware, async (req, res) => {
+    if (req.user!.role === 'head') return res.sendStatus(403);
     try {
       const id = parseInt(req.params.id);
       const success = await storage.deleteFamily(id);
@@ -814,8 +693,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/admin/families/:id/members", async (req, res) => {
-  if (!req.isAuthenticated() || req.user!.role === 'head') return res.sendStatus(403);
+  app.post("/api/admin/families/:id/members", authMiddleware, async (req, res) => {
+  if (req.user!.role === 'head') return res.sendStatus(403);
   try {
     const familyId = parseInt(req.params.id);
       const family = await getFamilyByIdOrDualRole(familyId);
@@ -869,10 +748,14 @@ export function registerRoutes(app: Express): Server {
       // Only log in the user if they provided a password (self-registration)
       // If no password provided, this is admin creating a head, so don't auto-login
       if (userData.password) {
-        req.login(user, (err) => {
-          if (err) return res.status(500).json({ message: "تم التسجيل بنجاح لكن فشل تسجيل الدخول" });
-          res.status(201).json({ user, family });
-        });
+        try {
+          const { generateToken } = await import('./jwt-auth');
+          const token = generateToken(user);
+          res.status(201).json({ token, user, family });
+        } catch (err) {
+          console.error('Token generation error:', err);
+          return res.status(500).json({ message: "تم التسجيل بنجاح لكن فشل تسجيل الدخول" });
+        }
       } else {
         // Admin creating head - don't auto-login
         res.status(201).json({ user, family });
@@ -887,8 +770,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Profile: Get current user profile (excluding password)
-  app.get("/api/user/profile", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.get("/api/user/profile", authMiddleware, async (req, res) => {
     try {
       const user = await storage.getUser(req.user!.id);
       if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
@@ -901,8 +783,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Profile: Change password
-  app.post("/api/user/password", async (req, res) => {
-  if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.post("/api/user/password", authMiddleware, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ message: "الرجاء إدخال كلمة المرور الحالية والجديدة" });
@@ -926,8 +807,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Get all users
-  app.get("/api/admin/users", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role === 'head') return res.sendStatus(403);
+  app.get("/api/admin/users", authMiddleware, async (req, res) => {
+    if (req.user!.role === 'head') return res.sendStatus(403);
     try {
       const users = await storage.getAllUsers({ includeDeleted: true });
       res.json(users);
@@ -937,8 +818,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Create user
-  app.post("/api/admin/users", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+  app.post("/api/admin/users", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root') return res.sendStatus(403);
     try {
       let userData = req.body;
       // Validate password if provided
@@ -983,8 +864,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Update user
-  app.put("/api/admin/users/:id", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user!.role !== 'root' && req.user!.role !== 'admin')) return res.sendStatus(403);
+  app.put("/api/admin/users/:id", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root' && req.user!.role !== 'admin') return res.sendStatus(403);
     try {
       const id = parseInt(req.params.id);
       let userData = req.body;
@@ -1045,8 +926,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Delete user
-  app.delete("/api/admin/users/:id", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user!.role !== 'root' && req.user!.role !== 'admin')) return res.sendStatus(403);
+  app.delete("/api/admin/users/:id", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root' && req.user!.role !== 'admin') return res.sendStatus(403);
     try {
       const id = parseInt(req.params.id);
       const targetUser = await storage.getUser(id);
@@ -1128,8 +1009,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Reset user lockout
-  app.post("/api/admin/users/:id/reset-lockout", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user!.role !== 'root' && req.user!.role !== 'admin')) return res.sendStatus(403);
+  app.post("/api/admin/users/:id/reset-lockout", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root' && req.user!.role !== 'admin') return res.sendStatus(403);
     try {
       const id = parseInt(req.params.id);
       const targetUser = await storage.getUser(id);
@@ -1173,8 +1054,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Restore soft-deleted user
-  app.post("/api/admin/users/:id/restore", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+  app.post("/api/admin/users/:id/restore", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root') return res.sendStatus(403);
     try {
       const id = parseInt(req.params.id);
       // Only allow restoring if user is soft-deleted
@@ -1189,8 +1070,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Get logs
-  app.get("/api/admin/logs", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user!.role !== 'root' && req.user!.role !== 'admin')) return res.sendStatus(403);
+  app.get("/api/admin/logs", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root' && req.user!.role !== 'admin') return res.sendStatus(403);
     try {
       const { page = 1, pageSize = 20, type, userId, search } = req.query;
       const limit = Math.max(1, Math.min(Number(pageSize) || 20, 100));
@@ -1213,8 +1094,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Create log (optional, for manual log creation)
-  app.post("/api/admin/logs", async (req, res) => {
-    if (!req.isAuthenticated() || (req.user!.role !== 'root' && req.user!.role !== 'admin')) return res.sendStatus(403);
+  app.post("/api/admin/logs", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root' && req.user!.role !== 'admin') return res.sendStatus(403);
     try {
       const logData = req.body;
       logData.userId = req.user!.id;
@@ -1226,8 +1107,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Settings routes
-  app.get("/api/settings", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.get("/api/settings", authMiddleware, async (req, res) => {
     try {
       const allSettings = await storage.getAllSettings();
       const settingsMap = Object.fromEntries(allSettings.map(s => [s.key, s.value]));
@@ -1248,8 +1128,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/settings", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+  app.post("/api/settings", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root') return res.sendStatus(403);
     try {
       const { key, value, description } = req.body;
       if (!key || value === undefined) {
@@ -1263,8 +1143,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Bulk settings save endpoint
-  app.post("/api/settings/bulk", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+  app.post("/api/settings/bulk", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root') return res.sendStatus(403);
     try {
       const { settings } = req.body;
       if (!settings || typeof settings !== 'object') {
@@ -1323,8 +1203,7 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/settings/:key", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.get("/api/settings/:key", authMiddleware, async (req, res) => {
     try {
       const value = await storage.getSetting(req.params.key);
       if (value === undefined) {
@@ -1346,8 +1225,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/settings/maintenance", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+  app.post("/api/settings/maintenance", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root') return res.sendStatus(403);
     try {
       const { enabled } = req.body;
       await storage.setSetting("maintenance", enabled ? "true" : "false", "وضع الصيانة");
@@ -1368,8 +1247,7 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Password change route
-  app.post("/api/change-password", async (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
+  app.post("/api/change-password", authMiddleware, async (req, res) => {
     
     try {
       const { currentPassword, newPassword } = req.body;
@@ -1427,8 +1305,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Download full database backup
-  app.get("/api/admin/backup", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+  app.get("/api/admin/backup", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root') return res.sendStatus(403);
     try {
       const users = await storage.getAllUsers();
       const families = await storage.getAllFamilies();
@@ -1451,8 +1329,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Restore full database from backup
-  app.post("/api/admin/restore", upload.single("backup"), async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+  app.post("/api/admin/restore", authMiddleware, upload.single("backup"), async (req, res) => {
+    if (req.user!.role !== 'root') return res.sendStatus(403);
     try {
       if (!req.file) return res.status(400).json({ message: "يرجى رفع ملف النسخة الاحتياطية" });
       const data = JSON.parse(req.file.buffer.toString());
@@ -1479,8 +1357,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Admin: Automated Merge from another database
-  app.post("/api/admin/merge", async (req, res) => {
-    if (!req.isAuthenticated() || req.user!.role !== 'root') return res.sendStatus(403);
+  app.post("/api/admin/merge", authMiddleware, async (req, res) => {
+    if (req.user!.role !== 'root') return res.sendStatus(403);
     try {
       const { url } = req.body;
       const remoteUrl = url || process.env.DATABASE_URL;
@@ -1598,8 +1476,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Users routes
-  app.get("/api/users", async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+  app.get("/api/users", authMiddleware, async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -1609,8 +1487,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Support Vouchers routes
-  app.get("/api/support-vouchers", async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+  app.get("/api/support-vouchers", authMiddleware, async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     try {
       const vouchers = await storage.getAllSupportVouchers();
       res.json(vouchers);
@@ -1619,8 +1497,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.get("/api/support-vouchers/:id", async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+  app.get("/api/support-vouchers/:id", authMiddleware, async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     try {
       const voucherId = parseInt(req.params.id);
       const voucher = await storage.getSupportVoucher(voucherId);
@@ -1645,8 +1523,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/support-vouchers", async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+  app.post("/api/support-vouchers", authMiddleware, async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     try {
       console.log('Received voucher data:', req.body);
       
@@ -1673,8 +1551,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.patch("/api/support-vouchers/:id", async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+  app.patch("/api/support-vouchers/:id", authMiddleware, async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     try {
       const voucherId = parseInt(req.params.id);
       const { isActive } = req.body;
@@ -1691,8 +1569,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/support-vouchers/:id/recipients", async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+  app.post("/api/support-vouchers/:id/recipients", authMiddleware, async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     try {
       const voucherId = parseInt(req.params.id);
       const { familyIds } = req.body;
@@ -1718,8 +1596,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.post("/api/support-vouchers/:id/notify", async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+  app.post("/api/support-vouchers/:id/notify", authMiddleware, async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     try {
       const voucherId = parseInt(req.params.id);
       const { recipientIds } = req.body;
@@ -1765,8 +1643,8 @@ export function registerRoutes(app: Express): Server {
   });
 
   // Voucher Recipients routes
-  app.patch("/api/voucher-recipients/:id", async (req, res) => {
-    if (!req.isAuthenticated() || !['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+  app.patch("/api/voucher-recipients/:id", authMiddleware, async (req, res) => {
+    if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     try {
       const recipientId = parseInt(req.params.id);
       const { status, notes } = req.body;

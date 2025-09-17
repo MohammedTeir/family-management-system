@@ -1,50 +1,47 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { fetchApi } from "./api";
+import { api, apiClient } from "./api";
+import axios, { AxiosRequestConfig } from "axios";
 
-async function throwIfResNotOk(res: Response) {
-  if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+export async function apiRequest(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig
+) {
+  switch (method.toLowerCase()) {
+    case 'get':
+      return api.get(url, config);
+    case 'post':
+      return api.post(url, data, config);
+    case 'put':
+      return api.put(url, data, config);
+    case 'patch':
+      return api.patch(url, data, config);
+    case 'delete':
+      return api.delete(url, config);
+    default:
+      throw new Error(`Unsupported method: ${method}`);
   }
 }
 
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-  options?: { headers?: Record<string, string>; signal?: AbortSignal }
-): Promise<Response> {
-  // Handle FormData specially - don't set Content-Type, let browser handle it
-  const isFormData = data instanceof FormData;
-  
-  const res = await fetchApi(url, {
-    method,
-    headers: isFormData ? (options?.headers || {}) : (data ? { "Content-Type": "application/json", ...(options?.headers || {}) } : (options?.headers || {})),
-    body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
-    credentials: "include",
-    signal: options?.signal,
-  });
-
-  await throwIfResNotOk(res);
-  return res;
-}
-
 type UnauthorizedBehavior = "returnNull" | "throw";
+
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
-    const res = await fetchApi(queryKey[0] as string, {
-      credentials: "include",
-    });
-
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+  async ({ queryKey, signal }) => {
+    try {
+      const response = await apiClient.get(queryKey[0] as string, { signal });
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        if (unauthorizedBehavior === "returnNull") {
+          return null;
+        }
+      }
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export const queryClient = new QueryClient({
@@ -57,10 +54,17 @@ export const queryClient = new QueryClient({
       retry: (failureCount, error: any) => {
         // Retry once on network errors or 5xx errors, but not on 401/403
         if (failureCount < 1) {
-          if (error.message.includes('Failed to fetch') || 
-              (error.message.includes(':') && parseInt(error.message.split(':')[0]) >= 500)) {
+          if (axios.isAxiosError(error)) {
+            const status = error.response?.status;
+            // Don't retry on client errors (4xx) except for timeouts
+            if (status && status >= 400 && status < 500 && status !== 408) {
+              return false;
+            }
+            // Retry on network errors or 5xx errors
             return true;
           }
+          // Retry on other network errors
+          return error.message.includes('Network Error') || error.message.includes('timeout');
         }
         return false;
       },
