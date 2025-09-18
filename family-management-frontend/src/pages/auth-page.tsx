@@ -55,12 +55,6 @@ export default function AuthPage() {
   const { toast } = useToast();
   const [loginType, setLoginType] = useState<"head" | "admin" | "root">("head");
   const { settings, isLoading: settingsLoading } = useSettingsContext();
-  
-  // Debug settings
-  useEffect(() => {
-    console.log('[AuthPage] Settings received:', settings);
-    console.log('[AuthPage] Settings loading:', settingsLoading);
-  }, [settings, settingsLoading]);
   const [pendingWelcome, setPendingWelcome] = useState<null | { username: string; role: string }>(null);
 
   const loginForm = useForm<LoginFormData>({
@@ -155,14 +149,7 @@ export default function AuthPage() {
             // (toast will be shown in useEffect below)
           }
         },
-        onError: (error: any) => {
-          // Use the exact error message from the backend
-          toast({
-            title: "فشل تسجيل الدخول",
-            description: error.message,
-            variant: "destructive",
-          });
-        },
+        // Error handling is already done in the useAuth hook, no need to duplicate
       }
     );
   };

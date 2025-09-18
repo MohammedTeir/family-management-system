@@ -8,7 +8,7 @@ import { useLocation } from "wouter";
 import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
 import { validatePasswordWithPolicy } from "@/lib/utils";
-import { fetchApi } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { Header } from "@/components/layout/header";
 
 export default function ProfilePage() {
@@ -49,30 +49,22 @@ export default function ProfilePage() {
     }
     setLoading(true);
     try {
-      const res = await fetchApi("/api/user/password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-        }),
+      const response = await apiClient.post("/api/user/password", {
+        currentPassword,
+        newPassword,
       });
-      if (res.ok) {
-        setSuccess("تم تغيير كلمة المرور بنجاح");
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setTimeout(() => {
-          if (user?.role === "head") {
-            navigate("/dashboard");
-          } else {
-            navigate("/admin");
-          }
-        }, 2000);
-      } else {
-        const data = await res.json();
-        setError(data.message || "حدث خطأ أثناء تغيير كلمة المرور");
-      }
+      
+      setSuccess("تم تغيير كلمة المرور بنجاح");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setTimeout(() => {
+        if (user?.role === "head") {
+          navigate("/dashboard");
+        } else {
+          navigate("/admin");
+        }
+      }, 2000);
     } catch {
       setError("حدث خطأ أثناء تغيير كلمة المرور");
     } finally {

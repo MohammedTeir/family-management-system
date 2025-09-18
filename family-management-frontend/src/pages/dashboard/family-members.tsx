@@ -19,7 +19,7 @@ import MemberForm from "@/components/forms/member-form";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
-import { fetchApi } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Header } from "@/components/layout/header";
 
@@ -86,20 +86,8 @@ export default function FamilyMembers() {
 
   const createMemberMutation = useMutation({
     mutationFn: async (data: MemberFormData) => {
-      const response = await fetchApi("/api/members", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create member");
-      }
-
-      return response.json();
+      const response = await apiClient.post("/api/members", data);
+      return response.data;
     },
     onSuccess: (newMember) => {
       // Update the cache manually instead of invalidating
@@ -134,23 +122,11 @@ export default function FamilyMembers() {
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
       console.log('Updating member with ID:', id, 'Data:', data);
       
-      const response = await fetchApi(`/api/members/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await apiClient.put(`/api/members/${id}`, data);
       
       console.log('Update response status:', response.status);
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log('Update error data:', errorData);
-        throw new Error(errorData.message || 'Failed to update member');
-      }
-      
-      return response.json();
+      return response.data;
     },
     onSuccess: (updatedMember) => {
       // Update the cache manually instead of invalidating
@@ -189,28 +165,12 @@ export default function FamilyMembers() {
       console.log('Attempting to delete member with ID:', memberId);
       console.log('Member ID type in mutation:', typeof memberId);
       
-      const response = await fetchApi(`/api/members/${memberId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.delete(`/api/members/${memberId}`);
       
       console.log('Delete response status:', response.status);
-      console.log('Delete response URL:', response.url);
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log('Delete error data:', errorData);
-        throw new Error(errorData.message || 'Failed to delete member');
-      }
-      
-      // Don't try to parse JSON for 204 No Content responses
-      if (response.status === 204) {
-        return memberId; // Return the deleted member ID
-      }
-      
-      return response.json();
+      // Return the deleted member ID for cache update
+      return memberId;
     },
     onSuccess: (deletedMemberId) => {
       // Update the cache manually instead of invalidating

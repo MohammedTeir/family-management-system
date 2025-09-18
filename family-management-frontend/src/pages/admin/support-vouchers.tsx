@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { Switch } from '../../components/ui/switch';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { useToast } from '../../hooks/use-toast';
-import { fetchApi } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 import { CalendarIcon, PlusIcon, UsersIcon, BellIcon, CheckCircleIcon, XCircleIcon, ClockIcon, DollarSignIcon, MapPinIcon, CalendarDaysIcon, UserIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
@@ -117,9 +117,8 @@ export default function SupportVouchers() {
   const { data: vouchers, isLoading } = useQuery({
     queryKey: ['support-vouchers'],
     queryFn: async () => {
-      const response = await fetchApi('/api/support-vouchers');
-      if (!response.ok) throw new Error('Failed to fetch vouchers');
-      return response.json();
+      const response = await apiClient.get('/api/support-vouchers');
+      return response.data;
     }
   });
 
@@ -127,9 +126,8 @@ export default function SupportVouchers() {
   const { data: families } = useQuery({
     queryKey: ['/api/admin/families'],
     queryFn: async () => {
-      const response = await fetchApi('/api/admin/families');
-      if (!response.ok) throw new Error('Failed to fetch families');
-      return response.json();
+      const response = await apiClient.get('/api/admin/families');
+      return response.data;
     }
   });
 
@@ -137,9 +135,8 @@ export default function SupportVouchers() {
   const { data: users } = useQuery({
     queryKey: ['/api/admin/users'],
     queryFn: async () => {
-      const response = await fetchApi('/api/admin/users');
-      if (!response.ok) throw new Error('Failed to fetch users');
-      return response.json();
+      const response = await apiClient.get('/api/admin/users');
+      return response.data;
     }
   });
 
@@ -383,13 +380,8 @@ export default function SupportVouchers() {
   // Create voucher mutation
   const createVoucherMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await fetchApi('/api/support-vouchers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error('Failed to create voucher');
-      return response.json();
+      const response = await apiClient.post('/api/support-vouchers', data);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-vouchers'] });
@@ -405,13 +397,8 @@ export default function SupportVouchers() {
   // Add recipients mutation
   const addRecipientsMutation = useMutation({
     mutationFn: async ({ voucherId, familyIds }: { voucherId: number; familyIds: number[] }) => {
-      const response = await fetchApi(`/api/support-vouchers/${voucherId}/recipients`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ familyIds })
-      });
-      if (!response.ok) throw new Error('Failed to add recipients');
-      return response.json();
+      const response = await apiClient.post(`/api/support-vouchers/${voucherId}/recipients`, { familyIds });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-vouchers'] });
@@ -427,13 +414,8 @@ export default function SupportVouchers() {
   // Update recipient status mutation
   const updateRecipientStatusMutation = useMutation({
     mutationFn: async ({ recipientId, status }: { recipientId: number; status: string }) => {
-      const response = await fetchApi(`/api/voucher-recipients/${recipientId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      if (!response.ok) throw new Error('Failed to update status');
-      return response.json();
+      const response = await apiClient.patch(`/api/voucher-recipients/${recipientId}`, { status });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-vouchers'] });
@@ -447,13 +429,8 @@ export default function SupportVouchers() {
   // Send notification mutation
   const sendNotificationMutation = useMutation({
     mutationFn: async ({ voucherId, recipientIds }: { voucherId: number; recipientIds?: number[] }) => {
-      const response = await fetchApi(`/api/support-vouchers/${voucherId}/notify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipientIds })
-      });
-      if (!response.ok) throw new Error('Failed to send notification');
-      return response.json();
+      const response = await apiClient.post(`/api/support-vouchers/${voucherId}/notify`, { recipientIds });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-vouchers'] });
@@ -467,13 +444,8 @@ export default function SupportVouchers() {
   // Toggle voucher active status mutation
   const toggleVoucherStatusMutation = useMutation({
     mutationFn: async ({ voucherId, isActive }: { voucherId: number; isActive: boolean }) => {
-      const response = await fetchApi(`/api/support-vouchers/${voucherId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive })
-      });
-      if (!response.ok) throw new Error('Failed to update voucher status');
-      return response.json();
+      const response = await apiClient.patch(`/api/support-vouchers/${voucherId}`, { isActive });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-vouchers'] });

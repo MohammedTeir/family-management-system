@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/use-auth";
-import { fetchApi } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useState } from "react";
@@ -61,13 +61,8 @@ export default function AdminDashboard() {
   // Mutations for request actions
   const updateRequestMutation = useMutation({
     mutationFn: async ({ id, status, adminComment }: { id: number; status: string; adminComment?: string }) => {
-      const res = await fetchApi(`/api/requests/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, adminComment }),
-      });
-      if (!res.ok) throw new Error('Failed to update request');
-      return res.json();
+      const response = await apiClient.put(`/api/requests/${id}`, { status, adminComment });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/requests"] });

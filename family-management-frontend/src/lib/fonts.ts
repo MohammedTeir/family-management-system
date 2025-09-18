@@ -1,5 +1,5 @@
 // Font loading utility for jsPDF
-import { fetchApi } from "./api";
+import { apiClient } from "./api";
 import AmiriRegular from '../assets/fonts/Amiri/Amiri-Regular.ttf';
 import AmiriBold from '../assets/fonts/Amiri/Amiri-Bold.ttf';
 
@@ -20,12 +20,8 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
 // Function to load font as base64
 const loadFontAsBase64 = async (fontPath: string): Promise<string> => {
   try {
-    const response = await fetchApi(fontPath);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch font: ${response.statusText}`);
-    }
-    
-    const arrayBuffer = await response.arrayBuffer();
+    const response = await apiClient.get(fontPath, { responseType: 'arraybuffer' });
+    const arrayBuffer = response.data;
     return arrayBufferToBase64(arrayBuffer);
   } catch (error) {
     console.error('Error loading font:', error);
@@ -100,12 +96,8 @@ export const loadAmiriFontsFromCDN = async (doc: any) => {
     // Note: This may not work in all environments due to CORS restrictions
     const fontUrl = 'https://cdn.jsdelivr.net/npm/@fontsource/amiri@4.5.12/files/amiri-latin-400-normal.woff2';
     
-    const response = await fetchApi(fontUrl);
-    if (!response.ok) {
-      throw new Error('Failed to fetch font from CDN');
-    }
-    
-    const arrayBuffer = await response.arrayBuffer();
+    const response = await apiClient.get(fontUrl, { responseType: 'arraybuffer' });
+    const arrayBuffer = response.data;
     const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
     
     doc.addFileToVFS('Amiri-Regular.ttf', base64);

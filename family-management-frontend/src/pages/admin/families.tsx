@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchApi } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,17 +74,15 @@ export default function AdminFamilies() {
     queryKey: ["/api/admin/families", selectedFamily?.id],
     enabled: !!selectedFamily?.id,
     queryFn: async () => {
-      const res = await fetchApi(`/api/admin/families/${selectedFamily.id}`);
-      if (!res.ok) throw new Error("Network response was not ok");
-      return res.json();
+      const response = await apiClient.get(`/api/admin/families/${selectedFamily.id}`);
+      return response.data;
     }
   });
 
   const deleteFamilyMutation = useMutation({
     mutationFn: async (familyId: number) => {
-      const res = await fetchApi(`/api/admin/families/${familyId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("فشل في حذف الأسرة");
-      return res.json();
+      await apiClient.delete(`/api/admin/families/${familyId}`);
+      return familyId;
     },
     onSuccess: () => {
       toast({ title: "تم حذف الأسرة", description: "تم حذف الأسرة بنجاح" });

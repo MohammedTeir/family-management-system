@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchApi } from "../lib/api";
+import { apiClient } from "../lib/api";
 
 // Define the shape of your settings here
 export interface AdminSettings {
@@ -66,13 +66,10 @@ export function useAdminSettings() {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetchApi("/api/settings");
-        if (res.ok && isMounted) {
-          const data = await res.json();
-          const merged = { ...defaultSettings, ...data };
+        const response = await apiClient.get("/api/settings");
+        if (isMounted) {
+          const merged = { ...defaultSettings, ...response.data };
           setSettings(merged);
-        } else if (isMounted) {
-          throw new Error("Failed to fetch settings");
         }
       } catch (e) {
         if (isMounted) {
@@ -98,14 +95,9 @@ export function useAdminSettings() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetchApi("/api/settings");
-      if (res.ok) {
-        const data = await res.json();
-        const merged = { ...defaultSettings, ...data };
-        setSettings(merged);
-      } else {
-        throw new Error("Failed to fetch settings");
-      }
+      const response = await apiClient.get("/api/settings");
+      const merged = { ...defaultSettings, ...response.data };
+      setSettings(merged);
     } catch (e) {
       setError("فشل في تحميل الإعدادات");
       console.error("Failed to load admin settings:", e);

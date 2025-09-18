@@ -70,22 +70,17 @@ export function useSettings() {
     async function fetchSettings() {
       try {
         // Use public settings endpoint that doesn't require authentication
-        console.log('[Settings] Fetching from API...');
         const response = await apiClient.get("/api/public/settings");
         const data = response.data;
-        console.log('[Settings] API Response:', data);
         const merged = { ...defaultSettings, ...data };
-        console.log('[Settings] Merged settings:', merged);
         setSettings(merged);
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
-        console.log('[Settings] Saved to localStorage');
         setIsLoading(false);
         return;
       } catch (e) {
-        console.error('[Settings] API fetch error:', e);
+        console.error('Settings API fetch error:', e);
       }
       // If backend fails, use localStorage (already loaded by default)
-      console.log('[Settings] Using localStorage fallback');
       setIsLoading(false);
     }
     fetchSettings();

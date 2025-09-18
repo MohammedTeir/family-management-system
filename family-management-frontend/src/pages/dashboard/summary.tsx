@@ -15,7 +15,7 @@ import autoTable from 'jspdf-autotable';
 import { Link, useRoute } from "wouter";
 import { useSettingsContext } from "@/App";
 import { useEffect } from "react";
-import { fetchApi } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 import { Header } from "@/components/layout/header";
 
@@ -32,9 +32,8 @@ export default function Summary() {
     queryKey: ["/api/admin/families", familyId],
     enabled: !!familyId,
     queryFn: async () => {
-      const res = await fetchApi(`/api/admin/families/${familyId}`);
-      if (!res.ok) throw new Error("Family not found");
-      return res.json();
+      const response = await apiClient.get(`/api/admin/families/${familyId}`);
+      return response.data;
     }
   });
 

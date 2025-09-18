@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { fetchApi } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -165,25 +165,17 @@ const SettingsPage = () => {
       };
 
       // Use bulk save endpoint
-      const response = await fetchApi("/api/settings/bulk", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ settings: settingsToSave }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
+      try {
+        const response = await apiClient.post("/api/settings/bulk", { settings: settingsToSave });
+        
         toast({
           title: "نجح",
-          description: result.message,
+          description: response.data.message,
         });
-      } else {
-        const errorResult = await response.json();
+      } catch (error: any) {
         toast({
           title: "تحذير",
-          description: errorResult.message || "فشل في حفظ بعض الإعدادات",
+          description: error.response?.data?.message || "فشل في حفظ بعض الإعدادات",
           variant: "destructive",
         });
       }
@@ -233,22 +225,18 @@ const SettingsPage = () => {
   const handleMaintenanceToggle = async () => {
     const newMaintenanceValue = !maintenance;
     try {
-      const response = await fetchApi("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: "maintenance", value: newMaintenanceValue.toString(), description: "وضع الصيانة" }),
+      await apiClient.post("/api/settings", { 
+        key: "maintenance", 
+        value: newMaintenanceValue.toString(), 
+        description: "وضع الصيانة" 
       });
       
-      if (response.ok) {
-        // Update the settings state directly instead of separate state
-        setSettings(prev => ({ ...prev, maintenance: newMaintenanceValue }));
-        toast({
-          title: "تم التحديث",
-          description: `تم ${newMaintenanceValue ? 'تفعيل' : 'إيقاف'} وضع الصيانة`,
-        });
-      } else {
-        throw new Error('فشل في تحديث وضع الصيانة');
-      }
+      // Update the settings state directly instead of separate state
+      setSettings(prev => ({ ...prev, maintenance: newMaintenanceValue }));
+      toast({
+        title: "تم التحديث",
+        description: `تم ${newMaintenanceValue ? 'تفعيل' : 'إيقاف'} وضع الصيانة`,
+      });
     } catch (error) {
       toast({
         title: "خطأ",
@@ -820,9 +808,8 @@ const SettingsPage = () => {
                 className="w-full text-xs sm:text-sm"
                 onClick={async () => {
                   try {
-                    const res = await fetchApi("/api/admin/backup");
-                    if (!res.ok) throw new Error("فشل في إنشاء النسخة الاحتياطية");
-                    const blob = await res.blob();
+                    const res = await apiClient.get("/api/admin/backup", { responseType: 'blob' });
+                    const blob = res.data;
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
@@ -856,11 +843,9 @@ const SettingsPage = () => {
                   try {
                     const formData = new FormData();
                     formData.append("backup", file);
-                    const res = await fetchApi("/api/admin/restore", {
-                      method: "POST",
-                      body: formData,
+                    await apiClient.post("/api/admin/restore", formData, {
+                      headers: { 'Content-Type': 'multipart/form-data' }
                     });
-                    if (!res.ok) throw new Error("فشل في استعادة النسخة الاحتياطية");
                     toast({ title: "تم الاستعادة", description: "تمت استعادة البيانات بنجاح. يرجى إعادة تحميل الصفحة." });
                   } catch (e) {
                     toast({ title: "خطأ في الاستعادة", description: (e as Error).message, variant: "destructive" });
@@ -892,14 +877,8 @@ const SettingsPage = () => {
                 className="w-full text-xs sm:text-sm"
                 onClick={async () => {
                   try {
-                    const res = await fetchApi("/api/admin/merge", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ url: mergeUrl }),
-                    });
-                    if (!res.ok) throw new Error("فشل في الدمج التلقائي");
-                    const data = await res.json();
-                    toast({ title: "تم الدمج", description: data.message || "تم دمج البيانات بنجاح" });
+                    const res = await apiClient.post("/api/admin/merge", { url: mergeUrl });
+                    toast({ title: "تم الدمج", description: res.data.message || "تم دمج البيانات بنجاح" });
                   } catch (e) {
                     toast({ title: "خطأ في الدمج", description: (e as Error).message, variant: "destructive" });
                   }

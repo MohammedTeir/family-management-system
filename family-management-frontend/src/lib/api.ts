@@ -46,19 +46,24 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error) && error.response) {
-      // Handle 401 errors (token expired/invalid)
+      // Extract error message from backend response
+      const backendMessage = error.response.data?.message || error.response.statusText;
+      
+      // Handle 401 errors (token expired/invalid)  
       if (error.response.status === 401) {
         removeToken();
+        
         // Only redirect if not already on auth page to prevent refresh loop
         if (!window.location.pathname.includes('/auth')) {
           window.location.href = '/auth';
         }
-        return Promise.reject(new Error('Session expired. Please login again.'));
+        
+        // Always preserve the backend error message (login errors, auth errors, etc.)
+        return Promise.reject(new Error(backendMessage));
       }
       
-      // Extract error message from response
-      const errorMessage = error.response.data?.message || error.response.statusText;
-      throw new Error(errorMessage);
+      // For all other status codes, preserve backend error message
+      throw new Error(backendMessage);
     }
     throw error;
   }

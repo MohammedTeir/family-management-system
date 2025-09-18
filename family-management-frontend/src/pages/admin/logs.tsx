@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchApi } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -27,9 +27,8 @@ export default function AdminLogs() {
       params.append("pageSize", String(PAGE_SIZE));
       if (search) params.append("search", search);
       if (typeFilter !== "all") params.append("type", typeFilter);
-      const res = await fetchApi(`/api/admin/logs?${params.toString()}`);
-      if (!res.ok) throw new Error("فشل في تحميل السجلات");
-      return res.json();
+      const response = await apiClient.get(`/api/admin/logs?${params.toString()}`);
+      return response.data;
     },
     keepPreviousData: true,
   });

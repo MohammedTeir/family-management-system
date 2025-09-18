@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { fetchApi } from "@/lib/api";
+import { apiClient } from "@/lib/api";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,9 +82,8 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
   const { data: family, isLoading, refetch } = useQuery({
     queryKey: ["/api/admin/families", id],
     queryFn: async () => {
-      const res = await fetchApi(`/api/admin/families/${id}`);
-      if (!res.ok) throw new Error("Network response was not ok");
-      return res.json();
+      const response = await apiClient.get(`/api/admin/families/${id}`);
+      return response.data;
     },
     enabled: !!id,
   });
@@ -107,16 +106,8 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
   // Wives mutations
   const createWifeMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetchApi("/api/wives", { 
-        method: "POST", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, familyId: family?.id || id }) 
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "فشل في إضافة الزوجة");
-      }
-      return res.json();
+      const response = await apiClient.post("/api/wives", { ...data, familyId: family?.id || id });
+      return response.data;
     },
     onSuccess: () => {
       toast({ title: "تم إضافة الزوجة", description: "تم إضافة الزوجة بنجاح" });
@@ -137,16 +128,8 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
 
   const updateWifeMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: any }) => {
-      const res = await fetchApi(`/api/wives/${id}`, { 
-        method: "PUT", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data) 
-      });
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "فشل في تحديث بيانات الزوجة");
-      }
-      return res.json();
+      const response = await apiClient.put(`/api/wives/${id}`, data);
+      return response.data;
     },
     onSuccess: () => {
       toast({ title: "تم التحديث", description: "تم تحديث بيانات الزوجة" });
@@ -168,12 +151,8 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
 
   const deleteWifeMutation = useMutation({
     mutationFn: async (id: number) => {
-      const res = await fetchApi(`/api/wives/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "فشل في حذف الزوجة");
-      }
-      return res.json();
+      await apiClient.delete(`/api/wives/${id}`);
+      return id;
     },
     onSuccess: () => {
       toast({ title: "تم الحذف", description: "تم حذف الزوجة بنجاح" });
@@ -235,26 +214,8 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
       if (familyData.branch === "custom") familyData.branch = customBranch;
       if (familyData.socialStatus === "custom") familyData.socialStatus = customSocialStatus;
       if (familyData.warDamageDescription === "custom") familyData.warDamageDescription = customDamageDescription;
-      const res = await fetchApi(`/api/admin/families/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(familyData),
-      });
-      const contentType = res.headers.get("content-type");
-      if (!res.ok) {
-        let errorMsg = "فشل في تحديث بيانات الأسرة";
-        if (contentType && contentType.includes("application/json")) {
-          try {
-            const errorData = await res.json();
-            errorMsg = errorData.message || errorMsg;
-          } catch {}
-        }
-        throw new Error(errorMsg);
-      }
-      if (contentType && contentType.includes("application/json")) {
-        return res.json();
-      }
-      return null;
+      const response = await apiClient.put(`/api/admin/families/${id}`, familyData);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/families", id] });
@@ -271,13 +232,8 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     mutationFn: async (data: any) => {
       if (data.relationship === "other") data.relationship = customRelationship;
       if (data.isDisabled && data.disabilityType === "custom") data.disabilityType = customDisabilityType;
-      const res = await fetchApi(`/api/admin/families/${id}/members`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("فشل في إضافة الفرد");
-      return res.json();
+      const response = await apiClient.post(`/api/admin/families/${id}/members`, data);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/families", id] });
@@ -295,13 +251,8 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
     mutationFn: async ({ memberId, data }: { memberId: number; data: any }) => {
       if (data.relationship === "other") data.relationship = customRelationship;
       if (data.isDisabled && data.disabilityType === "custom") data.disabilityType = customDisabilityType;
-      const res = await fetchApi(`/api/members/${memberId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("فشل في تحديث بيانات الفرد");
-      return res.json();
+      const response = await apiClient.put(`/api/members/${memberId}`, data);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/families", id] });
@@ -317,11 +268,8 @@ export default function AdminFamilyEdit({ params }: { params: { id: string } }) 
 
   const deleteMemberMutation = useMutation({
     mutationFn: async (memberId: number) => {
-      const res = await fetchApi(`/api/members/${memberId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("فشل في حذف الفرد");
-      // Only parse JSON if there is content
-      if (res.status !== 204) return res.json();
-      return null;
+      await apiClient.delete(`/api/members/${memberId}`);
+      return memberId;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/families", id] });

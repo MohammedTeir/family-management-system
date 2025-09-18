@@ -32,7 +32,7 @@ import VoucherDetails from "./pages/admin/voucher-details";
 import ImportHeads from "./pages/admin/import-heads";
 import { useEffect, useState, createContext, useContext } from "react";
 import { useAuth } from "./hooks/use-auth"; // adjust import as needed
-import { fetchApi } from "./lib/api";
+import { apiClient } from "./lib/api";
 
 
 function Router() {
@@ -144,9 +144,9 @@ function AppContent() {
   }, [settings]);
 
   useEffect(() => {
-    fetchApi("/api/public/settings")
-      .then(res => res.json())
-      .then(data => setMaintenance(data.maintenance === "true"));
+    apiClient.get("/api/public/settings")
+      .then(response => setMaintenance(response.data.maintenance === "true"))
+      .catch(error => console.error('Failed to fetch maintenance status:', error));
   }, []);
 
   // Allow /auth route even during maintenance
