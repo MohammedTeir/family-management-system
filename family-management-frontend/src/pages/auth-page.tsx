@@ -55,6 +55,12 @@ export default function AuthPage() {
   const { toast } = useToast();
   const [loginType, setLoginType] = useState<"head" | "admin" | "root">("head");
   const { settings, isLoading: settingsLoading } = useSettingsContext();
+  
+  // Debug settings
+  useEffect(() => {
+    console.log('[AuthPage] Settings received:', settings);
+    console.log('[AuthPage] Settings loading:', settingsLoading);
+  }, [settings, settingsLoading]);
   const [pendingWelcome, setPendingWelcome] = useState<null | { username: string; role: string }>(null);
 
   const loginForm = useForm<LoginFormData>({
