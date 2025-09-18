@@ -40,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: 1, // Retry once on failure
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!getToken(), // Only fetch if token exists
   });
 
   // Fetch family data for head users
@@ -64,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Attempt to refresh user data on mount to verify session
   useEffect(() => {
-    if (!user && !isLoading) {
+    if (!user && !isLoading && getToken()) {
       refetch();
     }
   }, [user, isLoading, refetch]);
