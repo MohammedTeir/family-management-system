@@ -49,8 +49,10 @@ apiClient.interceptors.response.use(
       // Handle 401 errors (token expired/invalid)
       if (error.response.status === 401) {
         removeToken();
-        // Redirect to login page
-        window.location.href = '/auth';
+        // Only redirect if not already on auth page to prevent refresh loop
+        if (!window.location.pathname.includes('/auth')) {
+          window.location.href = '/auth';
+        }
         return Promise.reject(new Error('Session expired. Please login again.'));
       }
       
