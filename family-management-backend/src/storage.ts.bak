@@ -171,6 +171,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllFamiliesWithMembers(): Promise<(Family & { members: Member[] })[]> {
+  
     const allFamilies = await this.getAllFamilies();
     const familiesWithMembers = await Promise.all(
       allFamilies.map(async (family) => {

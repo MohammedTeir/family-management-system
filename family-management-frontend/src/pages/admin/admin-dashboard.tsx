@@ -46,19 +46,8 @@ export default function AdminDashboard() {
     }
   }, [settings.siteTitle, settings.language]);
 
-  const { data: families, isLoading: familiesLoading, error: familiesError } = useQuery({
+  const { data: families, isLoading: familiesLoading } = useQuery({
     queryKey: ["/api/admin/families"],
-    queryFn: async () => {
-      console.log('[Families] Making request to /api/admin/families');
-      try {
-        const response = await apiClient.get("/api/admin/families");
-        console.log('[Families] Success response:', response.data);
-        return response.data;
-      } catch (error) {
-        console.error('[Families] Request failed:', error);
-        throw error;
-      }
-    },
   });
 
   const { data: requests, isLoading: requestsLoading } = useQuery({
@@ -68,13 +57,6 @@ export default function AdminDashboard() {
   const { data: notifications, isLoading: notificationsLoading } = useQuery({
     queryKey: ["/api/notifications"],
   });
-
-  // Debug families data
-  useEffect(() => {
-    console.log('[Admin Dashboard] Families data:', families);
-    console.log('[Admin Dashboard] Families loading:', familiesLoading);
-    console.log('[Admin Dashboard] Families error:', familiesError);
-  }, [families, familiesLoading, familiesError]);
 
   // Mutations for request actions
   const updateRequestMutation = useMutation({
