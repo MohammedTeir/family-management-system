@@ -63,6 +63,8 @@ function loadSettingsSync(): Settings {
 
 export function useSettings() {
   const [settings, setSettings] = useState<Settings>(loadSettingsSync);
+  const [isLoading, setIsLoading] = useState(true);
+  
   // On mount, always try to load from backend and update state/localStorage
   useEffect(() => {
     async function fetchSettings() {
@@ -74,10 +76,12 @@ export function useSettings() {
           const merged = { ...defaultSettings, ...data };
           setSettings(merged);
           localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
+          setIsLoading(false);
           return;
         }
       } catch (e) {}
-      // If backend fails, try localStorage (already loaded by default)
+      // If backend fails, use localStorage (already loaded by default)
+      setIsLoading(false);
     }
     fetchSettings();
   }, []);
@@ -102,6 +106,7 @@ export function useSettings() {
 
   return {
     settings,
+    isLoading,        // Loading state
     setSettings,      // Replace all settings
     updateSetting,    // Update a single setting
     resetSettings,    // Reset to defaults

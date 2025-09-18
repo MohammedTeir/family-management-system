@@ -54,9 +54,8 @@ export default function AuthPage() {
   const { user, loginMutation } = useAuth();
   const { toast } = useToast();
   const [loginType, setLoginType] = useState<"head" | "admin" | "root">("head");
-  const { settings } = useSettingsContext();
+  const { settings, isLoading: settingsLoading } = useSettingsContext();
   const [pendingWelcome, setPendingWelcome] = useState<null | { username: string; role: string }>(null);
-  const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -173,16 +172,6 @@ export default function AuthPage() {
     }
   }, [pendingWelcome, family, toast]);
 
-  // Check if settings are loaded
-  useEffect(() => {
-    if (settings && (settings.authPageTitle || settings.authPageIcon || settings.authPageSubtitle)) {
-      setSettingsLoaded(true);
-    } else {
-      // Give it a moment for settings to load, then show content anyway
-      const timer = setTimeout(() => setSettingsLoaded(true), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [settings]);
 
   // Redirect if already logged in
   if (user) {
@@ -194,7 +183,7 @@ export default function AuthPage() {
   }
 
   // Show skeleton while settings are loading
-  if (!settingsLoaded) {
+  if (settingsLoading) {
     return <AuthSkeleton />;
   }
 
