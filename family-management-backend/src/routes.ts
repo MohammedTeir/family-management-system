@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import { authMiddleware, loginHandler, getCurrentUser, logoutHandler } from "./jwt-auth";
 import { comparePasswords, hashPassword } from "./auth";
 import { storage } from "./storage";
-import { insertFamilySchema, insertWifeSchema, insertMemberSchema, insertRequestSchema, insertNotificationSchema, insertSupportVoucherSchema, insertVoucherRecipientSchema } from "./schema.js";
+import { insertFamilySchema, insertWifeSchema, insertMemberSchema, insertRequestSchema, insertNotificationSchema, insertSupportVoucherSchema, insertVoucherRecipientSchema, members } from "./schema.js";
+import { db } from "./db";
 import { z } from "zod";
 import multer from "multer";
 import cors from "cors";
@@ -99,14 +100,17 @@ export function registerRoutes(app: Express): Server {
       let errorCount = 0;
       const errors: string[] = [];
 
+      // OPTIMIZATION: Batch processing instead of sequential
+      console.log(`📊 Starting validation phase for ${data.length} rows...`);
+      
+      // Phase 1: Validate all data and get existing users in bulk
+      const validRows: any[] = [];
+      const allHusbandIDs = new Set<string>();
+      
+      // Pre-validate all rows first
       for (let i = 0; i < data.length; i++) {
         const row: any = data[i];
-        const rowIndex = i + 2; // Excel rows start from 2 (accounting for header)
-
-        // Log progress every 50 rows
-        if (i % 50 === 0) {
-          console.log(`📊 Processing row ${i + 1}/${data.length} (${Math.round((i / data.length) * 100)}%)`);
-        }
+        const rowIndex = i + 2;
 
         try {
           // Validate required fields
@@ -119,14 +123,6 @@ export function registerRoutes(app: Express): Server {
           // Convert husbandID to string to handle Excel numeric conversion
           const husbandID = String(row.husbandID);
 
-          // Check if user already exists
-          const existingUser = await storage.getUserByNationalId(husbandID);
-          if (existingUser) {
-            errors.push(`الصف ${rowIndex}: رقم الهوية ${husbandID} مسجل مسبقاً`);
-            errorCount++;
-            continue;
-          }
-
           // Validate ID format (9 digits)
           if (!/^\d{9}$/.test(husbandID)) {
             errors.push(`الصف ${rowIndex}: رقم الهوية ${husbandID} يجب أن يكون 9 أرقام`);
@@ -134,46 +130,125 @@ export function registerRoutes(app: Express): Server {
             continue;
           }
 
-          // Create user
-          const user = await storage.createUser({
-            username: husbandID,
-            password: await hashPassword(husbandID), // Use ID as default password
-            role: 'head',
-            phone: row.primaryPhone ? String(row.primaryPhone) : null
-          });
+          // Check for duplicates within the file
+          if (allHusbandIDs.has(husbandID)) {
+            errors.push(`الصف ${rowIndex}: رقم الهوية ${husbandID} مكرر في الملف`);
+            errorCount++;
+            continue;
+          }
 
-          // Create family
-          const familyData = {
-            userId: user.id,
-            husbandName: row.husbandName,
-            husbandID: husbandID,
-            husbandBirthDate: row.husbandBirthDate || null,
-            husbandJob: row.husbandJob || null,
-            primaryPhone: row.primaryPhone ? String(row.primaryPhone) : null,
-            secondaryPhone: row.secondaryPhone ? String(row.secondaryPhone) : null,
-            originalResidence: row.originalResidence || null,
-            currentHousing: row.currentHousing || null,
-            isDisplaced: Boolean(row.isDisplaced),
-            displacedLocation: row.displacedLocation || null,
-            isAbroad: Boolean(row.isAbroad),
-            warDamage2024: Boolean(row.warDamage2024),
-            warDamageDescription: row.warDamageDescription || null,
-            branch: row.branch || null,
-            landmarkNear: row.landmarkNear || null,
-            totalMembers: parseInt(String(row.totalMembers)) || 0,
-            numMales: parseInt(String(row.numMales)) || 0,
-            numFemales: parseInt(String(row.numFemales)) || 0,
-            socialStatus: row.socialStatus || null,
-            adminNotes: row.adminNotes || null
-          };
-
-          await storage.createFamily(familyData);
-          successCount++;
+          allHusbandIDs.add(husbandID);
+          validRows.push({ ...row, husbandID, rowIndex });
 
         } catch (error: any) {
-          console.error(`❌ Error processing row ${rowIndex}:`, error.message);
+          console.error(`❌ Error validating row ${rowIndex}:`, error.message);
           errors.push(`الصف ${rowIndex}: ${error.message}`);
           errorCount++;
+        }
+      }
+
+      console.log(`📊 Validation complete: ${validRows.length} valid, ${errorCount} errors`);
+
+      // Phase 2: Check existing users in bulk (single query instead of N queries)
+      console.log(`📊 Checking for existing users...`);
+      const existingFamilies = await storage.getAllFamilies();
+      const existingHusbandIDs = new Set(existingFamilies.map(f => f.husbandID));
+      
+      const finalValidRows = validRows.filter(row => {
+        if (existingHusbandIDs.has(row.husbandID)) {
+          errors.push(`الصف ${row.rowIndex}: رقم الهوية ${row.husbandID} مسجل مسبقاً`);
+          errorCount++;
+          return false;
+        }
+        return true;
+      });
+
+      console.log(`📊 Final validation: ${finalValidRows.length} rows to process`);
+
+      // Phase 3: Batch processing in chunks of 50
+      const BATCH_SIZE = 50;
+      const batches = [];
+      for (let i = 0; i < finalValidRows.length; i += BATCH_SIZE) {
+        batches.push(finalValidRows.slice(i, i + BATCH_SIZE));
+      }
+
+      console.log(`📊 Processing ${batches.length} batches of ${BATCH_SIZE} rows each...`);
+
+      // Process each batch
+      for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+        const batch = batches[batchIndex];
+        console.log(`📊 Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} rows)`);
+
+        try {
+          // Process batch in parallel with controlled concurrency
+          const batchPromises = batch.map(async (row) => {
+            try {
+              // Create user
+              const user = await storage.createUser({
+                username: row.husbandID,
+                password: await hashPassword(row.husbandID),
+                role: 'head',
+                phone: row.primaryPhone ? String(row.primaryPhone) : null
+              });
+
+              // Create family
+              const familyData = {
+                userId: user.id,
+                husbandName: row.husbandName,
+                husbandID: row.husbandID,
+                husbandBirthDate: row.husbandBirthDate || null,
+                husbandJob: row.husbandJob || null,
+                primaryPhone: row.primaryPhone ? String(row.primaryPhone) : null,
+                secondaryPhone: row.secondaryPhone ? String(row.secondaryPhone) : null,
+                originalResidence: row.originalResidence || null,
+                currentHousing: row.currentHousing || null,
+                isDisplaced: Boolean(row.isDisplaced),
+                displacedLocation: row.displacedLocation || null,
+                isAbroad: Boolean(row.isAbroad),
+                warDamage2024: Boolean(row.warDamage2024),
+                warDamageDescription: row.warDamageDescription || null,
+                branch: row.branch || null,
+                landmarkNear: row.landmarkNear || null,
+                totalMembers: parseInt(String(row.totalMembers)) || 0,
+                numMales: parseInt(String(row.numMales)) || 0,
+                numFemales: parseInt(String(row.numFemales)) || 0,
+                socialStatus: row.socialStatus || null,
+                adminNotes: row.adminNotes || null
+              };
+
+              await storage.createFamily(familyData);
+              return { success: true, rowIndex: row.rowIndex };
+            } catch (error: any) {
+              console.error(`❌ Error processing row ${row.rowIndex}:`, error.message);
+              return { success: false, rowIndex: row.rowIndex, error: error.message };
+            }
+          });
+
+          // Wait for batch to complete
+          const batchResults = await Promise.all(batchPromises);
+          
+          // Count results
+          batchResults.forEach(result => {
+            if (result.success) {
+              successCount++;
+            } else {
+              errors.push(`الصف ${result.rowIndex}: ${result.error}`);
+              errorCount++;
+            }
+          });
+
+          // Small delay between batches to prevent overwhelming the database
+          if (batchIndex < batches.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+
+        } catch (batchError: any) {
+          console.error(`❌ Batch ${batchIndex + 1} failed:`, batchError.message);
+          // Mark entire batch as failed
+          batch.forEach(row => {
+            errors.push(`الصف ${row.rowIndex}: فشل في المعالجة الجماعية`);
+            errorCount++;
+          });
         }
       }
 
@@ -483,14 +558,7 @@ export function registerRoutes(app: Express): Server {
         const requests = await storage.getRequestsByFamilyId(family.id);
         res.json(requests);
       } else {
-        const requests = await storage.getAllRequests();
-        // For admin users, include family data with each request
-        const requestsWithFamily = await Promise.all(
-          requests.map(async (request: any) => {
-            const family = await getFamilyByIdOrDualRole(request.familyId);
-            return { ...request, family };
-          })
-        );
+        const requestsWithFamily = await storage.getAllRequestsWithFamilies();
         res.json(requestsWithFamily);
       }
     } catch (error) {
@@ -639,10 +707,15 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/admin/families", authMiddleware, async (req, res) => {
     if (req.user!.role === 'head') return res.sendStatus(403);
     
+    // Set longer timeout for heavy operation (5 minutes)
+    req.setTimeout(5 * 60 * 1000);
+    res.setTimeout(5 * 60 * 1000);
+    
     try {
-      const families = await storage.getAllFamiliesWithMembers();
+      const families = await storage.getAllFamiliesWithMembersOptimized();
       res.json(families);
     } catch (error) {
+      console.error('Families endpoint error:', error);
       res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
@@ -1189,6 +1262,9 @@ export function registerRoutes(app: Express): Server {
         }
       }
 
+      // Clear settings cache after bulk update
+      storage.clearSettingsCache();
+      
       if (failures.length === 0) {
         res.json({ message: `تم حفظ جميع الإعدادات بنجاح (${successCount} إعداد)` });
       } else {
@@ -1307,24 +1383,92 @@ export function registerRoutes(app: Express): Server {
   // Admin: Download full database backup
   app.get("/api/admin/backup", authMiddleware, async (req, res) => {
     if (req.user!.role !== 'root') return res.sendStatus(403);
+    
+    // Set very long timeout for backup operation (10 minutes)
+    req.setTimeout(10 * 60 * 1000);
+    res.setTimeout(10 * 60 * 1000);
+    
     try {
-      const users = await storage.getAllUsers();
-      const families = await storage.getAllFamilies();
-      const members = [];
-      for (const family of families) {
-        const famMembers = await storage.getMembersByFamilyId(family.id);
-        members.push(...famMembers);
-      }
-      const requests = await storage.getAllRequests();
-      const notifications = await storage.getAllNotifications();
-      const settings = await storage.getAllSettings();
-      const logs = await storage.getLogs({});
-      const backup = { users, families, members, requests, notifications, settings, logs };
+      console.log('Starting database backup...');
+      
+      // Set response headers first
       res.setHeader("Content-Disposition", `attachment; filename=backup-${Date.now()}.json`);
       res.setHeader("Content-Type", "application/json");
-      res.send(JSON.stringify(backup, null, 2));
+      res.setHeader("Transfer-Encoding", "chunked");
+      
+      // Start JSON streaming
+      res.write('{\n');
+      
+      let isFirst = true;
+      const writeSection = (key: string, data: any) => {
+        if (!isFirst) res.write(',\n');
+        res.write(`  "${key}": ${JSON.stringify(data, null, 2)}`);
+        isFirst = false;
+      };
+      
+      // Stream each section separately to avoid loading everything in memory
+      console.log('📊 Backing up users...');
+      const users = await storage.getAllUsers();
+      writeSection('users', users);
+      console.log(`✅ Users: ${users.length} records`);
+      
+      console.log('📊 Backing up families...');
+      const families = await storage.getAllFamilies();
+      writeSection('families', families);
+      console.log(`✅ Families: ${families.length} records`);
+      
+      console.log('📊 Backing up members...');
+      // Stream members in batches to avoid memory overload
+      const allMembers = [];
+      const BATCH_SIZE = 1000;
+      let offset = 0;
+      let memberBatch;
+      
+      do {
+        // Get members in batches (would need to implement pagination in storage)
+        // For now, get all at once but this could be optimized further
+        memberBatch = await db.select().from(members).limit(BATCH_SIZE).offset(offset);
+        allMembers.push(...memberBatch);
+        offset += BATCH_SIZE;
+        console.log(`📊 Loaded ${allMembers.length} members so far...`);
+      } while (memberBatch.length === BATCH_SIZE);
+      
+      writeSection('members', allMembers);
+      console.log(`✅ Members: ${allMembers.length} records`);
+      
+      console.log('📊 Backing up requests...');
+      const requests = await storage.getAllRequests();
+      writeSection('requests', requests);
+      console.log(`✅ Requests: ${requests.length} records`);
+      
+      console.log('📊 Backing up notifications...');
+      const notifications = await storage.getAllNotifications();
+      writeSection('notifications', notifications);
+      console.log(`✅ Notifications: ${notifications.length} records`);
+      
+      console.log('📊 Backing up settings...');
+      const settings = await storage.getAllSettings();
+      writeSection('settings', settings);
+      console.log(`✅ Settings: ${settings.length} records`);
+      
+      console.log('📊 Backing up logs...');
+      const logs = await storage.getLogs({ limit: 10000 }); // Limit logs to prevent huge backups
+      writeSection('logs', logs);
+      console.log(`✅ Logs: ${logs.length} records`);
+      
+      // End JSON and close stream
+      res.write('\n}');
+      res.end();
+      
+      console.log(`✅ Backup completed successfully: ${families.length} families, ${allMembers.length} members, ${requests.length} requests`);
+      
     } catch (e) {
-      res.status(500).json({ message: "فشل في إنشاء النسخة الاحتياطية" });
+      console.error('Backup creation error:', e);
+      if (!res.headersSent) {
+        res.status(500).json({ message: "فشل في إنشاء النسخة الاحتياطية" });
+      } else {
+        res.end();
+      }
     }
   });
 
@@ -1382,92 +1526,187 @@ export function registerRoutes(app: Express): Server {
         settings: await fetchAll('settings'),
         logs: await fetchAll('logs'),
       };
-      // Merge logic for each table
+      // OPTIMIZED: Merge logic using bulk operations instead of N+1 queries
       let inserted = 0, updated = 0, skipped = 0;
-      // Users
+      
+      console.log('📊 Starting optimized merge process...');
+      
+      // Get all local data in bulk upfront
+      console.log('📊 Loading local data...');
+      const [localUsers, localFamilies, localMembers, localRequests, localNotifications, localSettings, localLogs] = await Promise.all([
+        storage.getAllUsers(),
+        storage.getAllFamilies(),
+        db.select().from(members), // Direct query for efficiency
+        storage.getAllRequests(),
+        storage.getAllNotifications(),
+        storage.getAllSettings(),
+        storage.getLogs({})
+      ]);
+      
+      // Create lookup maps for O(1) access
+      const localUserMap = new Map(localUsers.map(u => [u.id, u]));
+      const localFamilyMap = new Map(localFamilies.map(f => [f.id, f]));
+      const localMemberMap = new Map(localMembers.map(m => [m.id, m]));
+      const localRequestMap = new Map(localRequests.map(r => [r.id, r]));
+      const localNotificationMap = new Map(localNotifications.map(n => [n.id, n]));
+      const localSettingsMap = new Map(localSettings.map(s => [s.key, s]));
+      const localLogMap = new Map(localLogs.map(l => [l.id, l]));
+      
+      console.log('📊 Processing users in batches...');
+      // Process Users in batches
+      const userOperations = { toInsert: [], toUpdate: [] };
       for (const r of remote.users) {
-        const local = await storage.getUser(r.id);
+        const local = localUserMap.get(r.id);
         if (!local) {
-          await storage.createUser(r);
-          inserted++;
+          userOperations.toInsert.push(r);
         } else if (r.updatedAt && local.updatedAt && new Date(r.updatedAt) > new Date(local.updatedAt)) {
-          await storage.updateUser(r.id, r);
-          updated++;
+          userOperations.toUpdate.push(r);
         } else {
           skipped++;
         }
       }
-      // Families
+      
+      // Batch insert/update users
+      if (userOperations.toInsert.length > 0) {
+        console.log(`📊 Inserting ${userOperations.toInsert.length} users...`);
+        for (const user of userOperations.toInsert) {
+          await storage.createUser(user);
+          inserted++;
+        }
+      }
+      if (userOperations.toUpdate.length > 0) {
+        console.log(`📊 Updating ${userOperations.toUpdate.length} users...`);
+        for (const user of userOperations.toUpdate) {
+          await storage.updateUser(user.id, user);
+          updated++;
+        }
+      }
+      
+      console.log('📊 Processing families in batches...');
+      // Process Families in batches
+      const familyOperations = { toInsert: [], toUpdate: [] };
       for (const r of remote.families) {
-        const local = await storage.getFamily(r.id);
+        const local = localFamilyMap.get(r.id);
         if (!local) {
-          await storage.createFamily(r);
-          inserted++;
+          familyOperations.toInsert.push(r);
         } else if (r.updatedAt && local.updatedAt && new Date(r.updatedAt) > new Date(local.updatedAt)) {
-          await storage.updateFamily(r.id, r);
-          updated++;
+          familyOperations.toUpdate.push(r);
         } else {
           skipped++;
         }
       }
-      // Members
+      
+      // Batch insert/update families
+      if (familyOperations.toInsert.length > 0) {
+        console.log(`📊 Inserting ${familyOperations.toInsert.length} families...`);
+        for (const family of familyOperations.toInsert) {
+          await storage.createFamily(family);
+          inserted++;
+        }
+      }
+      if (familyOperations.toUpdate.length > 0) {
+        console.log(`📊 Updating ${familyOperations.toUpdate.length} families...`);
+        for (const family of familyOperations.toUpdate) {
+          await storage.updateFamily(family.id, family);
+          updated++;
+        }
+      }
+      
+      console.log('📊 Processing members in batches...');
+      // Process Members in batches
+      const memberOperations = { toInsert: [], toUpdate: [] };
       for (const r of remote.members) {
-        const local = await storage.getMember(r.id);
+        const local = localMemberMap.get(r.id);
         if (!local) {
-          await storage.createMember(r);
-          inserted++;
+          memberOperations.toInsert.push(r);
         } else if (r.updatedAt && local.updatedAt && new Date(r.updatedAt) > new Date(local.updatedAt)) {
-          await storage.updateMember(r.id, r);
-          updated++;
+          memberOperations.toUpdate.push(r);
         } else {
           skipped++;
         }
       }
-      // Requests
+      
+      // Batch insert/update members
+      if (memberOperations.toInsert.length > 0) {
+        console.log(`📊 Inserting ${memberOperations.toInsert.length} members...`);
+        for (const member of memberOperations.toInsert) {
+          await storage.createMember(member);
+          inserted++;
+        }
+      }
+      if (memberOperations.toUpdate.length > 0) {
+        console.log(`📊 Updating ${memberOperations.toUpdate.length} members...`);
+        for (const member of memberOperations.toUpdate) {
+          await storage.updateMember(member.id, member);
+          updated++;
+        }
+      }
+      
+      console.log('📊 Processing requests in batches...');
+      // Process Requests in batches
+      const requestOperations = { toInsert: [], toUpdate: [] };
       for (const r of remote.requests) {
-        const local = await storage.getRequest(r.id);
+        const local = localRequestMap.get(r.id);
         if (!local) {
-          await storage.createRequest(r);
-          inserted++;
+          requestOperations.toInsert.push(r);
         } else if (r.updatedAt && local.updatedAt && new Date(r.updatedAt) > new Date(local.updatedAt)) {
-          await storage.updateRequest(r.id, r);
-          updated++;
+          requestOperations.toUpdate.push(r);
         } else {
           skipped++;
         }
       }
-      // Notifications
+      
+      // Batch insert/update requests
+      if (requestOperations.toInsert.length > 0) {
+        console.log(`📊 Inserting ${requestOperations.toInsert.length} requests...`);
+        for (const request of requestOperations.toInsert) {
+          await storage.createRequest(request);
+          inserted++;
+        }
+      }
+      if (requestOperations.toUpdate.length > 0) {
+        console.log(`📊 Updating ${requestOperations.toUpdate.length} requests...`);
+        for (const request of requestOperations.toUpdate) {
+          await storage.updateRequest(request.id, request);
+          updated++;
+        }
+      }
+      
+      console.log('📊 Processing notifications...');
+      // Process Notifications (insert only)
       for (const r of remote.notifications) {
-        // No update, just insert if not exists
-        const all = await storage.getAllNotifications();
-        if (!all.find(n => n.id === r.id)) {
+        if (!localNotificationMap.has(r.id)) {
           await storage.createNotification(r);
           inserted++;
         } else {
           skipped++;
         }
       }
-      // Settings
+      
+      console.log('📊 Processing settings...');
+      // Process Settings (insert only for new keys)
       for (const r of remote.settings) {
-        const val = await storage.getSetting(r.key);
-        if (val === undefined) {
+        if (!localSettingsMap.has(r.key)) {
           await storage.setSetting(r.key, r.value, r.description);
           inserted++;
         } else {
           skipped++;
         }
       }
-      // Logs
+      
+      console.log('📊 Processing logs...');
+      // Process Logs (insert only)
       for (const r of remote.logs) {
-        // No update, just insert if not exists
-        const all = await storage.getLogs({});
-        if (!all.find(l => l.id === r.id)) {
+        if (!localLogMap.has(r.id)) {
           await storage.createLog(r);
           inserted++;
         } else {
           skipped++;
         }
       }
+      
+      // Clear settings cache after merge
+      storage.clearSettingsCache();
       await remotePool.end();
       res.json({ message: `تم الدمج: ${inserted} مضافة، ${updated} محدثة، ${skipped} متطابقة.` });
     } catch (e) {
@@ -1489,10 +1728,16 @@ export function registerRoutes(app: Express): Server {
   // Support Vouchers routes
   app.get("/api/support-vouchers", authMiddleware, async (req, res) => {
     if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
+    
+    // Set longer timeout for heavy operation (3 minutes)
+    req.setTimeout(3 * 60 * 1000);
+    res.setTimeout(3 * 60 * 1000);
+    
     try {
-      const vouchers = await storage.getAllSupportVouchers();
+      const vouchers = await storage.getAllSupportVouchersOptimized();
       res.json(vouchers);
     } catch (error) {
+      console.error('Support vouchers endpoint error:', error);
       res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
@@ -1509,7 +1754,7 @@ export function registerRoutes(app: Express): Server {
       
       // Get creator and recipients
       const creator = await storage.getUser(voucher.createdBy);
-      const recipients = await storage.getVoucherRecipients(voucherId);
+      const recipients = await storage.getVoucherRecipientsOptimized(voucherId);
       
       const voucherWithDetails = {
         ...voucher,

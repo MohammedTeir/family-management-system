@@ -1,4 +1,5 @@
-import { pgTable, text, serial, integer, boolean, timestamp, varchar, uuid } from "drizzle-orm/pg-core";import { createInsertSchema } from "drizzle-zod";
+import { pgTable, text, serial, integer, boolean, timestamp, varchar, uuid, index } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
@@ -13,7 +14,11 @@ export const users = pgTable("users", {
   failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
   lockoutUntil: timestamp("lockout_until"),
   deletedAt: timestamp("deleted_at"), // <-- soft delete
-});
+}, (table) => ({
+  usernameIdx: index("users_username_idx").on(table.username),
+  roleIdx: index("users_role_idx").on(table.role),
+  deletedAtIdx: index("users_deleted_at_idx").on(table.deletedAt),
+}));
 
 export const families = pgTable("families", {
   id: serial("id").primaryKey(),
@@ -39,7 +44,12 @@ export const families = pgTable("families", {
   socialStatus: varchar("social_status", { length: 50 }),
   adminNotes: text("admin_notes"),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  // Critical performance indexes
+  userIdIdx: index("families_user_id_idx").on(table.userId),
+  husbandIdIdx: index("families_husband_id_idx").on(table.husbandID),
+  createdAtIdx: index("families_created_at_idx").on(table.createdAt),
+}));
 
 export const wives = pgTable("wives", {
   id: serial("id").primaryKey(),
@@ -50,7 +60,9 @@ export const wives = pgTable("wives", {
   wifeJob: text("wife_job"),
   wifePregnant: boolean("wife_pregnant").default(false),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  familyIdIdx: index("wives_family_id_idx").on(table.familyId),
+}));
 
 export const members = pgTable("members", {
   id: serial("id").primaryKey(),
@@ -64,7 +76,11 @@ export const members = pgTable("members", {
   relationship: varchar("relationship", { length: 50 }).notNull(), // 'son', 'daughter', 'mother', 'other'
   isChild: boolean("is_child").default(true),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  familyIdIdx: index("members_family_id_idx").on(table.familyId),
+  genderIdx: index("members_gender_idx").on(table.gender),
+  relationshipIdx: index("members_relationship_idx").on(table.relationship),
+}));
 
 export const requests = pgTable("requests", {
   id: serial("id").primaryKey(),
@@ -76,7 +92,12 @@ export const requests = pgTable("requests", {
   adminComment: text("admin_comment"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => ({
+  familyIdIdx: index("requests_family_id_idx").on(table.familyId),
+  statusIdx: index("requests_status_idx").on(table.status),
+  typeIdx: index("requests_type_idx").on(table.type),
+  createdAtIdx: index("requests_created_at_idx").on(table.createdAt),
+}));
 
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),
@@ -140,7 +161,11 @@ export const voucherRecipients = pgTable("voucher_recipients", {
   updatedBy: integer("updated_by").references(() => users.id),
   updatedAt: timestamp("updated_at").defaultNow(),
   notes: text("notes"),
-});
+}, (table) => ({
+  voucherIdIdx: index("voucher_recipients_voucher_id_idx").on(table.voucherId),
+  familyIdIdx: index("voucher_recipients_family_id_idx").on(table.familyId),
+  statusIdx: index("voucher_recipients_status_idx").on(table.status),
+}));
 
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({

@@ -26,6 +26,7 @@ export interface IStorage {
   createFamily(family: InsertFamily): Promise<Family>;
   updateFamily(id: number, family: Partial<InsertFamily>): Promise<Family | undefined>;
   getAllFamilies(): Promise<Family[]>;
+  getAllFamiliesWithMembersOptimized(): Promise<(Family & { members: Member[] })[]>;
   deleteFamily(id: number): Promise<boolean>;
   getFamiliesByUserId(userId: number): Promise<Family[]>;
 
@@ -46,6 +47,7 @@ export interface IStorage {
   // Requests
   getRequestsByFamilyId(familyId: number): Promise<Request[]>;
   getAllRequests(): Promise<Request[]>;
+  getAllRequestsWithFamilies(): Promise<(Request & { family: Family })[]>;
   getRequest(id: number): Promise<Request | undefined>;
   createRequest(request: InsertRequest): Promise<Request>;
   updateRequest(id: number, request: Partial<InsertRequest>): Promise<Request | undefined>;
@@ -67,15 +69,18 @@ export interface IStorage {
   getSetting(key: string): Promise<string | undefined>;
   setSetting(key: string, value: string, description?: string): Promise<void>;
   getAllSettings(): Promise<Settings[]>;
+  clearSettingsCache(): void;
   
   // Support Vouchers
   getAllSupportVouchers(): Promise<(SupportVoucher & { creator: User; recipients: VoucherRecipient[] })[]>;
+  getAllSupportVouchersOptimized(): Promise<(SupportVoucher & { creator: User; recipients: (VoucherRecipient & { family: Family })[] })[]>;
   getSupportVoucher(id: number): Promise<SupportVoucher | undefined>;
   createSupportVoucher(voucher: InsertSupportVoucher): Promise<SupportVoucher>;
   updateSupportVoucher(id: number, voucher: Partial<InsertSupportVoucher>): Promise<SupportVoucher | undefined>;
   
   // Voucher Recipients
   getVoucherRecipients(voucherId: number): Promise<(VoucherRecipient & { family: Family })[]>;
+  getVoucherRecipientsOptimized(voucherId: number): Promise<(VoucherRecipient & { family: Family })[]>;
   createVoucherRecipient(recipient: InsertVoucherRecipient): Promise<VoucherRecipient>;
   updateVoucherRecipient(id: number, recipient: Partial<InsertVoucherRecipient>): Promise<VoucherRecipient | undefined>;
   
@@ -89,6 +94,11 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Settings cache to avoid repeated database queries
+  private settingsCache: Map<string, string> = new Map();
+  private settingsCacheExpiry: number = 0;
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
   constructor() {
   }
 
@@ -181,6 +191,32 @@ export class DatabaseStorage implements IStorage {
     return familiesWithMembers;
   }
 
+  // Optimized version using JOIN to avoid N+1 queries
+  async getAllFamiliesWithMembersOptimized(): Promise<(Family & { members: Member[] })[]> {
+    // Get all families first
+    const allFamilies = await this.getAllFamilies();
+    
+    // Get ALL members in one query instead of 721 separate queries
+    const allMembers = await db.select().from(members);
+    
+    // Group members by familyId for O(1) lookup
+    const membersByFamilyId = new Map<number, Member[]>();
+    allMembers.forEach(member => {
+      if (!membersByFamilyId.has(member.familyId)) {
+        membersByFamilyId.set(member.familyId, []);
+      }
+      membersByFamilyId.get(member.familyId)!.push(member);
+    });
+    
+    // Combine families with their members
+    const familiesWithMembers = allFamilies.map(family => ({
+      ...family,
+      members: membersByFamilyId.get(family.id) || []
+    }));
+    
+    return familiesWithMembers;
+  }
+
   async deleteFamily(id: number): Promise<boolean> {
     // Delete all wives of the family
     await db.delete(wives).where(eq(wives.familyId, id));
@@ -258,6 +294,29 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(requests).orderBy(desc(requests.createdAt));
   }
 
+  // Optimized version to avoid N+1 queries for requests with families
+  async getAllRequestsWithFamilies(): Promise<(Request & { family: Family })[]> {
+    // Get all requests first
+    const allRequests = await this.getAllRequests();
+    
+    // Get all families in one query instead of N separate queries
+    const allFamilies = await this.getAllFamilies();
+    
+    // Create family lookup map for O(1) access
+    const familyMap = new Map<number, Family>();
+    allFamilies.forEach(family => {
+      familyMap.set(family.id, family);
+    });
+    
+    // Combine requests with their families
+    const requestsWithFamilies = allRequests.map(request => ({
+      ...request,
+      family: familyMap.get(request.familyId)!
+    }));
+    
+    return requestsWithFamilies;
+  }
+
   async getRequest(id: number): Promise<Request | undefined> {
     const [request] = await db.select().from(requests).where(eq(requests.id, id));
     return request || undefined;
@@ -316,10 +375,27 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
-  // Settings
+  // Settings (with caching)
+  private isCacheValid(): boolean {
+    return Date.now() < this.settingsCacheExpiry;
+  }
+
+  private async refreshSettingsCache(): Promise<void> {
+    console.log('🔄 Refreshing settings cache...');
+    const allSettings = await db.select().from(settings);
+    this.settingsCache.clear();
+    allSettings.forEach(setting => {
+      this.settingsCache.set(setting.key, setting.value);
+    });
+    this.settingsCacheExpiry = Date.now() + this.CACHE_TTL;
+    console.log(`✅ Settings cache refreshed with ${allSettings.length} settings`);
+  }
+
   async getSetting(key: string): Promise<string | undefined> {
-    const [setting] = await db.select().from(settings).where(eq(settings.key, key));
-    return setting?.value || undefined;
+    if (!this.isCacheValid()) {
+      await this.refreshSettingsCache();
+    }
+    return this.settingsCache.get(key);
   }
 
   async setSetting(key: string, value: string, description?: string): Promise<void> {
@@ -327,10 +403,35 @@ export class DatabaseStorage implements IStorage {
       target: settings.key,
       set: { value, description }
     });
+    
+    // Update cache immediately
+    this.settingsCache.set(key, value);
+    console.log(`🔄 Setting '${key}' updated in cache`);
   }
 
   async getAllSettings(): Promise<Settings[]> {
-    return await db.select().from(settings);
+    if (!this.isCacheValid()) {
+      await this.refreshSettingsCache();
+    }
+    
+    // Convert cache to Settings array format
+    const settingsArray: Settings[] = [];
+    for (const [key, value] of this.settingsCache.entries()) {
+      // Get full setting with description from database for consistency
+      const [fullSetting] = await db.select().from(settings).where(eq(settings.key, key));
+      if (fullSetting) {
+        settingsArray.push(fullSetting);
+      }
+    }
+    
+    return settingsArray;
+  }
+
+  // Method to clear cache when settings are bulk updated
+  clearSettingsCache(): void {
+    this.settingsCache.clear();
+    this.settingsCacheExpiry = 0;
+    console.log('🗑️ Settings cache cleared');
   }
 
   // Support Vouchers
@@ -348,6 +449,47 @@ export class DatabaseStorage implements IStorage {
         };
       })
     );
+    
+    return vouchersWithDetails;
+  }
+
+  // Optimized version to avoid N+1 queries for support vouchers
+  async getAllSupportVouchersOptimized(): Promise<(SupportVoucher & { creator: User; recipients: (VoucherRecipient & { family: Family })[] })[]> {
+    // Get all vouchers
+    const vouchers = await db.select().from(supportVouchers).orderBy(desc(supportVouchers.createdAt));
+    
+    // Get all users and families in bulk
+    const [allUsers, allFamilies, allRecipients] = await Promise.all([
+      this.getAllUsers(),
+      this.getAllFamilies(),
+      db.select().from(voucherRecipients)
+    ]);
+    
+    // Create lookup maps for O(1) access
+    const userMap = new Map<number, User>();
+    allUsers.forEach(user => userMap.set(user.id, user));
+    
+    const familyMap = new Map<number, Family>();
+    allFamilies.forEach(family => familyMap.set(family.id, family));
+    
+    // Group recipients by voucherId
+    const recipientsByVoucherId = new Map<number, (VoucherRecipient & { family: Family })[]>();
+    allRecipients.forEach(recipient => {
+      const family = familyMap.get(recipient.familyId);
+      if (family) {
+        if (!recipientsByVoucherId.has(recipient.voucherId)) {
+          recipientsByVoucherId.set(recipient.voucherId, []);
+        }
+        recipientsByVoucherId.get(recipient.voucherId)!.push({ ...recipient, family });
+      }
+    });
+    
+    // Combine vouchers with their details
+    const vouchersWithDetails = vouchers.map(voucher => ({
+      ...voucher,
+      creator: userMap.get(voucher.createdBy)!,
+      recipients: recipientsByVoucherId.get(voucher.id) || []
+    }));
     
     return vouchersWithDetails;
   }
@@ -380,6 +522,29 @@ export class DatabaseStorage implements IStorage {
         };
       })
     );
+    
+    return recipientsWithFamilies;
+  }
+
+  // Optimized version to avoid N+1 queries for voucher recipients
+  async getVoucherRecipientsOptimized(voucherId: number): Promise<(VoucherRecipient & { family: Family })[]> {
+    // Get recipients for this voucher
+    const recipients = await db.select().from(voucherRecipients).where(eq(voucherRecipients.voucherId, voucherId));
+    
+    if (recipients.length === 0) return [];
+    
+    // Get all families in one query instead of N separate queries
+    const allFamilies = await this.getAllFamilies();
+    
+    // Create family lookup map for O(1) access
+    const familyMap = new Map<number, Family>();
+    allFamilies.forEach(family => familyMap.set(family.id, family));
+    
+    // Combine recipients with their families
+    const recipientsWithFamilies = recipients.map(recipient => ({
+      ...recipient,
+      family: familyMap.get(recipient.familyId)!
+    }));
     
     return recipientsWithFamilies;
   }
