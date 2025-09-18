@@ -640,9 +640,12 @@ export function registerRoutes(app: Express): Server {
     if (req.user!.role === 'head') return res.sendStatus(403);
     
     try {
+      console.log('[Families API] Getting all families with members...');
       const families = await storage.getAllFamiliesWithMembers();
+      console.log('[Families API] Found families:', families.length);
       res.json(families);
     } catch (error) {
+      console.error('[Families API] Error:', error);
       res.status(500).json({ message: "خطأ في الخادم" });
     }
   });
