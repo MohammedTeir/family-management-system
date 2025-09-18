@@ -49,8 +49,11 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: true, // 🚀 PERFORMANCE: Re-enable to get fresh data on focus
+      refetchOnMount: 'always', // 🚀 PERFORMANCE: Always fetch fresh data on mount
+      staleTime: 30 * 1000, // 🚀 PERFORMANCE: Reduced to 30 seconds for fresher data
+      gcTime: 5 * 60 * 1000, // 5 minutes cache time (renamed from cacheTime)
+      refetchOnReconnect: true, // 🚀 PERFORMANCE: Refetch when network reconnects
       retry: (failureCount, error: any) => {
         // Retry once on network errors or 5xx errors, but not on 401/403
         if (failureCount < 1) {

@@ -65,26 +65,39 @@ export function useSettings() {
   const [settings, setSettings] = useState<Settings>(loadSettingsSync);
   const [isLoading, setIsLoading] = useState(true);
   
-  // On mount, always try to load from backend and update state/localStorage
+  // 🚀 PERFORMANCE: On mount, always try to load from backend with proper cleanup
   useEffect(() => {
+    const abortController = new AbortController();
+    
     async function fetchSettings() {
       try {
         // Use public settings endpoint that doesn't require authentication
-        const response = await apiClient.get("/api/public/settings");
+        const response = await apiClient.get("/api/public/settings", {
+          signal: abortController.signal
+        });
         const data = response.data;
         const merged = { ...defaultSettings, ...data };
         setSettings(merged);
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
         setIsLoading(false);
         return;
-      } catch (e) {
-        console.error('Settings API fetch error:', e);
+      } catch (e: any) {
+        // Don't log error if request was aborted (component unmounted)
+        if (e.name !== 'AbortError') {
+          console.error('Settings API fetch error:', e);
+        }
       }
       // If backend fails, use localStorage (already loaded by default)
       setIsLoading(false);
     }
+    
     fetchSettings();
-  }, []);
+    
+    // Cleanup function to abort request if component unmounts
+    return () => {
+      abortController.abort();
+    };
+  }, []); // Empty dependency array - only run on mount/unmount
 
   // Persist settings to localStorage whenever they change
   useEffect(() => {

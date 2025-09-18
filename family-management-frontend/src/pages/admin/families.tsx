@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback, memo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +19,8 @@ import ExcelJS from 'exceljs';
 import { useSettingsContext } from "@/App";
 import { PageWrapper } from "@/components/layout/page-wrapper";
 
-export default function AdminFamilies() {
+// 🚀 PERFORMANCE: Memoized component to prevent unnecessary re-renders
+const AdminFamilies = memo(function AdminFamilies() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFamily, setSelectedFamily] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -94,35 +95,64 @@ export default function AdminFamilies() {
     },
   });
 
-  // Extract unique branches
-  const branchOptions = Array.from(new Set((families || []).map((f: any) => f.branch).filter(Boolean)));
+  // 🚀 PERFORMANCE: Memoize unique branches extraction
+  const branchOptions = useMemo(() => 
+    Array.from(new Set((families || []).map((f: any) => f.branch).filter(Boolean))),
+    [families]
+  );
 
-  // Filtering logic
-  const filteredFamilies: any[] = Array.isArray(families) ? families.filter((family: any) => {
-    const matchesSearch =
-      family.husbandName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      family.husbandID.includes(searchTerm) ||
-      getBranchInArabic(family.branch)?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBranch = branchFilter === 'all' || getBranchInArabic(family.branch) === branchFilter;
-    const matchesDisplaced = displacedFilter === 'all' || (displacedFilter === 'yes' ? family.isDisplaced : !family.isDisplaced);
-    const matchesDamaged = damagedFilter === 'all' || (damagedFilter === 'yes' ? family.warDamage2024 : !family.warDamage2024);
-    const matchesAbroad = abroadFilter === 'all' || (abroadFilter === 'yes' ? family.isAbroad : !family.isAbroad);
-    return matchesSearch && matchesBranch && matchesDisplaced && matchesDamaged && matchesAbroad;
-  }) : [];
+  // 🚀 PERFORMANCE: Memoize expensive filtering logic
+  const filteredFamilies = useMemo(() => {
+    if (!Array.isArray(families)) return [];
+    
+    return families.filter((family: any) => {
+      // Cache toLowerCase to avoid repeated calls
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      const lowerHusbandName = family.husbandName.toLowerCase();
+      const branchInArabic = getBranchInArabic(family.branch);
+      const lowerBranchArabic = branchInArabic?.toLowerCase() || '';
+      
+      const matchesSearch =
+        lowerHusbandName.includes(lowerSearchTerm) ||
+        family.husbandID.includes(searchTerm) ||
+        lowerBranchArabic.includes(lowerSearchTerm);
+        
+      const matchesBranch = branchFilter === 'all' || branchInArabic === branchFilter;
+      const matchesDisplaced = displacedFilter === 'all' || (displacedFilter === 'yes' ? family.isDisplaced : !family.isDisplaced);
+      const matchesDamaged = damagedFilter === 'all' || (damagedFilter === 'yes' ? family.warDamage2024 : !family.warDamage2024);
+      const matchesAbroad = abroadFilter === 'all' || (abroadFilter === 'yes' ? family.isAbroad : !family.isAbroad);
+      
+      return matchesSearch && matchesBranch && matchesDisplaced && matchesDamaged && matchesAbroad;
+    });
+  }, [families, searchTerm, branchFilter, displacedFilter, damagedFilter, abroadFilter]);
 
-  // Dynamically count sons, children, and wives from filtered data
-  const safeFamilies: any[] = Array.isArray(filteredFamilies) ? filteredFamilies : [];
-  let maxSons = 0;
-  let maxChildren = 0;
-  let maxWives = 0;
-  if (Array.isArray(safeFamilies) && safeFamilies.length > 0) {
-    maxSons = Math.max(0, ...safeFamilies.map(f => (Array.isArray(f.members) ? f.members.filter((m: any) => !isChild(m.birthDate)).length : 0)));
-    maxChildren = Math.max(0, ...safeFamilies.map(f => (Array.isArray(f.members) ? f.members.filter((m: any) => isChild(m.birthDate)).length : 0)));
-    maxWives = Math.max(0, ...safeFamilies.map(f => (Array.isArray(f.wives) ? f.wives.length : (f.wifeName ? 1 : 0))));
-  }
+  // 🚀 PERFORMANCE: Memoize expensive max counts calculation
+  const { maxSons, maxChildren, maxWives } = useMemo(() => {
+    const safeFamilies = Array.isArray(filteredFamilies) ? filteredFamilies : [];
+    
+    if (safeFamilies.length === 0) {
+      return { maxSons: 0, maxChildren: 0, maxWives: 0 };
+    }
+    
+    let maxS = 0, maxC = 0, maxW = 0;
+    
+    // Single pass through families for better performance
+    safeFamilies.forEach(family => {
+      const members = Array.isArray(family.members) ? family.members : [];
+      const sons = members.filter((m: any) => !isChild(m.birthDate)).length;
+      const children = members.filter((m: any) => isChild(m.birthDate)).length;
+      const wives = Array.isArray(family.wives) ? family.wives.length : (family.wifeName ? 1 : 0);
+      
+      if (sons > maxS) maxS = sons;
+      if (children > maxC) maxC = children;
+      if (wives > maxW) maxW = wives;
+    });
+    
+    return { maxSons: maxS, maxChildren: maxC, maxWives: maxW };
+  }, [filteredFamilies]);
 
-  // Build columns in the exact order provided, only add dynamic columns if there are any
-  const orderedColumns = [
+  // 🚀 PERFORMANCE: Memoize expensive Excel columns generation
+  const excelColumns = useMemo(() => [
     { key: 'husbandName', label: 'اسم الزوج رباعي', checked: true },
     { key: 'husbandID', label: 'رقم هوية الزوج', checked: true },
     { key: 'husbandJob', label: 'عمل الزوج', checked: true },
@@ -166,9 +196,7 @@ export default function AdminFamilies() {
     { key: 'socialStatus', label: 'الحالة الاجتماعية لرب الاسرة', checked: true },
     { key: 'abroadLocation', label: 'اسم الدولة إذا كنت مغترب خارج البلاد', checked: true },
     { key: 'adminNotes', label: 'ملاحظات إدارية', checked: true },
-  ];
-
-  const excelColumns = useMemo(() => orderedColumns, [maxSons, maxChildren, maxWives]);
+  ], [maxSons, maxChildren, maxWives]);
 
   const [checkedColumns, setCheckedColumns] = useState<{ [key: string]: boolean }>({});
 
@@ -1049,4 +1077,6 @@ export default function AdminFamilies() {
               </div>
     </PageWrapper>
   );
-}
+});
+
+export default AdminFamilies;

@@ -5,62 +5,82 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { useSettings } from "@/hooks/use-settings";
+import { ProtectedRoute } from "./lib/protected-route";
+import { useEffect, useState, createContext, useContext, Suspense, lazy } from "react";
+import { useAuth } from "./hooks/use-auth";
+import { apiClient } from "./lib/api";
+
+// 🚀 PERFORMANCE: Static imports for critical pages (loaded immediately)
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
-import { ProtectedRoute } from "./lib/protected-route";
-import FamilyDashboard from "@/pages/dashboard/family-dashboard";
-import FamilyData from "@/pages/dashboard/family-data";
-import FamilyMembers from "@/pages/dashboard/family-members";
-import Requests from "@/pages/dashboard/requests";
-import Notifications from "@/pages/dashboard/notifications";
-import PrintSummary from "@/pages/dashboard/print-summary";
-import AdminDashboard from "@/pages/admin/admin-dashboard";
-import AdminFamilies from "@/pages/admin/families";
-import AdminRequests from "@/pages/admin/admin-requests";
-import AdminNotifications from "@/pages/admin/admin-notifications";
-import Users from "@/pages/admin/users";
-import ProfilePage from "@/pages/dashboard/profile";
-import AdminFamilyEdit from "@/pages/admin/family-edit";
-import Summary from "@/pages/dashboard/summary";
-import AdminNotificationsList from "@/pages/admin/admin-notifications-list";
-import ReportsPage from "@/pages/admin/reports";
-import AdminLogs from "@/pages/admin/logs";
-import SettingsPage from "@/pages/admin/settings";
-import SupportVouchers from "./pages/admin/support-vouchers";
-import VoucherDetails from "./pages/admin/voucher-details";
-import ImportHeads from "./pages/admin/import-heads";
-import { useEffect, useState, createContext, useContext } from "react";
-import { useAuth } from "./hooks/use-auth"; // adjust import as needed
-import { apiClient } from "./lib/api";
+
+// 🚀 PERFORMANCE: Lazy load all other pages to reduce initial bundle size
+const FamilyDashboard = lazy(() => import("@/pages/dashboard/family-dashboard"));
+const FamilyData = lazy(() => import("@/pages/dashboard/family-data"));
+const FamilyMembers = lazy(() => import("@/pages/dashboard/family-members"));
+const Requests = lazy(() => import("@/pages/dashboard/requests"));
+const Notifications = lazy(() => import("@/pages/dashboard/notifications"));
+const PrintSummary = lazy(() => import("@/pages/dashboard/print-summary"));
+const ProfilePage = lazy(() => import("@/pages/dashboard/profile"));
+const Summary = lazy(() => import("@/pages/dashboard/summary"));
+
+// 🚀 PERFORMANCE: Admin pages - heaviest components loaded on demand
+const AdminDashboard = lazy(() => import("@/pages/admin/admin-dashboard"));
+const AdminFamilies = lazy(() => import("@/pages/admin/families"));
+const AdminRequests = lazy(() => import("@/pages/admin/admin-requests"));
+const AdminNotifications = lazy(() => import("@/pages/admin/admin-notifications"));
+const Users = lazy(() => import("@/pages/admin/users"));
+const AdminFamilyEdit = lazy(() => import("@/pages/admin/family-edit"));
+const AdminNotificationsList = lazy(() => import("@/pages/admin/admin-notifications-list"));
+const ReportsPage = lazy(() => import("@/pages/admin/reports"));
+const AdminLogs = lazy(() => import("@/pages/admin/logs"));
+const SettingsPage = lazy(() => import("@/pages/admin/settings"));
+const SupportVouchers = lazy(() => import("./pages/admin/support-vouchers"));
+const VoucherDetails = lazy(() => import("./pages/admin/voucher-details"));
+const ImportHeads = lazy(() => import("./pages/admin/import-heads"));
+
+// Loading component for lazy-loaded routes
+const RouteLoading = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 
 function Router() {
   return (
     <Switch>
+      {/* Static routes - no Suspense needed */}
       <ProtectedRoute path="/" component={HomePage} roles={['admin', 'root', 'head']} />
-      <ProtectedRoute path="/dashboard" component={FamilyDashboard} roles={['head','admin']} />
-      <ProtectedRoute path="/dashboard/family" component={FamilyData} roles={['head','admin']} />
-      <ProtectedRoute path="/dashboard/members" component={FamilyMembers} roles={['head','admin']} />
-      <ProtectedRoute path="/dashboard/requests" component={Requests} roles={['head','admin']} />
-      <ProtectedRoute path="/dashboard/notifications" component={Notifications} roles={['head','admin']} />
-      <ProtectedRoute path="/dashboard/print-summary" component={PrintSummary} roles={['head','admin']} />
-      <ProtectedRoute path="/dashboard/profile" component={ProfilePage} roles={['head','admin','root']} />
-      <ProtectedRoute path="/admin" component={AdminDashboard} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/families" component={AdminFamilies} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/requests" component={AdminRequests} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/notifications" component={AdminNotifications} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/notifications-list" component={AdminNotificationsList} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/users" component={Users} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/families/:id/edit" component={props => <AdminFamilyEdit {...props} />} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/families/:id/summary" component={Summary} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/reports" component={ReportsPage} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/logs" component={AdminLogs} roles={['root']} />
-      <ProtectedRoute path="/admin/settings" component={SettingsPage} roles={['root']} />
-      <ProtectedRoute path="/admin/support-vouchers" component={SupportVouchers} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/support-vouchers/:id" component={props => <VoucherDetails {...props} />} roles={['admin', 'root']} />
-      <ProtectedRoute path="/admin/import-heads" component={ImportHeads} roles={['admin', 'root']} />
       <Route path="/auth" component={AuthPage} />
+      
+      {/* Lazy-loaded routes wrapped in Suspense */}
+      <Suspense fallback={<RouteLoading />}>
+        <ProtectedRoute path="/dashboard" component={FamilyDashboard} roles={['head','admin']} />
+        <ProtectedRoute path="/dashboard/family" component={FamilyData} roles={['head','admin']} />
+        <ProtectedRoute path="/dashboard/members" component={FamilyMembers} roles={['head','admin']} />
+        <ProtectedRoute path="/dashboard/requests" component={Requests} roles={['head','admin']} />
+        <ProtectedRoute path="/dashboard/notifications" component={Notifications} roles={['head','admin']} />
+        <ProtectedRoute path="/dashboard/print-summary" component={PrintSummary} roles={['head','admin']} />
+        <ProtectedRoute path="/dashboard/profile" component={ProfilePage} roles={['head','admin','root']} />
+        <ProtectedRoute path="/admin" component={AdminDashboard} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/families" component={AdminFamilies} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/requests" component={AdminRequests} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/notifications" component={AdminNotifications} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/notifications-list" component={AdminNotificationsList} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/users" component={Users} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/families/:id/edit" component={props => <AdminFamilyEdit {...props} />} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/families/:id/summary" component={Summary} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/reports" component={ReportsPage} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/logs" component={AdminLogs} roles={['root']} />
+        <ProtectedRoute path="/admin/settings" component={SettingsPage} roles={['root']} />
+        <ProtectedRoute path="/admin/support-vouchers" component={SupportVouchers} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/support-vouchers/:id" component={props => <VoucherDetails {...props} />} roles={['admin', 'root']} />
+        <ProtectedRoute path="/admin/import-heads" component={ImportHeads} roles={['admin', 'root']} />
+      </Suspense>
+      
+      {/* Static 404 route */}
       <Route component={NotFound} />
     </Switch>
   );
