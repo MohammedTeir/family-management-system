@@ -434,7 +434,7 @@ export default function FamilyData() {
                   <Label htmlFor="husbandID">رقم الهوية *</Label>
                   <Input
                     id="husbandID"
-                    disabled={!isEditing}
+                    disabled={true}
                     {...form.register("husbandID")}
                   />
                   {form.formState.errors.husbandID && (
