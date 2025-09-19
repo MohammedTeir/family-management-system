@@ -70,6 +70,11 @@ export default function FamilyData() {
   const [customSocialStatus, setCustomSocialStatus] = useState("");
   const [customDamageDescription, setCustomDamageDescription] = useState("");
   const [customBranch, setCustomBranch] = useState("");
+  
+  // Track current form values to ensure UI updates
+  const currentBranch = form.watch("branch");
+  const currentSocialStatus = form.watch("socialStatus");
+  const currentWarDamageDescription = form.watch("warDamageDescription");
   const { data: family, isLoading } = useQuery({
     queryKey: ["/api/family"],
   });
@@ -158,8 +163,24 @@ export default function FamilyData() {
       });
       
       form.reset(formData);
+      
+      // Debug: Log when values change to track UI updates
+      console.log('Form values after reset:', {
+        watchedBranch: form.watch("branch"),
+        watchedSocialStatus: form.watch("socialStatus"),
+        watchedWarDamage: form.watch("warDamageDescription")
+      });
     }
   }, [family, form]);
+
+  // Debug effect to track when watched values change
+  useEffect(() => {
+    console.log('Watched values changed:', {
+      currentBranch,
+      currentSocialStatus,
+      currentWarDamageDescription
+    });
+  }, [currentBranch, currentSocialStatus, currentWarDamageDescription]);
 
   useEffect(() => {
     if (settings.siteTitle) {
@@ -751,7 +772,7 @@ export default function FamilyData() {
                   <Label htmlFor="branch">الفرع</Label>
                   <Select
                     disabled={!isEditing}
-                    value={form.watch("branch") || ""}
+                    value={currentBranch || ""}
                     onValueChange={(value) => {
                       if (value === "custom") {
                         form.setValue("branch", "custom");
@@ -772,7 +793,7 @@ export default function FamilyData() {
                       <SelectItem value="custom">أخرى</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.watch("branch") === "custom" && (
+                  {currentBranch === "custom" && (
                     <Input
                       className="mt-2"
                       placeholder="أدخل اسم الفرع"
@@ -837,7 +858,7 @@ export default function FamilyData() {
                       <Label htmlFor="warDamageDescription">نوع الأضرار</Label>
                       <Select
                         disabled={!isEditing}
-                        value={form.watch("warDamageDescription") || ""}
+                        value={currentWarDamageDescription || ""}
                         onValueChange={(value) => {
                           if (value === "custom") {
                             form.setValue("warDamageDescription", "custom");
@@ -859,7 +880,7 @@ export default function FamilyData() {
                       </Select>
                     </div>
 
-                    {form.watch("warDamageDescription") === "custom" && (
+                    {currentWarDamageDescription === "custom" && (
                       <div>
                         <Label htmlFor="customDamageDescription">تفاصيل الأضرار المخصصة</Label>
                         <Textarea
@@ -879,7 +900,7 @@ export default function FamilyData() {
                   <Label htmlFor="socialStatus">الحالة الاجتماعية</Label>
                   <Select
                     disabled={!isEditing}
-                    value={form.watch("socialStatus") || ""}
+                    value={currentSocialStatus || ""}
                     onValueChange={(value) => {
                       if (value === "custom") {
                         form.setValue("socialStatus", "custom");
@@ -900,7 +921,7 @@ export default function FamilyData() {
                       <SelectItem value="custom">أخرى</SelectItem>
                     </SelectContent>
                   </Select>
-                  {form.watch("socialStatus") === "custom" && (
+                  {currentSocialStatus === "custom" && (
                     <Input
                       className="mt-2"
                       placeholder="أدخل الحالة الاجتماعية"
