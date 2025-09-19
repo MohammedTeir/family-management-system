@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Users as UsersIcon, UserPlus, Shield, ShieldCheck, Trash2, Edit2, AlertTriangle, Search, Undo2, Lock, Unlock, Loader2 } from "lucide-react";
+import { Users as UsersIcon, UserPlus, Shield, ShieldCheck, Trash2, Edit2, AlertTriangle, Search, Undo2, Lock, Unlock, Loader2, Crown } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -55,6 +55,7 @@ export default function Users() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
   const [deleteAllHeadsDialogOpen, setDeleteAllHeadsDialogOpen] = useState(false);
   const [headsToDelete, setHeadsToDelete] = useState<any[]>([]);
   const { settings } = useSettingsContext();
@@ -362,11 +363,27 @@ export default function Users() {
 
   const filteredUsers = usersArray.filter((user: any) => {
     const searchLower = searchTerm.toLowerCase();
-    return (
+    const matchesSearch = (
       user.username.toLowerCase().includes(searchLower) ||
       user.phone?.toLowerCase().includes(searchLower) ||
       user.family?.husbandName?.toLowerCase().includes(searchLower)
     );
+    
+    // Filter by role tab
+    const matchesRole = (() => {
+      switch (activeTab) {
+        case "admins":
+          return user.role === 'admin' && !isNumeric(user.username);
+        case "heads":
+          return user.role === 'head' || (user.role === 'admin' && isNumeric(user.username));
+        case "root":
+          return user.role === 'root';
+        default:
+          return true; // "all" tab
+      }
+    })();
+    
+    return matchesSearch && matchesRole;
   });
   const totalPages = Math.ceil(filteredUsers.length / pageSize);
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -637,6 +654,56 @@ export default function Users() {
             </CardContent>
           </Card>
 
+          {/* Role Tabs */}
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2 border-b border-border">
+              <button
+                onClick={() => {setActiveTab("all"); setCurrentPage(1);}}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "all" 
+                    ? "border-primary text-primary" 
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <UsersIcon className="inline w-4 h-4 mr-2" />
+                الكل ({usersArray.length})
+              </button>
+              <button
+                onClick={() => {setActiveTab("admins"); setCurrentPage(1);}}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "admins" 
+                    ? "border-primary text-primary" 
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Shield className="inline w-4 h-4 mr-2" />
+                المشرفين ({adminUsers.length})
+              </button>
+              <button
+                onClick={() => {setActiveTab("heads"); setCurrentPage(1);}}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "heads" 
+                    ? "border-primary text-primary" 
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <UsersIcon className="inline w-4 h-4 mr-2" />
+                رؤساء الأسر ({headUsers.length})
+              </button>
+              <button
+                onClick={() => {setActiveTab("root"); setCurrentPage(1);}}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === "root" 
+                    ? "border-primary text-primary" 
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Crown className="inline w-4 h-4 mr-2" />
+                المشرفين الرئيسيين ({usersArray.filter((u: any) => u.role === 'root').length})
+              </button>
+            </div>
+          </div>
+
           {/* Users Table */}
           <Card>
             <CardHeader>
@@ -657,15 +724,15 @@ export default function Users() {
                       </tr>
                     </thead>
                     <tbody className="bg-card divide-y divide-border">
-                      {usersArray.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((user: any) => {
+                      {paginatedUsers.map((user: any) => {
                         const isDeleted = !!user.deletedAt;
                         const isLocked = user.lockoutUntil && new Date(user.lockoutUntil) > new Date();
                         return (
                           <tr key={user.id} className={isDeleted ? "bg-muted text-muted-foreground" : "hover:bg-muted"}>
                             <td className="px-2 sm:px-4 py-3 text-sm">{user.username}</td>
                             <td className="px-2 sm:px-4 py-3 text-sm">
-                              {(user.role === 'head' || (user.role === 'admin' && isNumeric(user.username))) 
-                                ? (user.family?.husbandName || user.husbandName || user.fullName || user.username)
+                                      {(user.role === 'head' || (user.role === 'admin' && isNumeric(user.username))) 
+                                ? (user.family?.husbandName || user.husbandName || user.fullName || "غير محدد")
                                 : user.username}
                             </td>
                             <td className="px-2 sm:px-4 py-3">
