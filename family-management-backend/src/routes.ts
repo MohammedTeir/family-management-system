@@ -61,9 +61,7 @@ export function registerRoutes(app: Express): Server {
       return res.sendStatus(403);
     }
     
-    // Set timeout to 10 minutes for large imports
-    req.setTimeout(10 * 60 * 1000);
-    res.setTimeout(10 * 60 * 1000);
+    // Note: Netlify Functions have built-in 10-minute timeout
     
     console.log(`📊 Excel import started by user: ${req.user!.username}`);
     
@@ -706,10 +704,6 @@ export function registerRoutes(app: Express): Server {
   // Admin routes
   app.get("/api/admin/families", authMiddleware, async (req, res) => {
     if (req.user!.role === 'head') return res.sendStatus(403);
-    
-    // Set longer timeout for heavy operation (5 minutes)
-    req.setTimeout(5 * 60 * 1000);
-    res.setTimeout(5 * 60 * 1000);
     
     try {
       const families = await storage.getAllFamiliesWithMembersOptimized();
@@ -1384,9 +1378,7 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/admin/backup", authMiddleware, async (req, res) => {
     if (req.user!.role !== 'root') return res.sendStatus(403);
     
-    // Set very long timeout for backup operation (10 minutes)
-    req.setTimeout(10 * 60 * 1000);
-    res.setTimeout(10 * 60 * 1000);
+    // Note: Netlify Functions have built-in 10-minute timeout
     
     try {
       console.log('Starting database backup...');
@@ -1729,9 +1721,7 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/support-vouchers", authMiddleware, async (req, res) => {
     if (!['admin', 'root'].includes(req.user!.role)) return res.sendStatus(403);
     
-    // Set longer timeout for heavy operation (3 minutes)
-    req.setTimeout(3 * 60 * 1000);
-    res.setTimeout(3 * 60 * 1000);
+    // Note: Netlify Functions have built-in timeout handling
     
     try {
       const vouchers = await storage.getAllSupportVouchersOptimized();
