@@ -50,6 +50,49 @@ export function registerRoutes(app: Express): Server {
     allowedHeaders: ['Content-Type', 'Authorization']
   }));
 
+  // Default routes
+  app.get("/", (req, res) => {
+    res.json({
+      message: "Family Management System API",
+      version: "1.0.0",
+      status: "running",
+      endpoints: {
+        auth: "/api/login, /api/logout, /api/user",
+        health: "/api/health",
+        settings: "/api/settings, /api/public/settings",
+        families: "/api/families, /api/family",
+        users: "/api/admin/users",
+        requests: "/api/requests",
+        notifications: "/api/notifications"
+      },
+      documentation: "Family management system backend API"
+    });
+  });
+
+  app.get("/api", (req, res) => {
+    res.json({
+      message: "Family Management System API",
+      version: "1.0.0",
+      status: "running",
+      timestamp: new Date().toISOString(),
+      availableEndpoints: [
+        "GET /api/health - System health check",
+        "POST /api/login - User authentication",
+        "POST /api/logout - User logout",
+        "GET /api/user - Get current user info",
+        "GET /api/settings - Get system settings (authenticated)",
+        "GET /api/public/settings - Get public settings",
+        "GET /api/families - Get families list (admin)",
+        "GET /api/family - Get family data",
+        "POST /api/family - Create family",
+        "PUT /api/family/:id - Update family",
+        "GET /api/requests - Get requests",
+        "POST /api/requests - Create request",
+        "GET /api/notifications - Get notifications"
+      ]
+    });
+  });
+
   // JWT Authentication routes
   app.post("/api/login", loginHandler);
   app.post("/api/logout", logoutHandler);
