@@ -114,34 +114,50 @@ export default function FamilyData() {
 
   useEffect(() => {
     if (family) {
-      form.reset({
+      // Check for custom values before resetting form
+      const isCustomSocialStatus = family.socialStatus && 
+        !["married", "polygamous", "divorced", "widowed"].includes(family.socialStatus);
+      const isCustomBranch = family.branch && 
+        !["abouda_abunasr", "married_daughters_displaced", "alnogra", "abushalbia_abumatar"].includes(family.branch);
+      const isCustomDamage = family.warDamageDescription && 
+        !["total_destruction_uninhabitable", "partial_destruction_habitable", "minor_damage"].includes(family.warDamageDescription);
+
+      // Set custom state values
+      if (isCustomSocialStatus) {
+        setCustomSocialStatus(family.socialStatus);
+      } else {
+        setCustomSocialStatus(""); // Clear if not custom
+      }
+      if (isCustomBranch) {
+        setCustomBranch(family.branch);
+      } else {
+        setCustomBranch(""); // Clear if not custom
+      }
+      if (isCustomDamage) {
+        setCustomDamageDescription(family.warDamageDescription);
+      } else {
+        setCustomDamageDescription(""); // Clear if not custom
+      }
+
+      // Reset form with proper values
+      const formData = {
         ...family,
         husbandBirthDate: family.husbandBirthDate ? formatDateForInput(family.husbandBirthDate) : "",
+        socialStatus: isCustomSocialStatus ? "custom" : family.socialStatus || "",
+        branch: isCustomBranch ? "custom" : family.branch || "",
+        warDamageDescription: isCustomDamage ? "custom" : family.warDamageDescription || "",
+      };
+      
+      console.log('Resetting form with data:', {
+        socialStatus: formData.socialStatus,
+        branch: formData.branch,
+        warDamageDescription: formData.warDamageDescription,
+        isCustomSocialStatus,
+        isCustomBranch,
+        isCustomDamage
       });
-    }
-  }, [family, form]);
-
-  useEffect(() => {
-    if (family?.warDamageDescription && 
-        !["total_destruction_uninhabitable", "partial_destruction_habitable", "minor_damage"].includes(family.warDamageDescription)) {
-      setCustomDamageDescription(family.warDamageDescription);
-      form.setValue("warDamageDescription", "custom");
-    }
-  }, [family, form]);
-
-  useEffect(() => {
-    if (family?.socialStatus && 
-        !["married", "polygamous", "divorced", "widowed"].includes(family.socialStatus)) {
-      setCustomSocialStatus(family.socialStatus);
-      form.setValue("socialStatus", "custom");
-    }
-  }, [family, form]);
-
-  useEffect(() => {
-    if (family?.branch && 
-        !["abouda_abunasr", "married_daughters_displaced", "alnogra", "abushalbia_abumatar"].includes(family.branch)) {
-      setCustomBranch(family.branch);
-      form.setValue("branch", "custom");
+      
+      form.reset(formData);
     }
   }, [family, form]);
 
@@ -268,6 +284,7 @@ export default function FamilyData() {
   });
 
   const onSubmit = (data: FamilyFormData) => {
+    // Handle custom values
     if (data.socialStatus === "custom") {
       data.socialStatus = customSocialStatus;
     }
@@ -280,8 +297,18 @@ export default function FamilyData() {
       data.branch = customBranch;
     }
     
+    // Safeguard: Ensure we don't send empty values for existing family
     if (family) {
-      updateFamilyMutation.mutate(data);
+      // If form values are empty but family has values, preserve the existing values
+      const safeData = {
+        ...data,
+        socialStatus: data.socialStatus || family.socialStatus || "",
+        branch: data.branch || family.branch || "",
+        warDamageDescription: data.warDamageDescription || family.warDamageDescription || "",
+      };
+      
+      console.log('Submitting family update with data:', safeData);
+      updateFamilyMutation.mutate(safeData);
     } else {
       createFamilyMutation.mutate(data);
     }
