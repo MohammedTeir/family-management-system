@@ -44,7 +44,7 @@ export default function AdminRequests() {
   const updateRequestMutation = useMutation({
     mutationFn: async ({ id, status, adminComment }: { id: number; status: string; adminComment?: string }) => {
       const res = await apiRequest("PUT", `/api/requests/${id}`, { status, adminComment });
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/requests"] });

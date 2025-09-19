@@ -87,7 +87,7 @@ export default function AuthPage() {
         family: familyData,
         members: []
       });
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       toast({

@@ -115,7 +115,7 @@ export default function Users() {
   const createUserMutation = useMutation({
     mutationFn: async (data: UserFormData) => {
       const res = await apiRequest("POST", "/api/admin/users", data);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
@@ -151,7 +151,7 @@ export default function Users() {
         members: []
       };
       const res = await apiRequest("POST", "/api/register-family", requestData);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
@@ -174,7 +174,7 @@ export default function Users() {
   const updateUserMutation = useMutation({
     mutationFn: async (data: Partial<UserFormData>) => {
       const res = await apiRequest("PUT", `/api/admin/users/${editingUser.id}`, data);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });

@@ -57,7 +57,7 @@ export default function Requests() {
   const createRequestMutation = useMutation({
     mutationFn: async (data: RequestFormData) => {
       const res = await apiRequest("POST", "/api/requests", data);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/requests"] });

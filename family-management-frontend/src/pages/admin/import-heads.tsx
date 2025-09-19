@@ -36,7 +36,7 @@ export default function ImportHeads() {
           signal: controller.signal
         });
         clearTimeout(timeoutId);
-        return await res.json();
+        return res.data;
       } catch (error) {
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {

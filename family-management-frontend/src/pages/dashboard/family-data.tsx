@@ -158,7 +158,7 @@ export default function FamilyData() {
   const updateFamilyMutation = useMutation({
     mutationFn: async (data: FamilyFormData) => {
       const res = await apiRequest("PUT", `/api/family/${family.id}`, data);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/family"] });
@@ -180,7 +180,7 @@ export default function FamilyData() {
   const createFamilyMutation = useMutation({
     mutationFn: async (data: FamilyFormData) => {
       const res = await apiRequest("POST", "/api/family", data);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/family"] });
@@ -202,7 +202,7 @@ export default function FamilyData() {
   const createWifeMutation = useMutation({
     mutationFn: async (data: WifeFormData) => {
       const res = await apiRequest("POST", "/api/wives", data);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/family"] });
@@ -225,7 +225,7 @@ export default function FamilyData() {
   const updateWifeMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<WifeFormData> }) => {
       const res = await apiRequest("PUT", `/api/wives/${id}`, data);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/family"] });

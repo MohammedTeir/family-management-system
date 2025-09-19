@@ -106,7 +106,7 @@ export default function AdminNotifications() {
   const createNotificationMutation = useMutation({
     mutationFn: async (data: NotificationFormData) => {
       const res = await apiRequest("POST", "/api/notifications", data);
-      return await res.json();
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
