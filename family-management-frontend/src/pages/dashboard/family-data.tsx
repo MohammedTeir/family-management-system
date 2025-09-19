@@ -154,34 +154,10 @@ export default function FamilyData() {
         warDamageDescription: isCustomDamage ? "custom" : family.warDamageDescription || "",
       };
       
-      console.log('Resetting form with data:', {
-        socialStatus: formData.socialStatus,
-        branch: formData.branch,
-        warDamageDescription: formData.warDamageDescription,
-        isCustomSocialStatus,
-        isCustomBranch,
-        isCustomDamage
-      });
-      
       form.reset(formData);
-      
-      // Debug: Log when values change to track UI updates
-      console.log('Form values after reset:', {
-        watchedBranch: form.watch("branch"),
-        watchedSocialStatus: form.watch("socialStatus"),
-        watchedWarDamage: form.watch("warDamageDescription")
-      });
     }
   }, [family, form]);
 
-  // Debug effect to track when watched values change
-  useEffect(() => {
-    console.log('Watched values changed:', {
-      currentBranch,
-      currentSocialStatus,
-      currentWarDamageDescription
-    });
-  }, [currentBranch, currentSocialStatus, currentWarDamageDescription]);
 
   useEffect(() => {
     if (settings.siteTitle) {
@@ -329,7 +305,6 @@ export default function FamilyData() {
         warDamageDescription: data.warDamageDescription || family.warDamageDescription || "",
       };
       
-      console.log('Submitting family update with data:', safeData);
       updateFamilyMutation.mutate(safeData);
     } else {
       createFamilyMutation.mutate(data);
