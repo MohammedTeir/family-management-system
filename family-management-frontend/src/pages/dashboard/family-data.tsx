@@ -71,10 +71,6 @@ export default function FamilyData() {
   const [customDamageDescription, setCustomDamageDescription] = useState("");
   const [customBranch, setCustomBranch] = useState("");
   
-  // Track current form values to ensure UI updates
-  const currentBranch = form.watch("branch");
-  const currentSocialStatus = form.watch("socialStatus");
-  const currentWarDamageDescription = form.watch("warDamageDescription");
   const { data: family, isLoading } = useQuery({
     queryKey: ["/api/family"],
   });
@@ -105,6 +101,11 @@ export default function FamilyData() {
       numFemales: 0,
     },
   });
+
+  // Track current form values to ensure UI updates (must be after form declaration)
+  const currentBranch = form.watch("branch");
+  const currentSocialStatus = form.watch("socialStatus");
+  const currentWarDamageDescription = form.watch("warDamageDescription");
 
   const wifeForm = useForm<WifeFormData>({
     resolver: zodResolver(wifeSchema),
