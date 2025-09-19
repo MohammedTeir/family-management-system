@@ -365,8 +365,7 @@ export default function Users() {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = (
       user.username.toLowerCase().includes(searchLower) ||
-      user.phone?.toLowerCase().includes(searchLower) ||
-      user.family?.husbandName?.toLowerCase().includes(searchLower)
+      user.phone?.toLowerCase().includes(searchLower)
     );
     
     // Filter by role tab
@@ -571,7 +570,7 @@ export default function Users() {
             <div className="relative w-full sm:w-80">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="البحث باسم المستخدم أو الاسم أو رقم الجوال..."
+                placeholder="البحث باسم المستخدم أو رقم الجوال..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pr-10"
@@ -716,7 +715,6 @@ export default function Users() {
                     <thead className="bg-muted">
                       <tr>
                         <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">اسم المستخدم</th>
-                        <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الاسم</th>
                         <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الدور</th>
                         <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">رقم الجوال</th>
                         <th className="px-2 sm:px-4 py-3 text-right text-xs sm:text-sm font-medium text-muted-foreground">الحالة</th>
@@ -730,11 +728,6 @@ export default function Users() {
                         return (
                           <tr key={user.id} className={isDeleted ? "bg-muted text-muted-foreground" : "hover:bg-muted"}>
                             <td className="px-2 sm:px-4 py-3 text-sm">{user.username}</td>
-                            <td className="px-2 sm:px-4 py-3 text-sm">
-                                      {(user.role === 'head' || (user.role === 'admin' && isNumeric(user.username))) 
-                                ? (user.family?.husbandName || user.husbandName || user.fullName || "غير محدد")
-                                : user.username}
-                            </td>
                             <td className="px-2 sm:px-4 py-3">
                               <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">{getRoleLabel(user.role)}</Badge>
                           </td>
