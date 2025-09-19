@@ -41,6 +41,16 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Function to detect database connection errors
+const isDatabaseError = (error: any): boolean => {
+  const message = error?.response?.data?.message?.toLowerCase() || '';
+  return message.includes('database temporarily unavailable') ||
+         message.includes('connection') ||
+         message.includes('terminating') ||
+         message.includes('timeout') ||
+         error?.response?.status === 503; // Service unavailable
+};
+
 // Add response interceptor for error handling
 apiClient.interceptors.response.use(
   (response) => response,
@@ -62,9 +72,22 @@ apiClient.interceptors.response.use(
         return Promise.reject(new Error(backendMessage));
       }
       
+      // Handle database connection errors with user-friendly messages
+      if (isDatabaseError(error)) {
+        const friendlyMessage = 'قاعدة البيانات متوقفة مؤقتاً. يرجى المحاولة مرة أخرى خلال لحظات.';
+        console.warn('Database connection error detected:', backendMessage);
+        throw new Error(friendlyMessage);
+      }
+      
       // For all other status codes, preserve backend error message
       throw new Error(backendMessage);
     }
+    
+    // Handle network errors
+    if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
+      throw new Error('خطأ في الاتصال بالشبكة. يرجى التحقق من اتصال الإنترنت.');
+    }
+    
     throw error;
   }
 );

@@ -5,6 +5,7 @@ import { comparePasswords, hashPassword } from "./auth";
 import { storage } from "./storage";
 import { insertFamilySchema, insertWifeSchema, insertMemberSchema, insertRequestSchema, insertNotificationSchema, insertSupportVoucherSchema, insertVoucherRecipientSchema, members } from "./schema.js";
 import { db } from "./db";
+import { checkDatabaseHealth } from "./db-retry.js";
 import { z } from "zod";
 import multer from "multer";
 import cors from "cors";
@@ -53,6 +54,40 @@ export function registerRoutes(app: Express): Server {
   app.post("/api/login", loginHandler);
   app.post("/api/logout", logoutHandler);
   app.get("/api/user", authMiddleware, getCurrentUser);
+  
+  // Health check endpoint
+  app.get("/api/health", async (req, res) => {
+    try {
+      const dbHealth = await checkDatabaseHealth();
+      
+      const health = {
+        status: dbHealth.healthy ? 'healthy' : 'unhealthy',
+        timestamp: new Date().toISOString(),
+        database: {
+          healthy: dbHealth.healthy,
+          error: dbHealth.error || null
+        },
+        serverless: {
+          platform: 'netlify-functions',
+          memory: process.memoryUsage(),
+          uptime: process.uptime()
+        }
+      };
+      
+      if (dbHealth.healthy) {
+        res.status(200).json(health);
+      } else {
+        res.status(503).json(health);
+      }
+    } catch (error: any) {
+      console.error('Health check failed:', error);
+      res.status(503).json({
+        status: 'error',
+        timestamp: new Date().toISOString(),
+        error: error.message
+      });
+    }
+  });
 
   // Excel import route for bulk importing head users
   app.post("/api/admin/import-heads", authMiddleware, upload.single("excel"), async (req, res) => {

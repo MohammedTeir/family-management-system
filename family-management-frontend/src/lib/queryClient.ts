@@ -1,5 +1,6 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { api, apiClient } from "./api";
+import { databaseRetryConfig } from "./health-check";
 import axios, { AxiosRequestConfig } from "axios";
 
 export async function apiRequest(
@@ -55,22 +56,10 @@ export const queryClient = new QueryClient({
       gcTime: 5 * 60 * 1000, // 5 minutes cache time (renamed from cacheTime)
       refetchOnReconnect: true, // 🚀 PERFORMANCE: Refetch when network reconnects
       retry: (failureCount, error: any) => {
-        // Retry once on network errors or 5xx errors, but not on 401/403
-        if (failureCount < 1) {
-          if (axios.isAxiosError(error)) {
-            const status = error.response?.status;
-            // Don't retry on client errors (4xx) except for timeouts
-            if (status && status >= 400 && status < 500 && status !== 408) {
-              return false;
-            }
-            // Retry on network errors or 5xx errors
-            return true;
-          }
-          // Retry on other network errors
-          return error.message.includes('Network Error') || error.message.includes('timeout');
-        }
-        return false;
+        // Use database-aware retry logic
+        return databaseRetryConfig.retry(failureCount, error);
       },
+      retryDelay: databaseRetryConfig.retryDelay,
     },
     mutations: {
       retry: false,

@@ -7,6 +7,7 @@ import {
   type SupportVoucher, type InsertSupportVoucher, type VoucherRecipient, type InsertVoucherRecipient
 } from "./schema.js";
 import { db } from "./db";
+import { withRetry } from "./db-retry.js";
 import { eq, desc, and, sql, isNull } from "drizzle-orm";
 
 export interface IStorage {
@@ -112,7 +113,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(and(eq(users.username, username), isNull(users.deletedAt)));
+    const [user] = await withRetry(() => 
+      db.select().from(users).where(and(eq(users.username, username), isNull(users.deletedAt)))
+    );
     return user || undefined;
   }
 
