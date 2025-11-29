@@ -25,19 +25,70 @@ A comprehensive family management application with backend and frontend componen
 
 ## Setup
 
-1. Clone the repository
-2. Navigate to the backend directory and install dependencies:
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+- PostgreSQL database (for backend)
+
+### Backend Setup
+
+1. Navigate to the backend directory:
    ```bash
    cd family-management-backend
+   ```
+
+2. Install dependencies:
+   ```bash
    npm install
    ```
-3. Set up environment variables (see `.env.example`)
-4. Run database migrations
-5. Start the development server
+
+3. Set up environment variables (copy `.env.example` to `.env` and configure):
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Run database migrations:
+   ```bash
+   npx drizzle-kit migrate
+   ```
+
+5. Start the backend server:
+   ```bash
+   npm run dev
+   ```
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd family-management-frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables if needed (copy `.env.example` to `.env`):
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Start the frontend development server:
+   ```bash
+   npm run dev
+   ```
+
+## Development Workflow
+
+- Backend API documentation can be found in `family-management-backend/API_Documentation.md`
+- Frontend implementation guide is available in `family-management-backend/Frontend_Implementation_Guide.md`
+- Both projects follow standard Node.js/TypeScript development practices
 
 ## Contributing
 
 Please follow the established code style and submit pull requests for review.
+When making changes, ensure both backend and frontend are compatible.
 
 ## License
 
