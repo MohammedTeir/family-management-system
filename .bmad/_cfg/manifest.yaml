@@ -1,0 +1,11 @@
+installation:
+  version: 6.0.0-alpha.12
+  installDate: '2025-11-23T09:01:31.059Z'
+  lastUpdated: '2025-11-23T09:01:31.059Z'
+modules:
+  - core
+  - bmb
+  - bmm
+  - cis
+ides:
+  - qwen
